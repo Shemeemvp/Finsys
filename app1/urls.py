@@ -1140,6 +1140,15 @@ urlpatterns = [
     path('sales_by_customer',views.sales_by_customer,name='sales_by_customer'),
     path('sales_by_item',views.sales_by_item,name='sales_by_item'),
  
+
+    # <-----E-Way Bill---shemeem---start--->
+    path('e_waybills',views.e_waybills,name='go_ewaybill'),
+    path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
+    path('get_customer_details', views.get_customer, name = 'get_customer'),
+    path('new_transport_mode',views.new_transport_mode, name= 'new_transport_mode'),
+    path('get_transport_modes',views.trasportation_modes, name= 'trasportation_modes'),
+    
+    # <-----E-Way Bill---shemeem---end--->
      
      
 ]

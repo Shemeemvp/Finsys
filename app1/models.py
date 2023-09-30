@@ -2168,3 +2168,57 @@ class recurringbill_item(models.Model):
 class repeatevery(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     repeat=models.CharField(max_length=100,null=True,blank=True)  
+
+
+###### E-Way bills ---------shemeem------
+class e_waybills(models.Model):
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    ewbillid = models.AutoField(('ewid'), primary_key=True)
+    invoice_no =  models.CharField(max_length=100,null=True,blank=True)
+    bill_date = models.DateField(null=True, blank=True)
+    document_type = models.CharField(max_length=200, null=True)
+    transacion_subtype = models.CharField(max_length=200, null= True)
+    customer_name = models.CharField(max_length=100,null=True,blank=True)
+    customer_email = models.EmailField(null=True)
+    gsttype = models.CharField(max_length=100, null=True)
+    gstin = models.CharField(max_length=100, default='')
+    delivery_address = models.TextField(null=True, blank = True)
+    placeof_supply = models.CharField(max_length=100,null=True,blank=True)
+    transportation = models.CharField(max_length=150, null= True)
+    vehicle_number = models.CharField(max_length=100, null=True)
+    kilometer = models.FloatField(null=True)
+    sub_total = models.FloatField(null=True,blank=True)
+    igst = models.FloatField(null=True,blank=True)
+    cgst = models.FloatField(null=True,blank=True)
+    sgst = models.FloatField(null=True,blank=True)
+    tax_amount =  models.FloatField(null=True,blank=True)
+    shipping_charge = models.FloatField(null=True,blank=True)
+    adjustment = models.FloatField(default=0,null=True,blank=True)
+    grand_total = models.FloatField(null=True,blank=True)
+    # paid_amount= models.FloatField(default=0,max_length=100,null=True)
+    # balance = models.FloatField(max_length=100,null=True)
+    note = models.TextField(null=True)
+    file = models.FileField(upload_to='purchase/ewbill',default="default.png")
+
+    bill_status = (
+        ('Draft','Draft'),
+        ('Billed','Billed'),
+    )
+    status =models.CharField(max_length=150,choices=bill_status,default='Draft')
+
+
+class e_waybill_item(models.Model):
+    bill = models.ForeignKey(recurring_bill, on_delete=models.CASCADE,null=True)
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    item = models.CharField(max_length=100,null=True)
+    hsn = models.CharField(max_length=100,null=True)
+    qty = models.IntegerField(default=0, null=True)
+    price = models.CharField(max_length=100,null=True)
+    total = models.IntegerField(default=0, null=True)
+    discount = models.CharField(max_length=100,null=True)
+    tax = models.CharField(max_length=100,null=True)
+
+
+class transportation(models.Model):
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    name = models.CharField(max_length=200, null= True)

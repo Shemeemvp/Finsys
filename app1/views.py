@@ -11,7 +11,7 @@ from datetime import datetime, date, timedelta
 from .models import advancepayment, paydowncreditcard, salesrecpts, timeact, timeactsale, Cheqs, suplrcredit, addac, \
     bills, invoice, expences, payment, credit, delayedcharge, estimate, service, noninventory, bundle, employee, \
     payslip, inventory, customer, supplier, company, accounts, ProductModel, ItemModel, accountype, \
-    expenseaccount, incomeaccount, accounts1, recon1, recordpay, addtax1, bankstatement, customize
+    expenseaccount, incomeaccount, accounts1, recon1, recordpay, addtax1, bankstatement, customize, transportation
 from django.forms import ModelForm
 from django.contrib.auth.models import auth, User
 from django.contrib import messages
@@ -44346,3 +44346,101 @@ def sales_by_item(request):
         "cmp1":cmp1,
     }
     return render(request,'app1/sales_by_item.html',context)
+
+# ---E-Way Bill---shemeem---start---
+@login_required(login_url='regcomp')
+def e_waybills(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    ewbill= recurring_bill.objects.filter(cid=cmp1)
+    context={'cmp1': cmp1,
+            'rbil':ewbill,
+            }
+    return render(request,"app1/e_waybills.html",context)
+    
+
+@login_required(login_url='regcomp')
+def addnew_ewbill(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        vndr = vendor.objects.filter(cid=cmp1)
+        itm = itemtable.objects.filter(cid=cmp1)
+        unit = unittable.objects.filter(cid=cmp1)
+        cust = customer.objects.filter(cid=cmp1)
+        cpd = creditperiod.objects.filter(cid=cmp1)
+        re = repeatevery.objects.filter(cid=cmp1)
+        bank=bankings_G.objects.filter(cid=cmp1)
+        acc2 = accounts1.objects.filter(cid=cmp1,acctype='Sales')
+        acc1 = accounts1.objects.filter(cid=cmp1,acctype='Cost of Goods Sold')
+        toda = date.today()
+        tod = toda.strftime("%Y-%m-%d")
+        trnsprt = transportation.objects.all()
+        context = {
+                    'cmp1': cmp1,
+                    'vndr':vndr,
+                    'item':itm ,
+                    'unit':unit,
+                    'cust':cust,  
+                    'cpd':cpd,
+                    're':re,
+                    'bank':bank,
+                    'acc2':acc2,
+                    'acc1':acc1,
+                    'tod':tod,
+                    'trnsp':trnsprt,
+        }
+        return render(request,'app1/e_waybills_addnewbill.html',context)
+    return redirect('addnew_ewbill')
+
+@login_required(login_url='regcomp')
+def get_customer(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        comp = company.objects.get(id=request.session["uid"])
+
+        customer_id = request.POST.get('id').split(" ")[0]
+     
+        cust = customer.objects.get(customerid=customer_id)
+
+        email = cust.email
+        gstin = cust.gstin
+        gsttype = cust.gsttype
+
+        return JsonResponse({'email' : email, 'gstin' : gstin, 'gsttype': gsttype}, safe=False)
+
+
+@login_required(login_url='regcomp')
+def new_transport_mode(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method=='POST':
+            transport= request.POST['new_transport']
+            trnsp=transportation(name=transport,cid=cmp1)
+            trnsp.save()
+            return JsonResponse({"message": "success"})
+
+
+def trasportation_modes(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1= company.objects.get(id=request.session["uid"])
+        options = {}
+        option_objects = transportation.objects.filter(cid = cmp1)
+        for option in option_objects:           
+            options[option.id] = option.name
+        return JsonResponse(options)
+
+# -----E-Way Bill---shemeem---end---
