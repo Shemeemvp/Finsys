@@ -2177,11 +2177,15 @@ class e_waybills(models.Model):
     invoice_no =  models.CharField(max_length=100,null=True,blank=True)
     bill_date = models.DateField(null=True, blank=True)
     document_type = models.CharField(max_length=200, null=True)
-    transacion_subtype = models.CharField(max_length=200, null= True)
+    
     customer_name = models.CharField(max_length=100,null=True,blank=True)
     customer_email = models.EmailField(null=True)
     gsttype = models.CharField(max_length=100, null=True)
     gstin = models.CharField(max_length=100, default='')
+    trans_type = (('Goods','Goods'),('Service','Service'))
+    transaction_subtype = models.CharField(max_length=200, null= True)
+    transaction_type = models.CharField(max_length=150,choices=trans_type, null=True)
+    transaction_hsn = models.IntegerField(null=True,blank=True,default=0)
     delivery_address = models.TextField(null=True, blank = True)
     placeof_supply = models.CharField(max_length=100,null=True,blank=True)
     transportation = models.CharField(max_length=150, null= True)
@@ -2208,7 +2212,7 @@ class e_waybills(models.Model):
 
 
 class e_waybill_item(models.Model):
-    bill = models.ForeignKey(recurring_bill, on_delete=models.CASCADE,null=True)
+    bill = models.ForeignKey(e_waybills, on_delete=models.CASCADE,null=True)
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     item = models.CharField(max_length=100,null=True)
     hsn = models.CharField(max_length=100,null=True)
@@ -2222,3 +2226,4 @@ class e_waybill_item(models.Model):
 class transportation(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     name = models.CharField(max_length=200, null= True)
+    type = models.CharField(max_length=100, null=True)

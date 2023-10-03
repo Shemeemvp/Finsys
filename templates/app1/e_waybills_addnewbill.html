@@ -30,7 +30,7 @@
         </div>
         <div class="card radius-15" style="background-color: #243e54;">
             <div class="card-body">
-                <form action="{% url 'createrecurringbill' %}" method="post" enctype="multipart/form-data" autocomplete="off">
+                <form action="{% url 'create_ewbill' %}" method="post" enctype="multipart/form-data" autocomplete="off">
                     {% csrf_token %}
                      <div class="card-title">
                       <h4 class="mb-0">Bill Details</h4>
@@ -43,10 +43,10 @@
 
                         <div class="row">
                             <div class="col-md-4 mt-2">
-                                <label for="validationCustom01">Document Type</label>
+                                <label for="document_type">Document Type</label>
                                 <div class="d-flex">
-                                    <select name="document_type" id="document_type" class="custom-select">
-                                        <option selected disabled>--Document Type--</option>
+                                    <select name="document_type" id="document_type" class="custom-select" required>
+                                        <option value="">--Document Type--</option>
                                         <option value="Invoice">Invoice</option>
                                         <option value="Credit Notes">Credit Notes</option>
                                         <option value="Delivery Challan">Delivery Challan</option>
@@ -54,10 +54,10 @@
                                 </div>
                             </div>
                             <div class="col-md-4 mt-2">
-                                <label for="validationCustom01">Transaction Sub Type</label>
+                                <label for="transaction_subtype">Transaction Sub Type</label>
                                 <div class="d-flex">
-                                    <select name="transaction_subtype" id="transaction_subtype" class="custom-select">
-                                        <option selected disabled>--Transaction Sub Type--</option>
+                                    <select name="transaction_subtype" id="transaction_subtype" class="custom-select" required>
+                                        <option value="">--Transaction Sub Type--</option>
                                         <option value="Supply">supply</option>
                                         <option value="Export">Export</option>
                                         <option value="SKD/CKD">SKD/CKD</option>
@@ -76,8 +76,8 @@
                             <div class="col-md-4 mt-2">
                                 <label for="validationCustom01">Select Customer</label>
                                 <div class="d-flex">
-                                    <select name="customer_name" id="customer" class="custom-select">
-                                        <option selected disabled>Select Customer</option>
+                                    <select name="customer_name" id="customer" class="custom-select" required>
+                                        <option value="">Select Customer</option>
                                         {% for c in cust %}
                                         <option value="{{c.customerid}} {{ c.firstname }} {{ c.lastname }}">{{ c.title }} {{ c.firstname }} {{ c.lastname }}</option>
                                         {% endfor %}
@@ -94,15 +94,15 @@
                         <div class="row mt-2">
                                 <div class="col-md-4 d-none cust-data" id="email_row1">
                                   <label for="email_inp">Customer Email</label>
-                                  <input type="text" class="form-control" id="email_inp1" name="email_inp">
+                                  <input type="text" class="form-control" id="email_inp1" name="email_inp" readonly>
                                 </div>
                                 <div class="col-md-4 d-none cust-data" id="gst_trt_row1">
                                   <label for="gst_trt_inp">GST Treatment</label>
-                                  <input type="text" class="form-control" id="gst_trt_inp1" name="gst_trt_inp">
+                                  <input type="text" class="form-control" id="gst_trt_inp1" name="gst_trt_inp" readonly>
                               </div>
                                 <div class="col-md-4 d-none cust-data" id="gstin_row1">
                                 <label for="gstin_inp">GST Number</label>
-                                <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp">
+                                <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp" readonly>
                               </div>
                         </div>
                        
@@ -143,13 +143,13 @@
                             <div class="col-md-4 mt-2">
                                 <label for="invoicenumber">Invoice #</label>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number">
+                                    <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number" required>
                                 </div>
                             </div>
                             <div class="col-md-4 mt-2">
                                 <label for="ew_billdate">Date</label>
                                 <div class="d-flex">
-                                    <input type="date" class="form-control" id="ew_billdate" name="ew_billdate">
+                                    <input type="text" class="form-control" value="{{date}}" id="ew_billdate" name="ew_billdate" readonly>
                                 </div>
                             </div>
                             </div>
@@ -158,8 +158,8 @@
                                 <div class="col-md-4 mt-2">
                                     <label for="transaction_type">Transaction Type</label>
                                     <div class="d-flex">
-                                        <select name="transaction_type" id="transaction_type" class="custom-select">
-                                            <option selected disabled>--Transaction Type--</option>
+                                        <select name="transaction_type" id="transaction_type" class="custom-select" required>
+                                            <option value="">--Transaction Type--</option>
                                             <option value="Goods">Goods</option>
                                             <option value="Service">Service</option>
                                         </select>
@@ -168,7 +168,7 @@
                                 <div class="col-md-4 mt-2 d-none " id="transaction_hsn" style="flex-direction: column;">
                                 <label for="trasaction_hsn_value">HSN</label>
                                 <div class="d-flex">
-                                <input type="text" class="form-control" id="trasaction_hsn_value" name="transaction_hsn">
+                                <input type="number" class="form-control" id="trasaction_hsn_value" name="transaction_hsn" value="0">
                                 </div>
                                 </div>
                             </div>
@@ -181,12 +181,10 @@
                                         <!-- <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number"> -->
                                     </div>
                                 </div>
-                                </div>
-                                <hr>
-                          <div class="row">
-                              <div class="col-md-3 mt-2">
-                                  <label for="">Place of Supply</label>
+                                <div class="col-md-4 mt-2">
+                                    <label for="">Place of Supply</label>
                                   <select name="placeofsupply" id="placeofsupply" class="form-control">
+                                    <!-- <option selected disabled>--Place of Supply--</option> -->
                                     <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
                                     <option value="Andhra Predhesh">Andhra Predhesh</option>
                                     <option value="Arunachal Predesh">Arunachal Predesh</option>
@@ -226,9 +224,56 @@
                                     <option value="West Bengal">West Bengal</option>
                                     <option value="Other Territory">Other Territory</option>
                                   </select>
+                                </div>
+                                </div>
+                                 <hr>
+                          <!--<div class="row">
+                              <div class="col-md-3 mt-2">
+                                  <label for="">Place of Supply</label>
+                                  <select name="placeofsupply" id="placeofsupply" class="form-control">
+                                    <option selected disabled>--Place of Supply--</option>
+                                    <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
+                                    <option value="Andhra Predhesh">Andhra Predhesh</option>
+                                    <option value="Arunachal Predesh">Arunachal Predesh</option>
+                                    <option value="Assam">Assam</option>
+                                    <option value="Bihar">Bihar</option>
+                                    <option value="Chandigarh">Chandigarh</option>
+                                    <option value="Chhattisgarh">Chhattisgarh</option>
+                                    <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                                    <option value="Damn anad Diu">Damn anad Diu</option>
+                                    <option value="Delhi">Delhi</option>
+                                    <option value="Goa">Goa</option>
+                                    <option value="Gujarat">Gujarat</option>
+                                    <option value="Haryana">Haryana</option>
+                                    <option value="Himachal Predesh">Himachal Predesh</option>
+                                    <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                    <option value="Jharkhand">Jharkhand</option>
+                                    <option value="Karnataka">Karnataka</option>
+                                    <option value="Kerala">Kerala</option>
+                                    <option value="Ladakh">Ladakh</option>
+                                    <option value="Lakshadweep">Lakshadweep</option>
+                                    <option value="Madhya Predesh">Madhya Predesh</option>
+                                    <option value="Maharashtra">Maharashtra</option>
+                                    <option value="Manipur">Manipur</option>
+                                    <option value="Meghalaya">Meghalaya</option>
+                                    <option value="Mizoram">Mizoram</option>
+                                    <option value="Nagaland">Nagaland</option>
+                                    <option value="Odisha">Odisha</option>
+                                    <option value="Puducherry">Puducherry</option>
+                                    <option value="Punjab">Punjab</option>
+                                    <option value="Rajasthan">Rajasthan</option>
+                                    <option value="Sikkim">Sikkim</option>
+                                    <option value="Tamil Nadu">Tamil Nadu</option>
+                                    <option value="Telangana">Telangana</option>
+                                    <option value="Tripura">Tripura</option>
+                                    <option value="Uttar Predesh">Uttar Predesh</option>
+                                    <option value="Uttarakhand">Uttarakhand</option>
+                                    <option value="West Bengal">West Bengal</option>
+                                    <option value="Other Territory">Other Territory</option>
+                                  </select>
                               </div>
                         </div>
-                          <hr>
+                          <hr> -->
                           <!-- <div class="row">
                               <div class="col-md-3 mt-2"><h5>Customer Details</h5></div>
                               <div class="col-md-3 mt-2"></div>
@@ -278,11 +323,23 @@
                                     <select class="custom-select" name="transport_mode" id="transport_mode">
                                         <option selected disabled>Choose Transportation</option>
                                         {% for i in trnsp %}
-                                            <option value="{{i.name}}">{{i.name}}</option>
+                                            <option value="{{i.id}}">{{i.name}}</option>
                                         {% endfor %}
                                     </select>
                                     <a class="btn btn-outline-secondary ml-1" data-target="#new_transport" data-toggle="modal">+</a>
                                 </div> 
+                            </div>
+                            <div class="col-md-3 mt-2 d-none" id="vehicle_number_segment" style="flex-direction: column;">
+                                <label for="vehicle_number">Vehicle #</label>
+                                <div class="d-flex">
+                                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number">
+                                </div>
+                            </div>
+                            <div class="col-md-3 mt-2">
+                                <label for="kilometer_input">Kilometers</label>
+                                <div class="d-flex">
+                                    <input type="number" class="form-control" id="kilometer_input" name="kilometer">
+                                </div>
                             </div>
                         </div>
                         <!-- <div class="row">
@@ -403,7 +460,7 @@
                             <div class="col-md-6 mt-3">
                                 <label for="">Note</label>
                                 <div class="form-row">
-                                    <textarea class="form-control" name="note" rows="3"></textarea>
+                                    <textarea class="form-control" name="note" rows="8"></textarea>
                                 </div><br>
                                 <div>
                                     <input type="file" class="form-control" name="file">
@@ -490,7 +547,7 @@
                                           <div class="col-sm-4 m-0 p-0"></div>
                                       </div>
                                  
-                                  <div class="row container-fluid p-2 m-0">
+                                  <!-- <div class="row container-fluid p-2 m-0">
                                     <div class="col-sm-4 mt-2"><label for="a" class="text-center">Paid Amount</label></div>
                                     <div class="col-sm-1 mt-2">:</div>
                                     <div class="col-sm-7 mt-2">
@@ -505,7 +562,7 @@
                                         class="form-control"/>
                                     </div>
                                     <div class="col-sm-4 m-0 p-0"></div>
-                                </div>
+                                </div> -->
                                 </div>
                             </div>
                                   
@@ -513,16 +570,16 @@
                         </div>
                 
                         
-                        <div class="notices mt-3">
+                        <div class="notices mt-3 ml-2">
                             <div class="text-muted">NOTICE:</div>
                             <div class="text-muted">
                               Fin sYs Terms and Conditions Apply
                             </div>
                           </div>
-                          <footer class="text-muted">Purchase was created on a computer and is valid without the
+                          <footer class="text-muted ml-2">Purchase was created on a computer and is valid without the
                             signature and seal.
                         </footer>
-                        <div class="row mt-3">
+                        <div class="row mt-3 ml-1">
                             <div class="col">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
@@ -534,7 +591,7 @@
                         <div class="row">
                             <div class="col-md-3"></div>
                             
-                            <div class="col-md-3"></div> 
+                             
                             <div class="col-md-3">
                                 <button class="btn btn-outline-info rounded-pill text-grey w-100 mt-3 mb-3"
                                        name="save_as_draft" type="submit">
@@ -546,6 +603,7 @@
                                  Save 
                                </button>
                                </div>
+                               <div class="col-md-3"></div>
                             </div>
                             
                         </div>
@@ -1071,10 +1129,23 @@
                     <form action="" method="post" autocomplete="off" id="new_transport_form">
                         {% csrf_token %}
                         <div class="row">
-                            <div class="col-md-9 mt-2">
+                            <div class="col-md-12 mt-2">
                                 <input type="text" name="transportation_name" class="form-control" id="transportation_name">
                             </div>
-                            <div class="col-md-3 mt-2">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mt-2">
+                                <select name="transport_type" id="transportation_type" class="form-control" required>
+                                    <option selected disabled>--Type--</option>
+                                    <option value="Air Cargo">Air Cargo</option>
+                                    <option value="Road">Road</option>
+                                    <option value="Rail">Rail</option>
+                                    <option value="Waterborne">Waterborne</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mt-2 d-flex justify-content-center">
                                 <button class="btn btn-outline-info text-grey mb-3" data-dismiss="modal" id="savetransport">Save</button>
                             </div>
                         </div>
@@ -1972,13 +2043,41 @@ $(document).ready(function() {
 });
 </script>
 <script>
-$(document).on("click","#savetransport",function(){
-        
+$(document).ready(function() {
+$('#transport_mode').change(function() {
     $.ajax({
+            url: "{% url 'get_transport_data' %}", 
+            data: { 
+            
+                id: $('#transport_mode').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+            },
+            type : 'POST',
+            success: function(data) {
+                if (data.status === 'true'){
+                    $("#vehicle_number_segment").removeClass('d-none');
+                    $("#vehicle_number_segment").addClass('d-flex');
+                }else{
+                    $("#vehicle_number_segment").removeClass('d-flex');
+                    $("#vehicle_number_segment").addClass('d-none');
+                }
+
+                
+            }
+        });
+})})
+
+
+$(document).on("click","#savetransport",function(){
+    var type = $("#transportation_type").val();
+    var name = $("#transportation_name").val();
+    if (name !="" && type != null){
+        $.ajax({
         type : 'POST',
         url:"{% url 'new_transport_mode' %}",
         data:{
-            new_transport : $("#transportation_name").val(),
+            new_transport : name,
+            transport_type : type,
             csrfmiddlewaretoken: '{{ csrf_token }}'
         },
         
@@ -1988,6 +2087,10 @@ $(document).on("click","#savetransport",function(){
             reloadTransport();
         },         
     });
+    }
+    else{
+        alert('Invalid')
+    }
 });
 
 function reloadTransport() {
@@ -2010,9 +2113,6 @@ success: function(data) {
     // dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
         
     });
-
-
-
 },
 error: function(xhr, status, error) {
 console.error(xhr.responseText);
@@ -2179,15 +2279,35 @@ $(document).on("click", "#customerSave", function(){
                 $("#gstin_row1").addClass('d-flex');
                 $("#gst_trt_row1").removeClass('d-none');
                 $("#gst_trt_row1").addClass('d-flex');
-                $('#email_inp1').val(" " + data.email);
-                $('#gst_trt_inp1').val(" " + data.gsttype);
+
+                var json_data = JSON.parse(data);
+                for (key in json_data) {
+                document.getElementById('customer_address').value = json_data[key]['email'] + '\n' + json_data[key]['mobile'] + '\n' + json_data[key]['street'] + '\n' + json_data[key]['city'] + '\n' + json_data[key]['state'];
+                $('#email_inp1').val(" " + json_data[key]['email']);
+                $('#gst_trt_inp1').val(" " + json_data[key]['gsttype']);
                 // $('#gstin_inp1').val(" " + data.gstin);
-                if (data.gsttype === "unregistered Business" || data.gsttype === "Consumer" || data.gsttype === "Overseas") {
+                if (json_data[key]['gsttype'] === "unregistered Business" || json_data[key]['gsttype'] === "Consumer" || json_data[key]['gsttype'] === "Overseas") {
                     $("#gstin_row1").addClass('d-none');
                     $("#gstin_row1").removeClass('d-flex');
                 } else {
-                    $('#gstin_inp1').val(" " + data.gstin);
+                    $('#gstin_inp1').val(" " + json_data[key]['gstin']);
                 }
+                const $select = document.querySelector("#placeofsupply");
+                $select.value = json_data[key]['state'];
+                if ( json_data[key]['state'] == document.getElementById("cmpstate").value ) {
+                    document.getElementById('cgst1').style.display = 'flex';
+                    document.getElementById('sgst1').style.display = 'flex';
+                    document.getElementById('igst1').style.display = 'none'; 
+
+                } else {
+                    document.getElementById('cgst1').style.display = 'none';
+                    document.getElementById('sgst1').style.display = 'none';
+                    document.getElementById('igst1').style.display = 'flex';
+
+                }
+                }
+
+                
             }
         });
     });
@@ -2453,7 +2573,7 @@ $(document).ready(function() {
         $(document).ready(function() {
 
 
-var bc = document.getElementById("plosur").value;
+var bc = document.getElementById("placeofsupply").value;
 var compstate = document.getElementById("cmpstate").value;
 if (bc == compstate ) {
     document.getElementById('cgst1').style.display = 'flex';
@@ -2830,7 +2950,7 @@ $(document).ready(function(){
                     console.log(typeof(price))
                     console.log(parseFloat(dis))
                     console.log(typeof(parseFloat(dis)))
-                    var bc = $("#plosur").val();
+                    var bc = $("#placeofsupply").val();
                     var compstate = $("#cmpstate").val();
                     if(bc==compstate){
                         tax = $(this).find('.intra_tax').val();
@@ -2878,7 +2998,7 @@ $(document).ready(function(){
 
         function test(){
                      
-            var bc = $("#plosur").val();
+            var bc = $("#placeofsupply").val();
             var compstate = $("#cmpstate").val();
             d=0
             if (bc == compstate  ) {
@@ -2943,10 +3063,10 @@ $(document).ready(function(){
                 $(".seltax").removeClass('d-flex');
                 $(".seltax").addClass('d-none');
 
-                console.log($("#plosur").val());
+                console.log($("#placeofsupply").val());
                 console.log($("#cmpstate").val());
 
-                if($("#plosur").val() == $("#cmpstate").val()){
+                if($("#placeofsupply").val() == $("#cmpstate").val()){
                     console.log("yes");
                     $(".inter_tax").removeClass('d-flex');
                     $(".inter_tax").addClass('d-none');
@@ -2965,14 +3085,14 @@ $(document).ready(function(){
                 }
 
             });
-            $(document).on('change','#plosur',function()   {
+            $(document).on('change','#placeofsupply',function()   {
                 $(".seltax").removeClass('d-none');
                 $(".seltax").addClass('d-flex');
                 $(".intra_tax").removeClass('d-flex');
                 $(".intra_tax").addClass('d-none');
                 $(".inter_tax").removeClass('d-flex');
                 $(".inter_tax").addClass('d-none');
-                var bc = document.getElementById("plosur").value;
+                var bc = document.getElementById("placeofsupply").value;
                 var compstate = document.getElementById("cmpstate").value;
                 if (bc == compstate ) {
                     document.getElementById('cgst1').style.display = 'flex';

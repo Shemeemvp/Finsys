@@ -1142,12 +1142,18 @@ urlpatterns = [
  
 
     # <-----E-Way Bill---shemeem---start--->
-    path('e_waybills',views.e_waybills,name='go_ewaybill'),
+    path('e_waybills',views.e_waybills_page,name='go_ewaybill'),
     path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
+    path('create_new_ewaybill',views.create_ewbill, name = 'create_ewbill'),
+    path('eway_bill_overview/<int:billId>',views.eWayBillOverview,name='eWayBillOverview'),
     path('get_customer_details', views.get_customer, name = 'get_customer'),
     path('new_transport_mode',views.new_transport_mode, name= 'new_transport_mode'),
     path('get_transport_modes',views.trasportation_modes, name= 'trasportation_modes'),
-    
+    path('get_transport_type',views.get_transport_data, name = 'get_transport_data'),
+    path('e_way_bills_draft',views.draft_ewbill, name='draft_ewbill'),
+    path('e_way_bills_billed',views.billed_ewbill, name='billed_ewbill'),
+    path('e_way_bills_cname_asc',views.ew_cname_asc, name='ew_cname_asc'),
+    path('e_way_bills_billdate_asc',views.ew_billdate_asc, name='ew_billdate_asc'),
     # <-----E-Way Bill---shemeem---end--->
      
      

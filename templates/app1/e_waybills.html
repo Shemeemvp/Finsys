@@ -43,10 +43,9 @@
                                     Sort By
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a class="dropdown-item" href="{% url 'recurringbill_home' %}">All</a>
-                                    <a class="dropdown-item" href="{% url 'recur_custasc' %}">CUSTOMER NAME</a>
-                                    <a class="dropdown-item" href="{% url 'recur_profasc' %}">PROFILE NAME</a>
-                                    <a class="dropdown-item" href="{% url 'recur_billasc' %}">BILL NO</a>
+                                    <a class="dropdown-item" href="{% url 'go_ewaybill' %}">All</a>
+                                    <a class="dropdown-item" href="{% url 'ew_billdate_asc' %}">Date</a>
+                                    <a class="dropdown-item" href="{% url 'ew_cname_asc' %}">Customer Name</a>
                                 </div>
                             </div>
                         </div>
@@ -56,16 +55,16 @@
                                 role="button">Filter By
                             </a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{%url 'recurringbill_home'%}">All</a>
-                                <a class="dropdown-item" href="{%url 'draft_rbill'%}">Draft</a>
-                                <a class="dropdown-item" href="{%url 'billed_rbill'%}">Billed</a>
+                                <a class="dropdown-item" href="{%url 'go_ewaybill'%}">All</a>
+                                <a class="dropdown-item" href="{%url 'draft_ewbill'%}">Draft</a>
+                                <a class="dropdown-item" href="{%url 'billed_ewbill'%}">Billed</a>
                             </div>
                             <a href="{%url 'addnew_ewbill'%}" class="btn btn-outline-info fa fa-plus" role="button"> &nbsp;New</a>
                         </div>
                     </div>
 
                     <div class="container-fluid">
-                        <table class="table table-responsive-md mt-4">
+                        <table class="table table-responsive-md mt-4" id="e_waybill_table">
                             <thead>
                             <tr>
                                 <th>Date</th>
@@ -77,13 +76,13 @@
                             </tr>
                             </thead>
                             <tbody  id="table">
-                            {% for r in rbill %}
+                            {% for r in ewaybill %}
                             <!-- <tr> -->
-                                <tr onclick="window.location='view_rbill/{{ r.rbillid }}';">
-                                    <th>{{ r.start_date | date:'d-m-Y' }}</th>
-                                    <td>{{ r.billno }}</a></td>
-                                    <td>{{ r.profile_name }}</td>
-                                    <td>{{ r.vendor_name }}</td>
+                                <tr onclick="window.location='view_ewbill/{{ r.ewbillid }}';">
+                                    <th>{{ r.bill_date | date:'d-m-Y' }}</th>
+                                    <td>{{ r.transaction_type }}</a></td>
+                                    <td>{{ r.customer_name }}</td>
+                                    <td>{{ r.customer_email }}</td>
                                     <td>{{ r.customer_name }}</td>
                                     <td>{{ r.status }}</td>
                                 </tr> 
@@ -108,11 +107,11 @@
             });
 
         function ExportToExcel(type, fn, dl) {
-        var elt = document.getElementById('table');
+        var elt = document.getElementById('e_waybill_table');
         var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
         return dl ?
             XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
-            XLSX.writeFile(wb, fn || ('Recurring_bills.' + (type || 'xlsx')));
+            XLSX.writeFile(wb, fn || ('E_Way_bills.' + (type || 'xlsx')));
     }
 </script>
  
