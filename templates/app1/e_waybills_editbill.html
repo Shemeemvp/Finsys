@@ -1,4 +1,4 @@
-<!-- E-Way bills add ---Shemeem -->
+<!-- E-Way bills edit ---Shemeem -->
 {% extends 'app1/base.html' %}
 {% block body %}
     {% load static %}
@@ -23,14 +23,14 @@
         <div class="card radius-15">
             <div class="card-body">
                 <div class="card-title">
-                    <center><h3 class="mb-0">NEW E-WAY BILL</h3></center>
+                    <center><h3 class="mb-0">EDIT E-WAY BILL</h3></center>
                 </div>
                 <hr/>
             </div>
         </div>
         <div class="card radius-15" style="background-color: #243e54;">
             <div class="card-body">
-                <form action="{% url 'create_ewbill' %}" method="post" enctype="multipart/form-data" autocomplete="off">
+                <form action="{% url 'update_eway_bill' ewbill.ewbillid %}" method="post" enctype="multipart/form-data" autocomplete="off">
                     {% csrf_token %}
                      <div class="card-title">
                       <h4 class="mb-0">Bill Details</h4>
@@ -94,62 +94,34 @@
                         <div class="row mt-2">
                                 <div class="col-md-4 d-none cust-data" id="email_row1">
                                   <label for="email_inp">Customer Email</label>
-                                  <input type="text" class="form-control" id="email_inp1" name="email_inp" readonly>
+                                  <input type="text" class="form-control" id="email_inp1" name="email_inp" value="{{ewbill.customer_email}}" readonly>
                                 </div>
                                 <div class="col-md-4 d-none cust-data" id="gst_trt_row1">
                                   <label for="gst_trt_inp">GST Treatment</label>
-                                  <input type="text" class="form-control" id="gst_trt_inp1" name="gst_trt_inp" readonly>
+                                  <input type="text" class="form-control" id="gst_trt_inp1" name="gst_trt_inp" value="{{ewbill.gsttype}}" readonly>
                               </div>
                                 <div class="col-md-4 d-none cust-data" id="gstin_row1">
                                 <label for="gstin_inp">GST Number</label>
-                                <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp" readonly>
+                                <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp" value="{{ewbill.gstin}}" readonly>
                               </div>
                         </div>
-                       
-                        <!-- <div class="row d-flex" id="email_row">
-                            <div class="col-md-3 mt-2">
-                              <label for="email_inp">Vendor Email</label>
-                              <input type="text" class="form-control" id="email_inp" name="email_inp">
-                            </div>
-                          </div>
-                    
-                          <div class="row d-flex" id="gst_trt_row">
-                            <div class="col-md-3  mt-2">
-                              <label for="gst_trt_inp">GST Treatment</label>
-                              <input type="text" class="form-control" id="gst_trt_inp" name="gst_trt_inp">
-                            </div>
-                          </div>
-                    
-                          <div class="row d-flex" id="gstin_row">
-                            <div class="col-md-3  mt-2">
-                            <label for="gstin_inp">GST Number</label>
-                             <input type="text" class="form-control"  id="gstin_inp" name="gstin_inp">
-                            </div>
-                          </div> -->
                           <hr>
                           <div class="row">
                               <div class="col-md-3 mt-2"><h5>Invoice</h5></div>
                               <div class="col-md-3 mt-2"></div>
-                              <!-- <div class="col-md-3 mt-2">
-                                  <label>Bill Number</label>
-                                  <div class="d-flex">
-                                      <input name="" type="number" class="form-control" placeholder="1000">
-                                      <a class="form-control" data-target="#porderno" data-toggle="modal" style="width: 60px; cursor: pointer;"><center><i class="fa fa-gear"></i></center></i></a>
-                                  </div>
-                              </div> -->
                           </div>
                           <hr>
                           <div class="row">
                             <div class="col-md-4 mt-2">
                                 <label for="invoicenumber">Invoice #</label>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number" required>
+                                    <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number" value="{{ewbill.invoice_no}}" required>
                                 </div>
                             </div>
                             <div class="col-md-4 mt-2">
                                 <label for="ew_billdate">Date</label>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" value="{{date}}" id="ew_billdate" name="ew_billdate" readonly>
+                                    <input type="date" class="form-control" value="{{ewbill.bill_date|date:'Y-m-d'}}" id="ew_billdate" name="ew_billdate">
                                 </div>
                             </div>
                             </div>
@@ -177,7 +149,7 @@
                                 <div class="col-md-4 mt-2">
                                     <label for="addressdetails">Address Details</label>
                                     <div class="d-flex">
-                                        <textarea name="customer_address" id="customer_address" class="form-control" cols="30" rows="4"></textarea>
+                                        <textarea name="customer_address" id="customer_address" class="form-control" cols="30" rows="4">{{ewbill.delivery_address}}</textarea>
                                         <!-- <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number"> -->
                                     </div>
                                 </div>
@@ -321,7 +293,7 @@
                                 <label for="">Transportation</label>
                                 <div class="d-flex">
                                     <select class="custom-select" name="transport_mode" id="transport_mode">
-                                        <option selected disabled>Choose Transportation</option>
+                                        <option value="">Choose Transportation</option>
                                         {% for i in trnsp %}
                                             <option value="{{i.id}} {{i.name}}">{{i.name}}</option>
                                         {% endfor %}
@@ -332,13 +304,13 @@
                             <div class="col-md-3 mt-2 d-none" id="vehicle_number_segment" style="flex-direction: column;">
                                 <label for="vehicle_number">Vehicle #</label>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number">
+                                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" value="{{ewbill.vehicle_number}}">
                                 </div>
                             </div>
                             <div class="col-md-3 mt-2">
                                 <label for="kilometer_input">Kilometers</label>
                                 <div class="d-flex">
-                                    <input type="number" class="form-control" id="kilometer_input" name="kilometer">
+                                    <input type="number" class="form-control" id="kilometer_input" value="{{ewbill.kilometer}}" name="kilometer">
                                 </div>
                             </div>
                         </div>
@@ -382,20 +354,24 @@
                                   </tr>
                                 </thead>
                                 <tbody id="items-table-body">
-                                  <tr id='addr01'>
-                                    <td class="nnum">1</td>
+                                  {% for itm in ewitem%}
+                                  <tr id='addr0{{forloop.counter}}'>
+                                    <td class="nnum">{{forloop.counter}}<input type="text"  name='id[]' value="{{ itm.id }}" hidden></td>
                                     <td style="width: 20%;">
                 
                                         <div class="d-flex">
                                             <select name='item[]' id="item1" class="form-control item" style="background-color: #2f516f; color: white; ">
-                                                <option value=" " selected>Select Item</option>
+                                                <option value="">Select Item</option>
                                                 
                                                 {% for i in item %}
                                                 {% if i.cid_id == cmp1.cid %}
-                                                    <option 
-                                                            value="{{ i.name  }}">{{ i.name  }} </option>
+                                                {%if itm.item == i.name %}
+                                                <option value="{{ i.name  }}" selected>{{ i.name  }} </option>
+                                                {%else%}
+                                                <option value="{{ i.name  }}">{{ i.name  }} </option>
+                                                {%endif%}
                                                 {% endif %}
-                                            {% endfor %}
+                                                {% endfor %}
                                            </select>
                 
                                             <a href="#">
@@ -406,20 +382,21 @@
                                       
                                      
                                     </td>
-                                    <td><input type="text" name='hsn[]' id="hsn1" placeholder='Enter HSN Code' class="form-control" style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="text" name='hsn[]' id="hsn1" value="{{itm.hsn}}" placeholder='Enter HSN Code' class="form-control" style="background-color: #2f516f; color: white;" /></td>
                                     <!-- <td><input type="text" name='description[]' id="description" placeholder='Description' class="form-control" style="background-color: #2f516f; color: white;" /></td> -->
-                                    <td><input type="number" name='qty[]'placeholder='Enter Qty' id="qty1" value=0 class="form-control qty" step=0 min=0 style="background-color: #2f516f; color: white; " />
+                                    <td><input type="number" name='qty[]'placeholder='Enter Qty' id="qty1" value="{{itm.qty}}" class="form-control qty" step=0 min=0 style="background-color: #2f516f; color: white; " />
                                       <!-- <div style="margin-top: 5Px;" class="d-flex"><span>Available Qty :</span> <span id="qtyspan1" class=''></span></div> -->
                                     </td>
-                                    <td><input type="number" name='price[]' id="unit1" placeholder='Enter Unit Price' class="form-control price" step="0.00" min="0" style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="number" name='price[]' id="unit1" value="{{itm.price}}" placeholder='Enter Unit Price' class="form-control price" step="0.00" min="0" style="background-color: #2f516f; color: white;" /></td>
                                     
                                     
                                    
                                     <td>
                                       <input hidden value="{{cmp1.state}}" id="cmpstate">
                                       <input type="text"  id="select_tax" placeholder="Tax Rate" class="form-control seltax d-flex">
+                                      {%if ewbill.igst == 0 %}
                                       <select name='tax1[]' id="tax11" class="form-control tax intra_tax d-none">
-                                          <option selected disabled >Select GST</option>
+                                          <option selected value="{{itm.tax}}">{{itm.tax}}.0% GST({{itm.tax}}%)</option>
                                           <option value=28 >28.0% GST(28%)</option>
                                           <option value=18 >18.0% GST(18%)</option>
                                           <option value=12  >12.0% GST(12%)</option>
@@ -427,8 +404,9 @@
                                           <option value=3  >03.0% GST(03%)</option>
                                             <option value=0  >0.0% GST(0%)</option>
                                       </select>
+                                      {%else%}
                                       <select name='tax2[]' id="tax21" class="form-control tax inter_tax d-none">
-                                          <option selected disabled >Select IGST</option>
+                                        <option selected value="{{itm.tax}}">{{itm.tax}}.0% IGST({{itm.tax}}%)</option>
                                           <option value=28 >28.0% IGST(28%)</option>
                                           <option value=18 >18.0% IGST(18%)</option>
                                           <option value=12  >12.0% IGST(12%)</option>
@@ -436,18 +414,19 @@
                                           <option value=3  >03.0% IGST(03%)</option>
                                             <option value=0  >0.0% IGST(0%)</option>
                                       </select>
-                                                          
+                                        {%endif%}         
                                     </td>
-                                    <td><input type="number" name='discount[]'  placeholder='Enter Discount' id="disc1" value=0 class="form-control disc" step=0 min=0 style="background-color: #2f516f;  color: white;"  />
+                                    <td><input type="number" name='discount[]'  placeholder='Enter Discount' id="disc1" value={{itm.discount}} class="form-control disc" step=0 min=0 style="background-color: #2f516f;  color: white;"  />
                 
-                                    <td><input type="number" name='total[]' id="total1" placeholder=0 class="form-control total" value=0 step="any" readonly style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="number" name='total[]' id="total1" placeholder=0 class="form-control total" value={{itm.total}} step="any" readonly style="background-color: #2f516f; color: white;" /></td>
                                     <td style="display: none;"><input type="number" step="any" name='taxamount1' id="taxamount1" class="form-control taxamount"/></td>   
                                     </td>
                                     <td>
-                                        <button type="button" id="1" class="btn  clone_row btn-outline-secondary ml-1 px-2 py-1 mx-1" style="width: 40px;" title="Clone Row">+</button><br>
-                                        <button type="button" id="1" class="btn  remove_row btn-outline-secondary ml-1 px-2 py-1 mx-1 mt-1"  style="width: 40px;"title="Remove Row">-</button>
+                                        <button type="button" id="{{forloop.counter}}" class="btn  clone_row btn-outline-secondary ml-1 px-2 py-1 mx-1" style="width: 40px;" title="Clone Row">+</button><br>
+                                        <button type="button" id="{{forloop.counter}}" class="btn  remove_row btn-outline-secondary ml-1 px-2 py-1 mx-1 mt-1"  style="width: 40px;"title="Remove Row">-</button>
                                   </td>
                                   </tr>
+                                  {%endfor%}
                                 </tbody>
                                 <tr>
                                     <td style="border: none;"><a class="btn btn-outline-secondary ml-1" role="button" id="add">+</a></td>
@@ -460,7 +439,7 @@
                             <div class="col-md-6 mt-3">
                                 <label for="">Note</label>
                                 <div class="form-row">
-                                    <textarea class="form-control" name="note" rows="8"></textarea>
+                                    <textarea class="form-control" name="note" rows="8">{{ewbill.note}}</textarea>
                                 </div><br>
                                 <div>
                                     <input type="file" class="form-control" name="file">
@@ -484,14 +463,14 @@
                                           <div class="col-sm-4 mt-2"><label class="text-center">Sub Total</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
                                           <div class="col-sm-7 mt-2"><input type="number" step="any" name='sub_total' placeholder=0 
-                                              class="form-control" id="sub_total">
+                                              class="form-control" id="sub_total" value="{{ewbill.sub_total}}">
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
                                       </div>
                                       <div class="row container-fluid p-2 m-0" id="igst1">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">IGST</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" name='igst' step="any" id="igst" placeholder=0 
+                                          <div class="col-sm-7 mt-2"><input type="number" name='igst' step="any" id="igst" placeholder=0 value="{{ewbill.igst}}"
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -499,7 +478,7 @@
                                       <div class="row container-fluid p-2 m-0" style="display: none;" id="cgst1">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">CGST</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" name='cgst' step="any" id="cgst" placeholder=0 
+                                          <div class="col-sm-7 mt-2"><input type="number" name='cgst' step="any" id="cgst" placeholder=0 value="{{ewbill.cgst}}"
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -507,7 +486,7 @@
                                       <div class="row container-fluid p-2 m-0" style="display: none;" id="sgst1">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">SGST</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" name='sgst' step="any" id="sgst" placeholder=0 
+                                          <div class="col-sm-7 mt-2"><input type="number" name='sgst' step="any" id="sgst" placeholder=0 value="{{ewbill.sgst}}"
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -515,7 +494,7 @@
                                       <div class="row container-fluid p-2 m-0">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">Tax Amount</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" step="any" name='tax_amount' id="tax_amount" placeholder='0.00' 
+                                          <div class="col-sm-7 mt-2"><input type="number" step="any" name='tax_amount' id="tax_amount" placeholder='0.00' value="{{ewbill.tax_amount}}"
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -525,7 +504,7 @@
                                       <div class="row container-fluid p-2 m-0">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">Shipping Charge</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" step="any" name='shipping_charge' id="ship" placeholder='0.00'  value=0
+                                          <div class="col-sm-7 mt-2"><input type="number" step="any" name='shipping_charge' id="ship" placeholder='0.00'  value="{{ewbill.shipping_charge}}"
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -533,7 +512,7 @@
                                       <div class="row container-fluid p-2 m-0">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">Adjustment</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" value="0" step="any"  name='adjustment' id="adj" placeholder='0.00' 
+                                          <div class="col-sm-7 mt-2"><input type="number" value="{{ewbill.adjustment}}" step="any"  name='adjustment' id="adj" placeholder='0.00'
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -541,7 +520,7 @@
                                       <div class="row container-fluid p-2 m-0">
                                           <div class="col-sm-4 mt-2"><label for="a" class="text-center">Grand Total</label></div>
                                           <div class="col-sm-1 mt-2">:</div>
-                                          <div class="col-sm-7 mt-2"><input type="number" name='grand_total' id="grandtotal" placeholder='0.00' readonly
+                                          <div class="col-sm-7 mt-2"><input type="number" name='grand_total' id="grandtotal" placeholder='0.00' value="{{ewbill.grand_total}}" readonly
                                               class="form-control"/>
                                           </div>
                                           <div class="col-sm-4 m-0 p-0"></div>
@@ -583,27 +562,27 @@
                             <div class="col">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
-                                    <label>Agree to terms and conditions</label>
+                                    <label for="invalidCheck">Agree to terms and conditions</label>
                                     <div class="invalid-feedback">You must agree before submitting.</div>
                                 </div>
                             </div>
                         </div> 
                         <div class="row">
-                            <div class="col-md-3"></div>
+                            <div class="col-md-4"></div>
                             
                              
-                            <div class="col-md-3">
+                            <!-- <div class="col-md-3">
                                 <button class="btn btn-outline-info rounded-pill text-grey w-100 mt-3 mb-3"
                                        name="save_as_draft" type="submit">
                                     Save as Draft
-                                </button></div>
-                                <div class="col-md-3">
+                                </button></div> -->
+                                <div class="col-md-4">
                                 <button class="btn btn-outline-info rounded-pill text-grey w-100 mt-3 mb-3" name="save_as_billed"
                                 type="submit">
                                  Save 
                                </button>
                                </div>
-                               <div class="col-md-3"></div>
+                               <div class="col-md-4"></div>
                             </div>
                             
                         </div>
@@ -2596,7 +2575,7 @@ $(document).ready(function(){
 
         `
         <tr id='addr0${roinc}'>
-          <td class = 'nnum'>${roinc}</td>
+          <td class = 'nnum'>${roinc}<input type="text"  name='id[]' value= 0 hidden></td>
                     <td style="width: 20%;">
                       <div class="d-flex">
                       <select name='item[]' id="item${roinc}" class="form-control item1" style="background-color: #2f516f; color: white;">
@@ -2898,6 +2877,10 @@ $(document).ready(function(){
 
                 clonedRow.find('.nnum').text(roinc+1);
 
+                var hiddenInput = originalRow.find('input[name="id[]"]').clone();
+                hiddenInput.val(0);
+                clonedRow.find('.nnum').append(hiddenInput);
+
                 clonedRow.find('[id]').each(function() {
                     var oldId = $(this).attr('id');
                     var newId = oldId.replace(/\d+/, roinc+1);
@@ -3109,8 +3092,51 @@ $(document).ready(function(){
             });
 
     </script>
-
-   
+<!-- edit scripts -->
+   <script>
+     $(document).ready(function(){
+        // alert('hi')
+        document.querySelector("#document_type").value = `{{ewbill.document_type}}`;
+        document.querySelector("#transaction_subtype").value = `{{ewbill.transaction_subtype}}`;
+        document.querySelector("#customer").value = `{{ewbill.cust.customerid}}{{ewbill.customer_name}}`;
+        $('#email_row1').removeClass('d-none');
+        $('#email_row1').addClass('d-flex');
+        $('#gst_trt_row1').removeClass('d-none');
+        $('#gst_trt_row1').addClass('d-flex');
+        if(`{{ewbill.gstin}}` !=""){
+            $('#gstin_row1').removeClass('d-none');
+            $('#gstin_row1').addClass('d-flex');
+        }
+        document.querySelector("#transaction_type").value = `{{ewbill.transaction_type}}`;
+        document.querySelector("#placeofsupply").value = `{{ewbill.placeof_supply}}`;
+        // const transportationDisplay = setTimeout(()=>{
+            
+        // }, 5000);
+        document.querySelector("#transport_mode").value = `{{ewbill.transportation.id}} {{ewbill.transportation.name}}`;
+        if(`{{ewbill.vehicle_number}}` !=""){
+            $('#vehicle_number_segment').removeClass('d-none');
+            $('#vehicle_number_segment').addClass('d-flex');
+        }
+        if(`{{ewbill.igst}}` !="0.0"){
+            document.getElementById('cgst1').style.display = 'none';
+            document.getElementById('sgst1').style.display = 'none';
+            document.getElementById('igst1').style.display = 'flex';
+            $('.seltax').removeClass('d-flex');
+            $('.seltax').addClass('d-none');
+            $('.inter_tax').removeClass('d-none');
+            $('.inter_tax').addClass('d-flex');
+        }else{
+            document.getElementById('cgst1').style.display = 'flex';
+            document.getElementById('sgst1').style.display = 'flex';
+            document.getElementById('igst1').style.display = 'none';
+            $('.seltax').removeClass('d-flex');
+            $('.seltax').addClass('d-none');
+            $('.intra_tax').removeClass('d-none');
+            $('.intra_tax').addClass('d-flex');
+        }
+        
+     })
+   </script>
 
    
     

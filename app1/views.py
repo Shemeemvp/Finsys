@@ -11,7 +11,7 @@ from datetime import datetime, date, timedelta
 from .models import advancepayment, paydowncreditcard, salesrecpts, timeact, timeactsale, Cheqs, suplrcredit, addac, \
     bills, invoice, expences, payment, credit, delayedcharge, estimate, service, noninventory, bundle, employee, \
     payslip, inventory, customer, supplier, company, accounts, ProductModel, ItemModel, accountype, \
-    expenseaccount, incomeaccount, accounts1, recon1, recordpay, addtax1, bankstatement, customize, transportation
+    expenseaccount, incomeaccount, accounts1, recon1, recordpay, addtax1, bankstatement, customize, e_waybills, e_waybill_item, Transportation
 from django.forms import ModelForm
 from django.contrib.auth.models import auth, User
 from django.contrib import messages
@@ -44366,14 +44366,9 @@ def addnew_ewbill(request):
         else:
             return redirect('/')
         cmp1 = company.objects.get(id=request.session['uid'])
-        # vndr = vendor.objects.filter(cid=cmp1)
         itm = itemtable.objects.filter(cid=cmp1)
-        # unit = unittable.objects.filter(cid=cmp1)
         cust = customer.objects.filter(cid=cmp1)
-        # bank=bankings_G.objects.filter(cid=cmp1)
-        # acc2 = accounts1.objects.filter(cid=cmp1,acctype='Sales')
-        # acc1 = accounts1.objects.filter(cid=cmp1,acctype='Cost of Goods Sold')
-        trnsprt = transportation.objects.all()
+        trnsprt = Transportation.objects.all()
         createddate = date.today().strftime("%Y-%m-%d")
         context = {
                     'cmp1': cmp1,
@@ -44396,10 +44391,10 @@ def create_ewbill(request):
         if request.method == 'POST':
             doctype = request.POST['document_type']
             trans_subtype = request.POST['transaction_subtype']
+            customerdata = customer.objects.get(customerid = request.POST['customer_name'].split(" ")[0])
             cname = ""
             for i in request.POST['customer_name'].split(" ")[1:]:
                 cname= cname+" "+i
-            print('customer name ===',cname)
             cemail = request.POST['email_inp']
             gsttype = request.POST['gst_trt_inp']
             gstin = request.POST['gstin_inp']
@@ -44409,7 +44404,7 @@ def create_ewbill(request):
             trans_hsn = request.POST['transaction_hsn']
             del_address = request.POST['customer_address']
             pl_of_supply =request.POST['placeofsupply']
-            transp = transportation.objects.get(id = request.POST['transport_mode']).name 
+            transp = Transportation.objects.get(id = request.POST['transport_mode'].split(" ")[0])
             vehicle_num = request.POST['vehicle_number']
             kilometers = request.POST['kilometer']
 
@@ -44433,7 +44428,7 @@ def create_ewbill(request):
             # grand_total = float(grand_total)
             # balance = float(grand_total - paid_amount)
             # balance = round(float(grand_total - paid_amount), 3)
-            bill = e_waybills(cid=cmp1, invoice_no = invoice_num ,bill_date=date ,customer_name =cname, document_type= doctype,transaction_subtype=trans_subtype,customer_email= cemail,gsttype=gsttype,gstin=gstin,transaction_type=transaction_type,transaction_hsn =trans_hsn ,delivery_address =del_address, placeof_supply =pl_of_supply ,transportation=transp, vehicle_number =vehicle_num,kilometer=kilometers, sub_total=sub_total,sgst=sgst,adjustment=adjustment,shipping_charge=shipping_charge,cgst=cgst,igst=igst,tax_amount=tax_amount,grand_total=grand_total,note= note,status=status)
+            bill = e_waybills(cid=cmp1, invoice_no = invoice_num ,bill_date=date ,cust = customerdata,customer_name =cname, document_type= doctype,transaction_subtype=trans_subtype,customer_email= cemail,gsttype=gsttype,gstin=gstin,transaction_type=transaction_type,transaction_hsn =trans_hsn ,delivery_address =del_address, placeof_supply =pl_of_supply ,transportation=transp, vehicle_number =vehicle_num,kilometer=kilometers, sub_total=sub_total,sgst=sgst,adjustment=adjustment,shipping_charge=shipping_charge,cgst=cgst,igst=igst,tax_amount=tax_amount,grand_total=grand_total,note= note,status=status)
 
             if len(request.FILES) != 0:
                 bill.file=request.FILES['file'] 
@@ -44505,13 +44500,13 @@ def new_transport_mode(request):
         if request.method=='POST':
             transport= request.POST['new_transport']
             type = request.POST['transport_type']
-            trnsp=transportation(name=transport,type = type,cid=cmp1)
+            trnsp=Transportation(name=transport,type = type,cid=cmp1)
             trnsp.save()
             return JsonResponse({"message": "success"})
 
 def get_transport_data(request):
     if request.method == 'POST':
-        trnsp = transportation.objects.get(id = request.POST['id'])
+        trnsp = Transportation.objects.get(id = request.POST['id'].split(" ")[0])
         if trnsp.type == 'Road':
             return JsonResponse({'status':'true'})
         else:
@@ -44525,7 +44520,7 @@ def trasportation_modes(request):
             return redirect('/')
         cmp1= company.objects.get(id=request.session["uid"])
         options = {}
-        option_objects = transportation.objects.filter(cid = cmp1)
+        option_objects = Transportation.objects.filter(cid = cmp1)
         for option in option_objects:           
             options[option.id] = option.name
         return JsonResponse(options)
@@ -44560,9 +44555,221 @@ def eWayBillOverview(request, billId):
         ewbill= e_waybills.objects.get(ewbillid=billId, cid=cmp1)
         ewitems = e_waybill_item.objects.filter(bill=billId)
         # cust = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
-        context = {'ewbill': ewbill, 'cmp1': cmp1,'ewitem':ewitem}
-        return render(request, 'app1/recurringbill_view.html', context)
+        context = {'ewbill': ewbill, 'cmp1': cmp1,'ewitem':ewitems}
+        return render(request, 'app1/e_waybill_overview.html', context)
     except Exception as e:
         print(e)
         return redirect('go_ewaybill')
+
+
+@login_required(login_url='regcomp')
+def edit_eway_bill(request, billId):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        try:
+            cmp1 = company.objects.get(id=request.session['uid'])
+            itm = itemtable.objects.filter(cid=cmp1)
+            ewbill = e_waybills.objects.get(ewbillid = billId, cid = cmp1)
+            cust = customer.objects.filter(cid=cmp1)
+            trnsprt = Transportation.objects.all()
+            items = e_waybill_item.objects.filter(cid = cmp1).filter(bill = billId)
+            createddate = date.today().strftime("%Y-%m-%d")
+            context = {
+                        'cmp1': cmp1,
+                        'item':itm ,
+                        'cust':cust,
+                        'date':createddate,
+                        'trnsp':trnsprt,
+                        'ewbill':ewbill,
+                        'ewitem':items,
+            }
+            return render(request,'app1/e_waybills_editbill.html',context)
+        except Exception as e:
+            print(e)
+            return redirect('eWayBillOverview',billId)
+    return redirect('go_ewaybill')
+
+
+@login_required(login_url='regcomp')
+def update_eway_bill(request, billId):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        try:
+            cmp1 = company.objects.get(id = request.session['uid'])
+            if request.method == 'POST':
+                bill = e_waybills.objects.get(ewbillid = billId, cid = cmp1)
+
+                bill.document_type = request.POST['document_type']
+                bill.transaction_subtype = request.POST['transaction_subtype']
+                bill.cust = customer.objects.get(customerid = request.POST['customer_name'].split(" ")[0])
+                cname = ""
+                for i in request.POST['customer_name'].split(" ")[1:]:
+                    cname= cname+" "+i
+                bill.customer_name = cname
+                bill.cusomer_email = request.POST['email_inp']
+                bill.gsttype = request.POST['gst_trt_inp']
+                bill.gstin = request.POST['gstin_inp']
+                bill.invoice_no = request.POST['ew_invoice_number']
+                bill.bill_date = request.POST['ew_billdate']
+                bill.transaction_type = request.POST['transaction_type']
+                bill.transaction_hsn = request.POST['transaction_hsn']
+                bill.delivery_address = request.POST['customer_address']
+                bill.placeof_supply =request.POST['placeofsupply']
+                bill.transportation = Transportation.objects.get(id = request.POST['transport_mode'].split(" ")[0])
+                bill.vehicle_number = request.POST['vehicle_number']
+                bill.kilometer = request.POST['kilometer']
+
+                bill.sub_total=request.POST.get('sub_total')
+                bill.shipping_charge=request.POST.get('shipping_charge')
+                bill.adjustment=request.POST.get('adjustment')
+                bill.sgst=request.POST.get('sgst')
+                bill.cgst=request.POST.get('cgst')
+                bill.igst=request.POST.get('igst')
+                bill.tax_amount=request.POST.get('tax_amount')
+                bill.grand_total=request.POST.get('grand_total')
+
+                bill.note=request.POST.get('note')
+                if len(request.FILES) != 0:
+                    bill.file = request.FILES.get('file')
+                bill.save()
+
+                item = request.POST.getlist("item[]")
+                hsn  = request.POST.getlist("hsn[]")
+                qty = request.POST.getlist("qty[]")
+                price = request.POST.getlist("price[]")
+                discount = request.POST.getlist("discount[]")
+                if request.POST.get('placeofsupply') == cmp1.state:
+                    tax = request.POST.getlist("tax1[]")
+                else:
+                    tax = request.POST.getlist("tax2[]")
+                total = request.POST.getlist("total[]")
+                ew_item_ids = request.POST.getlist("id[]")
+                item_ids = [int(id) for id in ew_item_ids]
+
+                ew_bill= e_waybills.objects.get(ewbillid=billId)
+                ewbil_item = e_waybill_item.objects.filter(bill=ew_bill)
+                object_ids = [obj.id for obj in ewbil_item]
+
+                ids_to_delete = [obj_id for obj_id in object_ids if obj_id not in item_ids]
+                e_waybill_item.objects.filter(id__in=ids_to_delete).delete()
+                
+                count = e_waybill_item.objects.filter(bill=ew_bill.ewbillid,cid=cmp1).count()
+                if len(item)==len(hsn)==len(qty)==len(price)==len(tax)==len(discount)==len(total):
+                    try:
+                        mapped=zip(item,hsn,qty,price,tax,discount,total,item_ids)
+                        mapped=list(mapped)
+                        
+                        for ele in mapped:
+                            if int(len(item))>int(count):
+                                if ele[7] == 0:
+                                    itemAdd= e_waybill_item.objects.create(item = ele[0],hsn=ele[1],qty=ele[2],price=ele[3],tax=ele[4],discount = ele[5],total=ele[6] ,bill_id=billId,cid=cmp1)
+                                else:
+                                    itemAdd = e_waybill_item.objects.filter(id=ele[7],cid=cmp1).update(item = ele[0],hsn=ele[1],qty=ele[2],price=ele[3],tax=ele[4],discount= ele[5],total=ele[6])
+                            else:
+                                itemAdd = e_waybill_item.objects.filter(id=ele[7],cid=cmp1).update(item = ele[0],hsn=ele[1],qty=ele[2],price=ele[3],tax=ele[4],discount= ele[5],total=ele[6])
+                                
+                    except Exception as e:
+                            print(e)
+                            mapped=zip(item,hsn,qty,price,tax,discount,total,item_ids)
+                            mapped=list(mapped)
+                            
+                            for ele in mapped:
+                                created =e_waybill_item.objects.filter(id=ele[7] ,cid=cmp1).update(item = ele[0],hsn=ele[1],qty=ele[2],price=ele[3],tax=ele[4],discount = ele[5],total=ele[6])
+
+                return redirect('eWayBillOverview',billId)
+        except Exception as e:
+            print(e)
+            return redirect('eWayBillOverview',billId)
+    return redirect('eWayBillOverview',billId)
+
+
+@login_required(login_url='regcomp')
+def convert_ewbill(request, billId):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        try:
+            cmp1 = company.objects.get(id = request.session['uid'])
+            ewbill = e_waybills.objects.get(ewbillid = billId, cid = cmp1)
+            ewbill.status = 'Billed'
+            ewbill.save()
+            
+            return redirect('eWayBillOverview',billId)
+        except Exception as e:
+            print(e)
+            return redirect('eWayBillOverview',billId)
+
+
+@login_required(login_url='regcomp')
+def delete_ewbill(request, billId):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        ewbill=e_waybills.objects.get(ewbillid=billId)
+        ewitems = e_waybill_item.objects.filter(bill=billId)
+        ewbill.delete() 
+        ewitems.delete() 
+    
+        return redirect(e_waybills_page)
+    return redirect(e_waybills_page)
+
+
+def ewaybillPdf(request,billId):
+    
+    cmp1 = company.objects.get(id=request.session['uid'])
+   
+
+    rbill=e_waybills.objects.get(ewbillid=billId)
+    ritem = e_waybill_item.objects.all().filter(bill=billId)
+
+    total = rbill.grand_total
+    words_total = num2words(total)
+    # vendor_full_name = rbill.vendor_name
+    # first_name, last_name = vendor_full_name.split(' ')
+    # Vendor = vendor.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
+    # vendor_email = Vendor.email
+    # vendor_gstin=Vendor.gstin
+    # customer_full_name = rbill.customer_name
+    # first_name, last_name = customer_full_name.split(' ')
+    # Customer = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
+    # customer_email = Customer.email
+    # customer_gstin=Customer.gstin
+    template_path = 'app1/e_waybills_pdf.html'
+    context ={
+        'rbill':rbill,
+        'cmp1':cmp1,
+        'ritem':ritem,
+
+    }
+    fname=rbill.invoice_no
+   
+    # Create a Django response object, and specify content_type as pdftemp_creditnote
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    response['Content-Disposition'] =f'attachment; filename=recurringbill-{fname}.pdf'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+
 # -----E-Way Bill---shemeem---end---

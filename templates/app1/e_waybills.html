@@ -78,7 +78,7 @@
                             <tbody  id="table">
                             {% for r in ewaybill %}
                             <!-- <tr> -->
-                                <tr onclick="window.location='view_ewbill/{{ r.ewbillid }}';">
+                                <tr onclick="window.location='eway_bill_overview/{{ r.ewbillid }}';">
                                     <th>{{ r.bill_date | date:'d-m-Y' }}</th>
                                     <td>{{ r.transaction_type }}</a></td>
                                     <td>{{ r.customer_name }}</td>

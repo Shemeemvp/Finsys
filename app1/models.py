@@ -2171,13 +2171,19 @@ class repeatevery(models.Model):
 
 
 ###### E-Way bills ---------shemeem------
+class Transportation(models.Model):
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    name = models.CharField(max_length=200, null= True)
+    type = models.CharField(max_length=100, null=True)
+
+
 class e_waybills(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     ewbillid = models.AutoField(('ewid'), primary_key=True)
     invoice_no =  models.CharField(max_length=100,null=True,blank=True)
     bill_date = models.DateField(null=True, blank=True)
     document_type = models.CharField(max_length=200, null=True)
-    
+    cust = models.ForeignKey(customer, on_delete=models.CASCADE, null=True)
     customer_name = models.CharField(max_length=100,null=True,blank=True)
     customer_email = models.EmailField(null=True)
     gsttype = models.CharField(max_length=100, null=True)
@@ -2188,7 +2194,7 @@ class e_waybills(models.Model):
     transaction_hsn = models.IntegerField(null=True,blank=True,default=0)
     delivery_address = models.TextField(null=True, blank = True)
     placeof_supply = models.CharField(max_length=100,null=True,blank=True)
-    transportation = models.CharField(max_length=150, null= True)
+    transportation = models.ForeignKey(Transportation,on_delete=models.CASCADE,null= True)
     vehicle_number = models.CharField(max_length=100, null=True)
     kilometer = models.FloatField(null=True)
     sub_total = models.FloatField(null=True,blank=True)
@@ -2222,8 +2228,3 @@ class e_waybill_item(models.Model):
     discount = models.CharField(max_length=100,null=True)
     tax = models.CharField(max_length=100,null=True)
 
-
-class transportation(models.Model):
-    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
-    name = models.CharField(max_length=200, null= True)
-    type = models.CharField(max_length=100, null=True)

@@ -1146,6 +1146,12 @@ urlpatterns = [
     path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
     path('create_new_ewaybill',views.create_ewbill, name = 'create_ewbill'),
     path('eway_bill_overview/<int:billId>',views.eWayBillOverview,name='eWayBillOverview'),
+    path('edit_eway_bill/<int:billId>',views.edit_eway_bill,name='edit_eway_bill'),
+    path('update_ewbill/<int:billId>', views.update_eway_bill, name = 'update_eway_bill'),
+    path('convert_ewbill/<int:billId>',views.convert_ewbill, name='convert_ewbill'),
+    path('delete_ewbill/<int:billId>',views.delete_ewbill, name='delete_ewbill'),
+    
+    
     path('get_customer_details', views.get_customer, name = 'get_customer'),
     path('new_transport_mode',views.new_transport_mode, name= 'new_transport_mode'),
     path('get_transport_modes',views.trasportation_modes, name= 'trasportation_modes'),
@@ -1154,6 +1160,7 @@ urlpatterns = [
     path('e_way_bills_billed',views.billed_ewbill, name='billed_ewbill'),
     path('e_way_bills_cname_asc',views.ew_cname_asc, name='ew_cname_asc'),
     path('e_way_bills_billdate_asc',views.ew_billdate_asc, name='ew_billdate_asc'),
+    path('ewbill_overview_pdf/<int:billId>',views.ewaybillPdf,name='ewaybillPdf'),
     # <-----E-Way Bill---shemeem---end--->
      
      
