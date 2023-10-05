@@ -105,6 +105,10 @@
             background-color: #268ddd;
             border-color: #1c72b4;
         }
+        .template2 .ribbon .ribbon-open {
+            background-color: #616263;
+            border-color: #616263;
+        }
         :root {
             --body-bg: rgb(204, 204, 204);
             --white: #ffffff;
@@ -164,17 +168,26 @@
             left: 6px;
             transform: rotate(45deg);
         }
+        .template2 .top-left .graphic-path::before {
+            background-color: #bbbbbb;
+        }
+        .template2 .top-left .graphic-path::after {
+            background: #616263b3;
+        }
         .top-left .graphic-path p {
-          
             height: 40px;
             left: 0;
-            right: -100px;
+            right: 0;
             text-transform: uppercase;
             background-color: var(--themeColor);
             font: 26px;
             z-index: 3;
             position: absolute;
             padding-left: 10px;
+        }
+        .template2 .top-left .graphic-path p {
+            background-color: #616263;
+            color: white;
         }
         .store-user {
             padding-bottom: 25px;
@@ -292,8 +305,8 @@
     }
 
     .page[size="A4"] {
-        width: 17cm;
-        height: 23cm;
+        width: 21cm;
+        height: 29.7cm;
         overflow: hidden;
        
     }
@@ -431,8 +444,8 @@
                 <div class="card-title">
                     <center><h2 class="mb-0">E-WAY BILL</h2></center>
                     <hr>
-                    <a style="padding: 10px; cursor: pointer; font-size: large;" onclick="Details()" >Details</a>
-                    <a style="padding: 10px; cursor: pointer; font-size: large;" onclick="Overview()">Template</a>
+                    <a style="padding: 10px; cursor: pointer; font-size: large;" onclick="showDetails()" >Details</a>
+                    <a style="padding: 10px; cursor: pointer; font-size: large;" onclick="showTemplates()">Template</a>
                     <nav class="navbar navbar-expand-lg navbar-light" style="background-color:rgba(0,0,0,.01);">
                         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
                           <span class="navbar-toggler-icon"></span>
@@ -440,7 +453,7 @@
                         <div class="collapse navbar-collapse" id="navbarScroll">
                             <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
                               <li class="nav-item active" >
-                                <a class="nav-link text-light btn nav_icon_a" role="button" onclick="printSection('whatToPrint')"><i class="fa fa-print mr-1 epov_icons"></i>Print</a>
+                                <a class="nav-link text-light btn nav_icon_a" role="button" id="templatePrintButton" onclick="printSection('whatToPrint1')"><i class="fa fa-print mr-1 epov_icons"></i>Print</a>
                               </li>
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-light btn nav_icon_a" href="#" id="navbarDropdown" role="button"
@@ -871,166 +884,670 @@
                 </div>
 
                 </div>
+                <!-- Template section  Print-template -->
+                <div id="templatesToPrintSection" style="display: none;">
+                    <div id="templateToggle" class="templateToggleSegment mt-3 mb-0 w-100 d-flex justify-content-center">
+                        <button id="toggleTemplate1" onclick="toggleTemplate('whatToPrint1','toggleTemplate1')" class="btn btn-outline-light btn-sm m-2 active templateToggleButtons">1</button>
+                        <button id="toggleTemplate2" onclick="toggleTemplate('whatToPrint2','toggleTemplate2')" class="btn btn-outline-light btn-sm m-2 templateToggleButtons">2</button>
+                        <button id="toggleTemplate3" onclick="toggleTemplate('whatToPrint3','toggleTemplate3')" class="btn btn-outline-light btn-sm m-2 templateToggleButtons">3</button>
+                    </div>
 
-        <div  id="whatToPrint" style="display: none;"  class="print-only tabcontent">
-                <div class="my-5 page" size="A4" >
-                    <div class="p-5">
-                        <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
-                            <div class="ribbon-inner ribbon-open text-black" style="color:black">{{ewbill.status}}<!----></div></div>
-                        <section class="top-content bb d-flex justify-content-between" style="border-bottom: 3px solid rgb(207, 207, 207);">
-                            <div class="logo">
-                                <!-- <img src="logo.png" alt="" class="img-fluid"> -->
-                            </div>
-                            <div class="top-left">
-                                <div class="graphic-path">
-                                    <p style="color:#000">Bill</p>
+                    <!-- Template Number-1 -->
+
+                    <div  id="whatToPrint1" style="display: block;" class="printTemplates template1">
+                        <div class="my-3 page" size="A4" >
+                            <div class="p-5">
+                                <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+                                    <div class="ribbon-inner ribbon-open">{{ewbill.status}}<!----></div>
                                 </div>
-                                <div class="position-relative">
-                                    <p style="color:#000"> Bill No : <span style="color:#000">{{ewbill.billno }}</span></p>
+                                <div>
+                                    <center class="h3" style="color: #000;"><b>E-WAY BILL</b></center>
                                 </div>
-                            </div>
-                        </section>
-            
-                        <section class="store-user mt-5">
-                            <div class="col-12">
-                                <div class="row bb pb-3" style="border-bottom: 3px solid rgb(207, 207, 207);">
-                                    <div class="col-7">
-                                        <p style="color:#000">FROM,</p>
-                                        <!-- <h5>{{ewbill.vendor_name}}</h5> -->
-                                        <h5 style="color: #22b8d1;">{{cmp1.cname }}</h5>
-                                        <p class="address" style="color:#000"> {{cmp1.caddress}}<br>
+                                <div class="row mt-5">
+                                    <div class="col-md-8">
+                                        <h5 class="text-info" style="font-weight: bold;">{{cmp1.cname }}</h5>
+                                        <p class="address" style="font-weight: bold;color: #000;"> {{cmp1.caddress}}<br>
                                             {{cmp1.city}},
                                             {{cmp1.state}}<br>
                                             {{cmp1.pincode}}<br>
-                                            {{cmp1.email}}<br>
-                                        </p>   
-                                        
-                                         
+                                            {{cmp1.cemail}}<br>
+                                            {{cmp1.phone}}<br>
+                                        </p> 
                                     </div>
-                                    <div class="col-5">
-                                        <p style="color:#000">TO,</p>
-                                        <h5  style="color: #22b8d1;">{{ewbill.vendor_name}}</h5>
-                                        <p class="address " style="color:#000">{{vendor_email}}<br>
-                                            {% if vendor_gstin %}
-                                              GSTIN:{{ vendor_gstin }}
-                                            {% endif %}
+                                    <div class="col-md-4">
+                                        <div class="top-left">
+                                            <div class="graphic-path">
+                                                <p style="color: #000;">Invoice #:<b>{{ewbill.invoice_no }}</b></p>
+                                            </div>
+                                            <div class="mt-2">
+                                                
+                                                <p style="color: #000;">Date : <b>{{ ewbill.bill_date | date:'d-m-Y' }}</b></p>
+                                                <!-- <p style="color: #000;">Excpected Date : <b>{{ pbill.deliver_date | date:'d-m-Y' }}</b></p> -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row extra-info pt-3">
-                                    <div class="col-7">
-                                        <p style="color:#000">Deliver To Details: </p>
-                                        <p class="address " style="color:#000">{{ewbill.customer_name}}<br>
-                                            {{customer_email}}<br>
-                                            {% if customer_gstin %}
-                                              GSTIN:{{ customer_gstin }}
-                                            {% endif %}</p>
-                                    </div>
-                                    <div class="col-5">
-                                        <p style="color:#000">Start Date : <span>{{ ewbill.start_date | date:'d-m-Y' }}</span></p>
-                                        <p style="color:#000">End Date : <span> {{ ewbill.end_date}}</span></p>
+                                <section class="top-content bb d-flex justify-content-between">
+                                    <div class="logo">
                                        
                                     </div>
-                                </div>
-                            </div>
-                        </section>
-            
-                        <section class="product-area mt-4">
-                            <table class="table table-hover table-bordered">
-                                <thead>
-                                    <tr>
-                                        <td class="text-center text-black" style="color:black">ITEMS</td>
-                                        <td class="text-center text-black" style="color:black">HSN NUMBER</td>
-                                        <td class="text-center text-black" style="color:black">QUANTITY</td>
-                                        <td class="text-center text-black" style="color:black">PRICE</td>
-                                        <td class="text-center text-black" style="color:black">TAX</td>
-                                        <td class="text-center text-black" style="color:black">DISCOUNT</td>
-                                        <td class="text-center text-black" style="color:black">TOTAL</td>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for rbill in ritem %}
-                                        <tr>
-                                            <td class="text-center" style="color:#000">{{ ewbill.item }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.hsn }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.qty }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.price  }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.tax  }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.discount }}</td>
-                                            <td class="text-center" style="color:#000">{{ ewbill.total }}</td>
-                                        </tr>
-                                    {% endfor %} 
-                                </tbody>
-                            </table>
-                        </section>
-            
-                        <section class="balance-info">
-                            <div class="row">
-                                <div class="col-7">
-                                    <p class="m-0 font-weight-bold" style="color:black"> Note: </p>
-                                    <p style="color:black">{{ewbill.note}}</p>
-                                </div>
-                                <div class="col-5">
-                                    <table class="table border-0 table-hover">
-                                        <tr >
-                                            <td style="color:black">Sub Total :</td>
-                                            <td style="color:black">{{ewbill.sub_total}}</td>
-                                        </tr>
-                                        <!-- {% if ewbill.discount != "0" %}
-                                        <tr>
-                                            <td style="color:black">Discount</td>
-                                            <td style="color:black">{{ewbill.discount}}</td>
-                                        </tr>
-                                        {% endif %} -->
-                                        {% if ewbill.igst != 0 %}
-                                        <tr>
-                                            <td style="color:black">IGST :</td>
-                                            <td style="color:black">{{ewbill.igst}}</td>
-                                        </tr>
-                                        {% endif %}
-                                        {% if ewbill.cgst != 0 %}
-                                        <tr>
-                                            <td style="color:black">CGST :</td>
-                                            <td style="color:black">{{ewbill.cgst}}</td>
-                                        </tr>
-                                        {% endif %}
+                                   
+                                </section>
+                    
+                                <section class="store-user">
+                                    <div class="col-12">
+                                        <div class="row bb pb-2 mt-3">
+                                            <div class="col-4 pl-0">
+                                                <label class="text-white bg-info w-100 p-1"><b>BILL TO</b></label>
+                                                <h5 class="text-info" style="font-weight: bold;">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">
+                                                    {{ewbill.customer_email}}
+                                                    <br>
+                                                    {{ewbill.cust.street}}
+                                                    <br>
+                                                    {{ewbill.cust.city}}
+                                                    <br>
+                                                    {{ewbill.cust.state}} - {{ewbill.cust.pincode}}
+                                                    <br>
+                                                    <span>Mob: </span><b>{{ewbill.cust.mobile}}</b>
+                                                </p>  
+                                            </div>
+                                            <div class="col-4"></div>
+                                            <div class="col-4 pr-0">
+                                                <label class="text-white bg-info w-100 p-1"><b>DELIVER TO</b></label>
+                                                <h5 class="text-info" style="font-weight: bold;">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">{{ ewbill.delivery_address|linebreaksbr }} </p>
+                                            </div>
+                                        </div>
                                         
-                                        {% if ewbill.sgst != 0 %}
-                                        <tr>
-                                            <td style="color:black">SGST :</td>
-                                            <td style="color:black">{{ewbill.sgst}}</td>
-                                        </tr>
-                                        {% endif %}
-                                        {% if ewbill.shipping_charge != 0 %}
-                                        <tr>
-                                            <td style="color:black">Shipping Charge :</td>
-                                            <td style="color:black">{{ewbill.shipping_charge}}</td>
-                                        </tr>
-                                        {% endif %}
-                                        {% if ewbill.adjustment != 0 %}
-                                        <tr>
-                                            <td style="color:black">Adjustment :</td>
-                                            <td style="color:black">{{ewbill.adjustment}}</td>
-                                        </tr>
-                                        {% endif %}
-                                        <tfoot>
-                                            <tr>
-                                                <td style="color:black">Grand Total:</td>
-                                                <td style="color:black ;">{{ewbill.grand_total}}</td>
+                                    </div>
+                                </section>
+                    
+                                <section class="product-area mt-2">
+                                    <table class="table table-hover table-bordered table-primary">
+                                        <thead>
+                                            <tr class="table-primary">
+                                                <th class="text-center" style="color:#000">Items</th>
+                                                <th class="text-center" style="color:#000">HSN Code</th>
+                                                <th class="text-center" style="color:#000">Quantity</th>
+                                                <th class="text-center" style="color:#000">Rate</th>
+                                                <th class="text-center" style="color:#000">Tax</th>
+                                                <th class="text-center" style="color:#000">Discount</th>
+                                                <th class="text-center" style="color:#000">Total</th>
                                             </tr>
-                                        </tfoot>
+                                        </thead>
+                                        <tbody>
+                                            {% for itm in ewitem %}
+                                                <tr>
+                                                    <td class="text-center" style="color:#000">{{ itm.item }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.hsn }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.qty }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.price  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.tax  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.discount  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.total }}</td>
+                                                </tr>
+                                            {% endfor %} 
+                                        </tbody>
                                     </table>
-                                </div> 
+                                </section>
+                    
+                                <section class="balance-info">
+                                    <div class="row mt-3">
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    
+                                                    <!-- <tr >
+                                                        <td style="color: #000;text-align: left;">Payment Type</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        {% if bank %}
+                                                        <th style="color: #000;text-align: center;">{{bank.bankname}}</th>
+                                                        {% else %}
+                                                        <th style="color: #000;text-align: center;">{{pbill.payment_type}}</th>
+                                                        {% endif %}
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        
+                                                    </tr> -->
+                                                    {% if ewbill.note %}
+                                                    <tr >
+                                                        <td style="color: #000;text-align: left;">Note</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        <th style="color: #000;text-align: center;">{{ewbill.note}}</th>
+                                                    </tr>
+                                                    {% endif %}
+        
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-4"></div>
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <td style="color: #000;">Sub Total</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sub_total}}</td>
+                                                    </tr>
+                                                    
+                                                    {% if ewbill.igst != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">IGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.igst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.cgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">CGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.cgst}}</td>
+                                                        
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.sgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">SGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sgst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    <tr >
+                                                        <td style="color: #000;">Shipping Charge</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
+                                                    </tr>
+                                                    {% if ewbill.tcs != "0.00" %}
+                                                    <tr style="display: none;">
+                                                        <td style="color:black">TCS:</td>
+                                                        <td style="color:black">{{ewbill.tcs}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    
+                                                </tbody>
+        
+                                            </table>
+                                            <hr>
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <th style="color: #000;">Grand Total</th>
+                                                        <th style="color: #000;">:</th>
+                                                        <th class="text-center" style="color: #000;">{{ewbill.grand_total}}</th>
+                                                    </tr>
+                                                    <!-- <tr >
+                                                        <td style="color: #000;">Paid Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class=" text-center" style="color: #000;">{{pbill.paid_amount}}</th>
+                                                    </tr>
+                                                    <tr >
+                                                        <td style="color: #000;">Balance Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class="text-center" style="color: #000;">{{pbill.balance_amount}}</th>
+                                                    </tr> -->
+        
+                                                </tbody>
+                                            </table>
+                                        </div> 
+                                    </div>
+                                    <div class="row container-fluid  p-2 m-0">
+                                        <div class="col-sm-3 m-0 p-0"><label style="color: #000;"><b>Authorized Signature</b></label></div>
+                                        <div class="col-sm-4 m-0 p-0 text-dark">________________________</div>
+                                        <div class="col-sm-4 m-0 p-0"></div>
+                                    </div>
+                                </section>
+                                   
                             </div>
-                            <div class="row container-fluid  p-2 m-0">
-                                <!-- <div class="col-sm-3 m-0 p-0"><label style="color: #000;"><b>Authorized Signature</b></label></div>
-                                <div class="col-sm-4 m-0 p-0"><input type="text" id="sign"></div> -->
-                                <div class="col-sm-4 m-0 p-0"></div>
+                        </div>
+                    </div>
+
+                    <!-- Template Number-2 -->
+
+                    <div  id="whatToPrint2" style="display: none;" class="printTemplates template2">
+                        <div class="my-3 page" size="A4" >
+                            <div class="p-5">
+                                <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
+                                    <div class="ribbon-inner ribbon-open">{{ewbill.status}}<!----></div>
+                                </div>
+                                <div>
+                                    <center class="h3" style="color:var(--dark);"><b>E-WAY BILL</b></center>
+                                </div>
+                                <div class="row mt-5">
+                                    <div class="col-md-8">
+                                        <h4 class="text-secondary" style="font-weight: bold;">{{cmp1.cname }}</h4>
+                                        <p class="address" style="font-weight: bold;color: #000;"> {{cmp1.caddress}}<br>
+                                            {{cmp1.city}},
+                                            {{cmp1.state}}<br>
+                                            {{cmp1.pincode}}<br>
+                                            {{cmp1.cemail}}<br>
+                                            {{cmp1.phone}}<br>
+                                        </p> 
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="top-left">
+                                            <div class="graphic-path">
+                                                <p>Invoice #:<b>{{ewbill.invoice_no }}</b></p>
+                                            </div>
+                                            <div class="mt-2">
+                                                
+                                                <p style="color: #000;">Date: <b>{{ ewbill.bill_date | date:'d-m-Y' }}</b></p>
+                                                <p class="text-muted mt-2" style="color: #000;">Doc. Type: <b>{{ ewbill.document_type}}</b></p>
+                                                <p class="text-muted" style="color: #000;">Trns. sub type: <b>{{ ewbill.transaction_subtype}}</b></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <section class="top-content bb d-flex justify-content-between">
+                                    <div class="logo">
+                                       
+                                    </div>
+                                   
+                                </section>
+                    
+                                <section class="store-user">
+                                    <div class="col-12">
+                                        <div class="row bb pb-2 mt-3">
+                                            <div class="col-4 pl-0">
+                                                <label class="text-white bg-secondary w-100 p-1"><b>BILL TO</b></label>
+                                                <h5 class="" style="font-weight: bold; color: var(--dark);">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">
+                                                    {{ewbill.customer_email}}
+                                                    <br>
+                                                    {{ewbill.cust.street}}
+                                                    <br>
+                                                    {{ewbill.cust.city}}
+                                                    <br>
+                                                    {{ewbill.cust.state}} - {{ewbill.cust.pincode}}
+                                                    <br>
+                                                    <span>Mob: </span><b>{{ewbill.cust.mobile}}</b>
+                                                </p>  
+                                            </div>
+                                            <div class="col-4"></div>
+                                            <div class="col-4 pr-0">
+                                                <label class="text-white bg-secondary w-100 p-1"><b>DELIVER TO</b></label>
+                                                <h5 class="" style="font-weight: bold; color: var(--dark);">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">{{ ewbill.delivery_address|linebreaksbr }} </p>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </section>
+                    
+                                <section class="product-area mt-2">
+                                    <table class="table table-hover table-bordered table-secondary">
+                                        <thead>
+                                            <tr class="" style="background-color: var(--dark);">
+                                                <th class="text-center" style="color:#fff">Items</th>
+                                                <th class="text-center" style="color:#fff">HSN Code</th>
+                                                <th class="text-center" style="color:#fff">Quantity</th>
+                                                <th class="text-center" style="color:#fff">Rate</th>
+                                                <th class="text-center" style="color:#fff">Tax</th>
+                                                <th class="text-center" style="color:#fff">Discount</th>
+                                                <th class="text-center" style="color:#fff">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for itm in ewitem %}
+                                                <tr>
+                                                    <td class="text-center" style="color:#000">{{ itm.item }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.hsn }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.qty }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.price  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.tax  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.discount  }}</td>
+                                                    <td class="text-center" style="color:#000">{{ itm.total }}</td>
+                                                </tr>
+                                            {% endfor %} 
+                                        </tbody>
+                                    </table>
+                                </section>
+                    
+                                <section class="balance-info">
+                                    <div class="row mt-3">
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    
+                                                    <!-- <tr >
+                                                        <td style="color: #000;text-align: left;">Payment Type</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        {% if bank %}
+                                                        <th style="color: #000;text-align: center;">{{bank.bankname}}</th>
+                                                        {% else %}
+                                                        <th style="color: #000;text-align: center;">{{pbill.payment_type}}</th>
+                                                        {% endif %}
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        
+                                                    </tr> -->
+                                                    {% if ewbill.note %}
+                                                    <tr >
+                                                        <td style="color: #000;text-align: left;">Note</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        <th style="color: #000;text-align: center;">{{ewbill.note}}</th>
+                                                    </tr>
+                                                    {% endif %}
+        
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-4"></div>
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <td style="color: #000;">Sub Total</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sub_total}}</td>
+                                                    </tr>
+                                                    
+                                                    {% if ewbill.igst != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">IGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.igst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.cgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">CGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.cgst}}</td>
+                                                        
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.sgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">SGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sgst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    <tr >
+                                                        <td style="color: #000;">Shipping Charge</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
+                                                    </tr>
+                                                    {% if ewbill.tcs != "0.00" %}
+                                                    <tr style="display: none;">
+                                                        <td style="color:black">TCS:</td>
+                                                        <td style="color:black">{{ewbill.tcs}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    
+                                                </tbody>
+        
+                                            </table>
+                                            <hr>
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <th style="color: #000;">Grand Total</th>
+                                                        <th style="color: #000;">:</th>
+                                                        <th class="text-center" style="color: #000;">{{ewbill.grand_total}}</th>
+                                                    </tr>
+                                                    <!-- <tr >
+                                                        <td style="color: #000;">Paid Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class=" text-center" style="color: #000;">{{pbill.paid_amount}}</th>
+                                                    </tr>
+                                                    <tr >
+                                                        <td style="color: #000;">Balance Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class="text-center" style="color: #000;">{{pbill.balance_amount}}</th>
+                                                    </tr> -->
+        
+                                                </tbody>
+                                            </table>
+                                        </div> 
+                                    </div>
+                                    <div class="row container-fluid  p-2 m-0">
+                                        <div class="col-sm-3 m-0 p-0"><label style="color: #000;"><b>Authorized Signature</b></label></div>
+                                        <div class="col-sm-4 m-0 p-0 text-dark">________________________</div>
+                                        <div class="col-sm-4 m-0 p-0"></div>
+                                    </div>
+                                </section>
+                                   
                             </div>
-                        </section>
-                        <img src="cart.jpg" class="img-fluid cart-bg" alt="">   
+                        </div>
+                    </div>
+
+                    <!-- Template Number-3 -->
+                    <div  id="whatToPrint3" style="display: none;"  class="printTemplates template3">
+                        <div class="my-3 page" size="A4" >
+
+                            <div class="row px-5 py-4" style="background-color: #433f42;">
+                                  <div id="ember2512" class="col-md-4 d-flex justify-content-start tooltip-container ember-view ribbon text-ellipsis">
+                                    <div class="text-white d-flex align-items-center px-5" style="background-color: #919191ba;">{{ewbill.status}}<!----></div>
+                                </div>
+                                <div class="col-md-4 d-flex justify-content-center">
+                                    <center class="h3 text-white"><b>E-WAY BILL</b></center>
+                                </div>  
+                                <div class="col-md-4 d-flex justify-content-end">
+                                    <div class="text-white">
+                                        <p class="mb-0">Invoice #: <b>{{ewbill.invoice_no }}</b></p>
+                                        <p class="mb-0">Date: <b>{{ ewbill.bill_date | date:'d-m-Y' }}</b></p>
+                                    </div>
+                                    <!-- <div class="mt-2">
+                                        <p style="color: #000;">Date : <b>{{ ewbill.bill_date | date:'d-m-Y' }}</b></p>
+                                    </div> -->
+                                </div>
+                                </div>
+                            <div class="px-5 py-1">
+                                <div class="row mt-5">
+                                    <div class="col-md-8">
+                                        <h5 class="text-secondary" style="font-weight: bold;">{{cmp1.cname }}</h5>
+                                        <p class="address" style="font-weight: normal; color: #000;"> {{cmp1.caddress}}<br>
+                                            {{cmp1.city}},
+                                            {{cmp1.state}}<br>
+                                            {{cmp1.pincode}}<br>
+                                            {{cmp1.cemail}}<br>
+                                            {{cmp1.phone}}<br>
+                                        </p> 
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div>
+                                            <p class="text-muted mt-2 mb-0" style="color: #000;">Transaction: <span style="float: right;"><b>{{ ewbill.transaction_type}}</b></span></p>
+                                            <p class="text-muted mb-0" style="color: #000;">Document Type: <span style="float: right;"><b>{{ ewbill.document_type}}</b></span></p>
+                                            <p class="text-muted mb-0" style="color: #000;">Trns. sub type: <span style="float: right;"><b>{{ ewbill.transaction_subtype}}</b></span></p>
+                                        </div>
+                                        <!-- <div class="top-left">
+                                            <div class="graphic-path">
+                                                <p style="color: #000;">Bill NO : <b>{{ewbill.invoice_no }}</b></p>
+                                            </div>
+                                            <div class="mt-2">
+                                                
+                                                <p style="color: #000;">Date : <b>{{ ewbill.bill_date | date:'d-m-Y' }}</b></p>
+                                                
+                                            </div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                                <section class="top-content bb d-flex justify-content-between">
+                                    <div class="logo">
+                                       
+                                    </div>
+                                   
+                                </section>
+                    
+                                <section class="store-user">
+                                    <div class="col-12">
+                                        <div class="row bb pb-2 mt-3">
+                                            <div class="col-4 pl-0">
+                                                <label class="text-white bg-grey w-100 p-1"><b>BILLING ADDRESS</b></label>
+                                                <h5 class="text-secondary" style="font-weight: bold;">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">
+                                                    {{ewbill.customer_email}}
+                                                    <br>
+                                                    {{ewbill.cust.street}}
+                                                    <br>
+                                                    {{ewbill.cust.city}}
+                                                    <br>
+                                                    {{ewbill.cust.state}} - {{ewbill.cust.pincode}}
+                                                    <br>
+                                                    <span>Mob: </span><b>{{ewbill.cust.mobile}}</b>
+                                                </p>  
+                                            </div>
+                                            <div class="col-4"></div>
+                                            <div class="col-4 pr-0">
+                                                <label class="text-white bg-grey w-100 p-1"><b>SHIPPING ADDRESS</b></label>
+                                                <h5 class="text-secondary" style="font-weight: bold;">{{ewbill.customer_name}}</h5>
+                                                <p class="address" style="font-weight: bold;color: #000;">{{ ewbill.delivery_address|linebreaksbr }} </p>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                </section>
+                    
+                                <section class="product-area mt-2">
+                                    <table class="table table-hover table-bordered table-dark">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th class="text-center">Items</th>
+                                                <th class="text-center">HSN Code</th>
+                                                <th class="text-center">Quantity</th>
+                                                <th class="text-center">Rate</th>
+                                                <th class="text-center">Tax</th>
+                                                <th class="text-center">Discount</th>
+                                                <th class="text-center">Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for itm in ewitem %}
+                                                <tr>
+                                                    <td class="text-center">{{ itm.item }}</td>
+                                                    <td class="text-center">{{ itm.hsn }}</td>
+                                                    <td class="text-center">{{ itm.qty }}</td>
+                                                    <td class="text-center">{{ itm.price  }}</td>
+                                                    <td class="text-center">{{ itm.tax  }}</td>
+                                                    <td class="text-center">{{ itm.discount  }}</td>
+                                                    <td class="text-center">{{ itm.total }}</td>
+                                                </tr>
+                                            {% endfor %} 
+                                        </tbody>
+                                    </table>
+                                </section>
+                    
+                                <section class="balance-info">
+                                    <div class="row mt-3">
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    
+                                                    <!-- <tr >
+                                                        <td style="color: #000;text-align: left;">Payment Type</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        {% if bank %}
+                                                        <th style="color: #000;text-align: center;">{{bank.bankname}}</th>
+                                                        {% else %}
+                                                        <th style="color: #000;text-align: center;">{{pbill.payment_type}}</th>
+                                                        {% endif %}
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                        <td></td>
+                                                        <td></td>
+                                                        
+                                                    </tr> -->
+                                                    {% if ewbill.note %}
+                                                    <tr >
+                                                        <td style="color: #000;text-align: left;">Note</td>
+                                                        <td style="color: #000;text-align: left;">:</td>
+                                                        <th style="color: #000;text-align: center;">{{ewbill.note}}</th>
+                                                    </tr>
+                                                    {% endif %}
+        
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-4"></div>
+                                        <div class="col-4">
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <td style="color: #000;">Sub Total</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sub_total}}</td>
+                                                    </tr>
+                                                    
+                                                    {% if ewbill.igst != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">IGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.igst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.cgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">CGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.cgst}}</td>
+                                                        
+                                                    </tr>
+                                                    {% endif %}
+                                                    {% if ewbill.sgst != 0.0 %}
+                                                    <tr>
+                                                        <td style="color: #000;">SGST</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.sgst}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    <tr >
+                                                        <td style="color: #000;">Shipping Charge</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
+                                                    </tr>
+                                                    {% if ewbill.tcs != "0.00" %}
+                                                    <tr style="display: none;">
+                                                        <td style="color:black">TCS:</td>
+                                                        <td style="color:black">{{ewbill.tcs}}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    
+                                                </tbody>
+        
+                                            </table>
+                                            <hr>
+                                            <table class="table table-borderless">
+                                                <tbody>
+                                                    <tr >
+                                                        <th style="color: #000;">Grand Total</th>
+                                                        <th style="color: #000;">:</th>
+                                                        <th class="text-center" style="color: #000;">{{ewbill.grand_total}}</th>
+                                                    </tr>
+                                                    <!-- <tr >
+                                                        <td style="color: #000;">Paid Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class=" text-center" style="color: #000;">{{pbill.paid_amount}}</th>
+                                                    </tr>
+                                                    <tr >
+                                                        <td style="color: #000;">Balance Amount</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <th class="text-center" style="color: #000;">{{pbill.balance_amount}}</th>
+                                                    </tr> -->
+        
+                                                </tbody>
+                                            </table>
+                                        </div> 
+                                    </div>
+                                    <div class="row container-fluid  p-2 m-0">
+                                        <div class="col-sm-3 m-0 p-0"><label style="color: #000;"><b>Authorized Signature</b></label></div>
+                                        <div class="col-sm-4 m-0 p-0 text-dark">________________________</div>
+                                        <div class="col-sm-4 m-0 p-0"></div>
+                                    </div>
+                                </section>
+                                   
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
 
         <div class="modal fade" id="file" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -1042,7 +1559,7 @@
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                    <form action="{%url 'rbill_file' ewbill.ewbillid %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
+                    <form action="{%url 'attach_ewbill_file' ewbill.ewbillid %}" method="POST" enctype="multipart/form-data">{% csrf_token %}
                         <div class="modal-body">
                             <input type="file" class="form-control" name="file">
                         </div>
@@ -1058,18 +1575,29 @@
 </div>
 
 <script>
-        function Overview() {
-            
-            document.getElementById('whatToPrint').style.display = 'block';
+        function showTemplates() {
+            document.getElementById('templatesToPrintSection').style.display = 'block';
             document.getElementById('details').style.display = 'none';
-           
-            
     }
-    function Details() {
-        document.getElementById('whatToPrint').style.display = 'none';
+    function showDetails() {
+        document.getElementById('templatesToPrintSection').style.display = 'none';
         document.getElementById('details').style.display = 'block';
     }
     
+</script>
+<script>
+    function toggleTemplate(templateId,buttonId){
+        // alert(templateId)
+        // $('#whatToPrint1','#whatToPrint2','#whatToPrint3').css('display','none')
+        // document.getElementById(templateId).style.display = 'block';
+        $('.printTemplates').css('display','none');
+        $('#'+templateId).css('display','block');
+        $('.templateToggleButtons').removeClass('active');
+        $('#'+buttonId).addClass('active');
+        $("#templatePrintButton").attr("onclick","printSection('"+templateId+"')");
+        // $(this).addClass('active');
+
+    }
 </script>
 
         <!-- <script type="text/javascript">

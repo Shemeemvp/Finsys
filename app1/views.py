@@ -44554,7 +44554,6 @@ def eWayBillOverview(request, billId):
         cmp1 = company.objects.get(id=request.session["uid"])
         ewbill= e_waybills.objects.get(ewbillid=billId, cid=cmp1)
         ewitems = e_waybill_item.objects.filter(bill=billId)
-        # cust = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
         context = {'ewbill': ewbill, 'cmp1': cmp1,'ewitem':ewitems}
         return render(request, 'app1/e_waybill_overview.html', context)
     except Exception as e:
@@ -44727,37 +44726,22 @@ def delete_ewbill(request, billId):
 
 def ewaybillPdf(request,billId):
     
-    cmp1 = company.objects.get(id=request.session['uid'])
-   
-
-    rbill=e_waybills.objects.get(ewbillid=billId)
-    ritem = e_waybill_item.objects.all().filter(bill=billId)
-
-    total = rbill.grand_total
+    cmp1 = company.objects.get(id=request.session["uid"])
+    ewbill= e_waybills.objects.get(ewbillid=billId, cid=cmp1)
+    ewitems = e_waybill_item.objects.filter(bill=billId)
+    
+    total = ewbill.grand_total
     words_total = num2words(total)
-    # vendor_full_name = rbill.vendor_name
-    # first_name, last_name = vendor_full_name.split(' ')
-    # Vendor = vendor.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
-    # vendor_email = Vendor.email
-    # vendor_gstin=Vendor.gstin
-    # customer_full_name = rbill.customer_name
-    # first_name, last_name = customer_full_name.split(' ')
-    # Customer = customer.objects.get(firstname=first_name, lastname=last_name, cid=cmp1)
-    # customer_email = Customer.email
-    # customer_gstin=Customer.gstin
+    
+    context = {'ewbill': ewbill, 'cmp1': cmp1,'ewitem':ewitems}
+    
     template_path = 'app1/e_waybills_pdf.html'
-    context ={
-        'rbill':rbill,
-        'cmp1':cmp1,
-        'ritem':ritem,
-
-    }
-    fname=rbill.invoice_no
-   
+    fname=ewbill.invoice_no
+    # return render(request, 'app1/e_waybills_pdf.html',context)
     # Create a Django response object, and specify content_type as pdftemp_creditnote
     response = HttpResponse(content_type='application/pdf')
     #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
-    response['Content-Disposition'] =f'attachment; filename=recurringbill-{fname}.pdf'
+    response['Content-Disposition'] =f'attachment; filename=e-waybill-{fname}.pdf'
     # find the template and render it.
     template = get_template(template_path)
     html = template.render(context)
@@ -44770,6 +44754,16 @@ def ewaybillPdf(request,billId):
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
+login_required(login_url='regcomp')
+def attach_ewbill_file(request,billId):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    ewbill = e_waybills.objects.get(ewbillid=billId,cid=cmp1)
 
+    if request.method == 'POST':
+        
+        if len(request.FILES) != 0:
+            ewbill.file=request.FILES.get('file')
+        ewbill.save()
+        return redirect('eWayBillOverview',billId)
 
 # -----E-Way Bill---shemeem---end---

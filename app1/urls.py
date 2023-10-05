@@ -1161,6 +1161,7 @@ urlpatterns = [
     path('e_way_bills_cname_asc',views.ew_cname_asc, name='ew_cname_asc'),
     path('e_way_bills_billdate_asc',views.ew_billdate_asc, name='ew_billdate_asc'),
     path('ewbill_overview_pdf/<int:billId>',views.ewaybillPdf,name='ewaybillPdf'),
+    path('attach_ewbill_file/<int:billId>',views.attach_ewbill_file, name='attach_ewbill_file'),
     # <-----E-Way Bill---shemeem---end--->
      
      
