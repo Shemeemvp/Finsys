@@ -8,8 +8,12 @@
 			display: none;
     	}
         input:read-only {
-            background-color: rgba(0,0,0,.4) !important;
+            /* background-color: rgba(0,0,0,.4) !important; */
+            background-color: rgb(255 255 255 / 14%) !important;
             color: #fff;
+        }
+        .form-control:disabled, .form-control[readonly] {
+            background-color: rgb(255 255 255 / 14%) !important;
         }
         .cust-data{
             flex-direction: column;
@@ -2108,8 +2112,8 @@ success: function(data) {
     dropdown.empty()
     dropdown.append(`<option selected disabled>Choose Transportation</option>`);
     $.each(data, function(key, value) {
-    var netValue = "NET " + value;
-    dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+    // var netValue = "NET " + value;
+    dropdown.append($('<option></option>').attr('value', key).text(value).val(key+" "+value));
     // dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
         
     });

@@ -8,8 +8,12 @@
 			display: none;
     	}
         input:read-only {
-            background-color: rgba(0,0,0,.4) !important;
+            /* background-color: rgba(0,0,0,.4) !important; */
+            background-color: rgb(255 255 255 / 14%) !important;
             color: #fff;
+        }
+        .form-control:disabled, .form-control[readonly] {
+            background-color: rgb(255 255 255 / 14%) !important;
         }
         .cust-data{
             flex-direction: column;
