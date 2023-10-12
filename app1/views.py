@@ -45102,12 +45102,18 @@ def addnew_ewbill(request):
         cmp1 = company.objects.get(id=request.session['uid'])
         itm = itemtable.objects.filter(cid=cmp1)
         cust = customer.objects.filter(cid=cmp1)
+        unit = unittable.objects.filter(cid=cmp1)
+        acc2 = accounts1.objects.filter(cid=cmp1,acctype='Sales')
+        acc1 = accounts1.objects.filter(cid=cmp1,acctype='Cost of Goods Sold')
         trnsprt = Transportation.objects.all()
         createddate = date.today().strftime("%Y-%m-%d")
         context = {
                     'cmp1': cmp1,
                     'item':itm ,
                     'cust':cust,
+                    'unit':unit,
+                    'acc1':acc1,    
+                    'acc2':acc2, 
                     'date':createddate,
                     'trnsp':trnsprt,
         }
@@ -45195,6 +45201,52 @@ def create_ewbill(request):
     return redirect('/')
 
 
+def createitem_ewbill(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method == 'POST':
+            cmp1 = company.objects.get(id=request.session['uid'])
+            iname = request.POST['name']
+            itype = request.POST['type']
+            iunit = request.POST.get('unit')
+            ihsn = request.POST['hsn']
+            itax = request.POST['taxref']
+            ipcost = request.POST['pcost']
+            iscost = request.POST['salesprice']
+            # itmdate = request.POST['itmdate']
+            #itrate = request.POST['tax']
+            ipuracc = request.POST['pur_account']
+            isalacc = request.POST['sale_account']
+            ipurdesc = request.POST['pur_desc']
+            isaledesc = request.POST['sale_desc']
+            iintra = request.POST['intra_st']
+            iinter = request.POST['inter_st']
+            iinv = request.POST.get('invacc')
+            istock = request.POST.get('stock')
+            istatus = request.POST['status']
+            item = itemtable(name=iname,item_type=itype,unit=iunit,
+                                hsn=ihsn,tax_reference=itax,
+                                purchase_cost=ipcost,
+                                sales_cost=iscost,
+                                # itmdate=itmdate,
+                                #tax_rate=itrate,
+                                acount_pur=ipuracc,
+                                account_sal=isalacc,
+                                pur_desc=ipurdesc,
+                                sale_desc=isaledesc,
+                                intra_st=iintra,
+                                inter_st=iinter,
+                                inventry=iinv,
+                                stockin=istock,
+                                stock=istock,
+                                status=istatus,
+                                cid=cmp1)
+            item.save()
+            return HttpResponse({"message": "success"})
 
 
 @login_required(login_url='regcomp')

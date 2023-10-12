@@ -8,7 +8,8 @@
 			display: none;
     	}
         input:read-only {
-            background-color: rgba(0,0,0,.4) !important;
+            /* background-color: rgba(0,0,0,.4) !important; */
+            background-color: rgb(255 255 255 / 14%) !important;
             color: #fff;
         }
         .cust-data{
@@ -64,6 +65,22 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-4 mt-2">
+                                <label for="transaction_type">Transaction Type</label>
+                                <div class="d-flex">
+                                    <select name="transaction_type" id="transaction_type" class="custom-select" required>
+                                        <option value="">--Transaction Type--</option>
+                                        <option value="Goods">Goods</option>
+                                        <option value="Service">Service</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mt-2 d-none " id="transaction_hsn" style="flex-direction: column;">
+                            <label for="trasaction_hsn_value">HSN</label>
+                            <div class="d-flex">
+                            <input type="number" class="form-control" id="trasaction_hsn_value" name="transaction_hsn" value="{{ewbill.transaction_hsn}}">
+                            </div>
+                            </div>
                         </div>
                         <hr>
                           <div class="row">
@@ -89,6 +106,57 @@
                                     <div class="valid-feedback">Looks good!</div> 
                                 </div>
                             </div>
+                            <div class="col-md-4 mt-2">
+                                <label for="">Place of Supply</label>
+                              <select name="placeofsupply" id="placeofsupply" class="form-control">
+                                <!-- <option selected disabled>--Place of Supply--</option> -->
+                                <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
+                                <option value="Andhra Predhesh">Andhra Predhesh</option>
+                                <option value="Arunachal Predesh">Arunachal Predesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                                <option value="Damn anad Diu">Damn anad Diu</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Predesh">Himachal Predesh</option>
+                                <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala" selected>Kerala</option>
+                                <option value="Ladakh">Ladakh</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Madhya Predesh">Madhya Predesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Puducherry">Puducherry</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Predesh">Uttar Predesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                                <option value="Other Territory">Other Territory</option>
+                              </select>
+                            </div>
+                            <div class="col-md-4 mt-2">
+                                <label for="addressdetails">Address Details</label>
+                                <div class="d-flex">
+                                    <textarea name="customer_address" id="customer_address" class="form-control" cols="30" rows="4">{{ewbill.delivery_address}}</textarea>
+                                    <!-- <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number"> -->
+                                </div>
+                            </div>
                             
                         </div>
                         <div class="row mt-2">
@@ -105,6 +173,9 @@
                                 <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp" value="{{ewbill.gstin}}" readonly>
                               </div>
                         </div>
+                        <!-- <div class="row mt-3">
+                            
+                            </div> -->
                           <hr>
                           <div class="row">
                               <div class="col-md-3 mt-2"><h5>Invoice</h5></div>
@@ -126,79 +197,6 @@
                             </div>
                             </div>
                             <hr>
-                            <div class="row">
-                                <div class="col-md-4 mt-2">
-                                    <label for="transaction_type">Transaction Type</label>
-                                    <div class="d-flex">
-                                        <select name="transaction_type" id="transaction_type" class="custom-select" required>
-                                            <option value="">--Transaction Type--</option>
-                                            <option value="Goods">Goods</option>
-                                            <option value="Service">Service</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mt-2 d-none " id="transaction_hsn" style="flex-direction: column;">
-                                <label for="trasaction_hsn_value">HSN</label>
-                                <div class="d-flex">
-                                <input type="number" class="form-control" id="trasaction_hsn_value" name="transaction_hsn" value="0">
-                                </div>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="row">
-                                <div class="col-md-4 mt-2">
-                                    <label for="addressdetails">Address Details</label>
-                                    <div class="d-flex">
-                                        <textarea name="customer_address" id="customer_address" class="form-control" cols="30" rows="4">{{ewbill.delivery_address}}</textarea>
-                                        <!-- <input type="text" class="form-control" id="invoice_number" name="ew_invoice_number"> -->
-                                    </div>
-                                </div>
-                                <div class="col-md-4 mt-2">
-                                    <label for="">Place of Supply</label>
-                                  <select name="placeofsupply" id="placeofsupply" class="form-control">
-                                    <!-- <option selected disabled>--Place of Supply--</option> -->
-                                    <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
-                                    <option value="Andhra Predhesh">Andhra Predhesh</option>
-                                    <option value="Arunachal Predesh">Arunachal Predesh</option>
-                                    <option value="Assam">Assam</option>
-                                    <option value="Bihar">Bihar</option>
-                                    <option value="Chandigarh">Chandigarh</option>
-                                    <option value="Chhattisgarh">Chhattisgarh</option>
-                                    <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
-                                    <option value="Damn anad Diu">Damn anad Diu</option>
-                                    <option value="Delhi">Delhi</option>
-                                    <option value="Goa">Goa</option>
-                                    <option value="Gujarat">Gujarat</option>
-                                    <option value="Haryana">Haryana</option>
-                                    <option value="Himachal Predesh">Himachal Predesh</option>
-                                    <option value="Jammu and Kashmir">Jammu and Kashmir</option>
-                                    <option value="Jharkhand">Jharkhand</option>
-                                    <option value="Karnataka">Karnataka</option>
-                                    <option value="Kerala" selected>Kerala</option>
-                                    <option value="Ladakh">Ladakh</option>
-                                    <option value="Lakshadweep">Lakshadweep</option>
-                                    <option value="Madhya Predesh">Madhya Predesh</option>
-                                    <option value="Maharashtra">Maharashtra</option>
-                                    <option value="Manipur">Manipur</option>
-                                    <option value="Meghalaya">Meghalaya</option>
-                                    <option value="Mizoram">Mizoram</option>
-                                    <option value="Nagaland">Nagaland</option>
-                                    <option value="Odisha">Odisha</option>
-                                    <option value="Puducherry">Puducherry</option>
-                                    <option value="Punjab">Punjab</option>
-                                    <option value="Rajasthan">Rajasthan</option>
-                                    <option value="Sikkim">Sikkim</option>
-                                    <option value="Tamil Nadu">Tamil Nadu</option>
-                                    <option value="Telangana">Telangana</option>
-                                    <option value="Tripura">Tripura</option>
-                                    <option value="Uttar Predesh">Uttar Predesh</option>
-                                    <option value="Uttarakhand">Uttarakhand</option>
-                                    <option value="West Bengal">West Bengal</option>
-                                    <option value="Other Territory">Other Territory</option>
-                                  </select>
-                                </div>
-                                </div>
-                                 <hr>
                           <!--<div class="row">
                               <div class="col-md-3 mt-2">
                                   <label for="">Place of Supply</label>
@@ -304,8 +302,9 @@
                             <div class="col-md-3 mt-2 d-none" id="vehicle_number_segment" style="flex-direction: column;">
                                 <label for="vehicle_number">Vehicle #</label>
                                 <div class="d-flex">
-                                    <input type="text" class="form-control" id="vehicle_number" name="vehicle_number" value="{{ewbill.vehicle_number}}">
+                                    <input type="text" onchange="checkvehicle_num(this)" class="form-control" id="vehicle_number" name="vehicle_number" value="{{ewbill.vehicle_number}}">
                                 </div>
+                                <div class="text-danger m-2" id="warnv_num"></div>
                             </div>
                             <div class="col-md-3 mt-2">
                                 <label for="kilometer_input">Kilometers</label>
@@ -2485,6 +2484,17 @@ $(document).ready(function() {
             }
         }
 
+        function checkvehicle_num(element) {
+            var v_number = element.value;
+            var v_numregexp = /^[A-Z]{2}[ -][0-9]{1,2} [A-Z]{1,2} [0-9]{4}$/;
+            if (v_number.match(v_numregexp)) {
+                document.getElementById('warnv_num').innerHTML = '';
+            } else {
+                document.getElementById('warnv_num').innerHTML = 'Vehicle # format should be "XX 11 X 1111" or "XX 11 XX 1111"';
+                // alert('Please provide a valid PAN Number')
+            }
+        }
+
         function checkweb(element) {
             var webinput = element.value;
             var webregexp = "www."
@@ -2520,6 +2530,18 @@ $(document).ready(function() {
         }
     })
     })
+    </script>
+    <script>
+        $(document).ready(function(){
+            // alert( `{{ewbill.transaction_type}}`)
+        if (`{{ewbill.transaction_type}}` == 'Goods'){
+        $('#transaction_hsn').removeClass('d-none');
+        $('#transaction_hsn').addClass('d-flex');
+        }else{
+            $('#transaction_hsn').removeClass('d-flex');
+            $('#transaction_hsn').addClass('d-none');
+        }
+        })
     </script>
     <script>
         (function () {

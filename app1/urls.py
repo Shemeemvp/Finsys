@@ -1168,6 +1168,7 @@ urlpatterns = [
     path('e_waybills',views.e_waybills_page,name='go_ewaybill'),
     path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
     path('create_new_ewaybill',views.create_ewbill, name = 'create_ewbill'),
+    path('create_new_item_ewbill', views.createitem_ewbill, name='createitem_ewbill'),
     path('eway_bill_overview/<int:billId>',views.eWayBillOverview,name='eWayBillOverview'),
     path('edit_eway_bill/<int:billId>',views.edit_eway_bill,name='edit_eway_bill'),
     path('update_ewbill/<int:billId>', views.update_eway_bill, name = 'update_eway_bill'),
