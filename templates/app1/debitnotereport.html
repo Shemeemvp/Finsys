@@ -81,7 +81,7 @@
                 <div class="card-title">
                     <center>
                         <h6>{{cmp1.cname}}</h6>
-                        <h2 class="mb-0">PURCHASE</h2><br>
+                        <h2 class="mb-0">DEBITNOTE REPORT</h2><br>
                    
                     <div class="display">
                         <div id="d1" style="display: inline-block;"></div>
@@ -128,19 +128,6 @@
             <div class="card-body">
                 <div class="row">
 
-                    <div class="col-md-4">
-                        <div class="wrap" style="margin-top: 8px;">
-                            <div class="search">
-    
-                                <input type="text" class="form-control btn-outline-info" placeholder="Search"
-                                    style="background-color: #2f516f;color: white;width: 250px;" name="search"
-                                    id="searchInput">
-                            </div>
-    
-    
-                        </div>
-    
-                    </div>
                     
                 </div>
             </div>
@@ -156,101 +143,48 @@
                         <thead>
                             <tr style="text-align: center;">
                                 <th>DATE</th>
-                                <th style="white-space: nowrap;">BILL NO</th>
-                                <th style="white-space: nowrap;">PARTY NAME</th>
-                                <th>TRANSACTION</th>
-                                <th style="white-space: nowrap;">PAYMENT TYPE</th>
-                                <th>TOTAL</th>
-                                <th>BALANCE</th>
+                                <th style="white-space: nowrap;">DEBIT NO</th>
+                                <th style="white-space: nowrap;">VENDOR NAME</th>
+                               
+                                <th style="white-space: nowrap;">EMAIL</th>
+                                <th>TAX AMOUNT</th>
+                                <th>TOTAL AMOUNNT</th>
                                 
                                
     
                             </tr>
                         </thead>
                         <tbody>
-                
-                           
-    
-    
-                           
-    
-    
-    
-                            
-    
-                            
-    
-                            {% for trans in bills %}
-                            <tr class="table-row " data-href="" style="text-align: center;">
-                                <td>{{ trans.date | date:'Y-m-d'}}</td>
-                                <td>{{trans.bill_no}}</td>
-                                <td>{{ trans.vendor_name }}</td>
-                                <td>Bill</td>
-                                <td>{{trans.payment_type}}</td>
-                                <td>{{ trans.grand_total }}</td>
-                                <td>{{ trans.balance_due }}</td>
-    
-                            </tr>
-                            {% endfor %}
-    
-    
-                            
-    
-    
     
                             {% for trans in debitnote %}
                             <tr class="table-row " data-href="" style="text-align: center;">
                                 <td>{{ trans.debitdate | date:'Y-m-d' }}</td>
-                                <td>{{trans.billno}}</td>
+                                <td>DN - {{trans.debit_no}}</td>
                                 <td>{{ trans.vendor }}</td>
-                                <td>Debit Note</td>
-                                <td>{{trans.payment_type}}</td>
+                                <td>{{ trans.email }}</td>
+                                <td>{{ trans.taxamount }}</td>
                                 <td>{{ trans.grandtotal }}</td>
-                                <td>{{trans.balance_amount}}</td>
-                                
-    
-                            </tr>
-                            {% endfor %}
-    
-                           
-                            {% for trans in recurringbills %}
-                            <tr class="table-row " data-href="" style="text-align: center;">
-                                <td>{{ trans.start_date | date:'Y-m-d' }}</td>
-                                <td>{{trans.billno}}</td>
-                                <td>{{trans.vendor_name}}</td>
-                                <td>Recurringbills</td>
-                                <td>{{trans.payment_method}}</td>
-                                <td>{{trans.grand_total }}</td>
-                                <td>{{trans.balance}}</td>
-                                
-    
-                            </tr>
-                            {% endfor %} 
-    
-                            
-    
-                            
-    
-    
-    
-                    
+                           </tr>
+                           {%endfor%}
                         </tbody>
                     </table>
                     </div>
+                    
                 </div>
+                
             </div>
-            <div class="bar p-5">
-                <div class="lef">
-                    <h5 class="pt-3" >Total Amount</h5>
-                    <h6 id="totalTaxAmount" ></h6>
-                </div>
-                <div class="right">
-                    <h5 class="pt-3">Total Balance</h5>
-                    <h6 id="totalAmount" class="d-inline-block"></h6>
-                </div>
-            </div>
-        
+
+            
         </div>
+        <div class="bar p-5">
+            <div class="lef">
+                <h5 class="pt-3" >Total Tax Amount</h5>
+                <h6 id="totalTaxAmount" ></h6>
+            </div>
+            <div class="right">
+                <h5 class="pt-3">Total Amount</h5>
+                <h6 id="totalAmount" class="d-inline-block"></h6>
+            </div>
         </div>
     
     </div>
@@ -266,7 +200,7 @@
             var wb = XLSX.utils.table_to_book(elt, { sheet: "sheet1" });
             return dl ?
                 XLSX.write(wb, { bookType: type, bookSST: true, type: 'base64' }) :
-                XLSX.writeFile(wb, fn || ('allpurchase.' + (type || 'xlsx')));
+                XLSX.writeFile(wb, fn || ('debitnotereport.' + (type || 'xlsx')));
         }
     </script> 
 
@@ -288,7 +222,8 @@ $(document).on('click', '.btn_print', function (event) {
     const printWindow = window.open('', '');
 
     const pageTitle = printWindow.document.createElement('h1');
-    pageTitle.textContent = 'PURCHASE'; // Replace 'Page Title' with your desired title text
+    
+    pageTitle.textContent = 'DEBITNOTE REPORT'; // Replace 'Page Title' with your desired title text
     pageTitle.style.textAlign = 'center';
     pageTitle.style.color = 'black';
 
@@ -298,6 +233,9 @@ $(document).on('click', '.btn_print', function (event) {
                 th {
                     padding: 30px;
                    
+                }
+                td{
+                    text-align:center;
                 }
             }
         `;
@@ -333,7 +271,7 @@ $(document).ready(function ($) {
             var opt =
             {
                 margin: 1,
-                filename: 'purchase' + '.pdf',
+                filename: 'debitnote_report' + '.pdf',
                 image: { type: 'png', quality: 1.0 },
                 html2canvas: { scale: 3, useCORS: true, backgroundColor: null },
                 jsPDF: { unit: 'in', format: 'a3', orientation: 'portrait' }
@@ -432,8 +370,8 @@ document.getElementById('todate').addEventListener('change', filterTableByDate);
         const rows = document.querySelectorAll('#tbl_exporttable_to_xls tbody tr');
 
         rows.forEach(row => {
-            const taxAmount = parseFloat(row.querySelector('td:nth-child(6)').innerText);
-            const amount = parseFloat(row.querySelector('td:nth-child(7)').innerText);
+            const taxAmount = parseFloat(row.querySelector('td:nth-child(5)').innerText);
+            const amount = parseFloat(row.querySelector('td:nth-child(6)').innerText);
 
             if (!isNaN(taxAmount)) {
                 totalTaxAmount += taxAmount;
@@ -452,5 +390,7 @@ document.getElementById('todate').addEventListener('change', filterTableByDate);
     // Call the function to calculate and display totals
     calculateTotals();
 </script>
-{% endif %}
-{% endblock %}
+
+
+{%endif%}
+{%endblock%}

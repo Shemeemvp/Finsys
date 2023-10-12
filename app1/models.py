@@ -1226,6 +1226,7 @@ class itemtable(models.Model):
     stockin = models.IntegerField(default='0',blank=True,null=True)
     stockout = models.IntegerField(default='0',blank=True,null=True)
     amount = models.IntegerField(default='0',blank=True,null=True)
+    stock_rate= models.FloatField(default='0.0',blank=True,null=True)#reshna added
     status = models.CharField(max_length=100,null=True)
 
 class unittable(models.Model):
@@ -1247,6 +1248,7 @@ class mjournal(models.Model):
     total_deb = models.CharField(max_length=100, default='')
     total_cre = models.CharField(max_length=100, default='')
     difference = models.CharField(max_length=100, default='')
+    comments = models.CharField(max_length=100,null=True,default='')
     status = models.CharField(max_length=100,default="Draft")
 
 class mjournal1(models.Model):
@@ -1550,6 +1552,22 @@ class purchasedebit(models.Model):
     igst = models.CharField(max_length=100,null=True)
     taxamount = models.CharField(max_length=100,null=True)
     grandtotal = models.CharField(max_length=100,null=True)
+    discount = models.CharField(max_length=100,default=0)
+    tcs = models.CharField(max_length=100,null=True)
+    tcs_amount = models.FloatField(blank=True,null=True)
+    round_off = models.CharField(max_length=100,null=True)
+    balance_due = models.CharField(max_length=100,null=True)
+    amtrecvd = models.CharField(max_length=100,null=True)
+    total_discount = models.CharField(max_length=100,null=True)
+    ship_charge = models.CharField(max_length=100,null=True)
+    paid_amount = models.FloatField(blank=True,null=True)
+    balance_amount = models.FloatField(blank=True,null=True)
+    payment_type = models.CharField(max_length=100,null=True)
+    debit_status = (
+        ('Draft','Draft'),
+        ('Save','Save'),
+    )
+    status =models.CharField(max_length=150,choices=debit_status ,default='Draft')
 
 class purchasedebit1(models.Model):
     pdebit = models.ForeignKey(purchasedebit, on_delete=models.CASCADE,null=True)
@@ -1560,6 +1578,7 @@ class purchasedebit1(models.Model):
     price = models.CharField(max_length=100,null=True)
     tax = models.CharField(max_length=100,null=True)
     total = models.CharField(max_length=100,null=True)
+    discount = models.CharField(max_length=100,null=True)
 
 class itemstock(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
@@ -2168,7 +2187,7 @@ class recurringbill_item(models.Model):
 class repeatevery(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     repeat=models.CharField(max_length=100,null=True,blank=True)  
-
+    
 
 ###### E-Way bills ---------shemeem------
 class Transportation(models.Model):
@@ -2227,4 +2246,32 @@ class e_waybill_item(models.Model):
     total = models.IntegerField(default=0, null=True)
     discount = models.CharField(max_length=100,null=True)
     tax = models.CharField(max_length=100,null=True)
-
+    
+    
+class debitnotecomments(models.Model):
+    commentid = models.AutoField(('COMMENTID'), primary_key=True)
+    debid = models.ForeignKey(purchasedebit, on_delete=models.CASCADE)
+    cid = models.ForeignKey(company, on_delete=models.CASCADE)
+    comment = models.CharField(max_length=250,null=True)
+    
+#reshna-holidays#
+class holidays(models.Model):
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    hid = models.AutoField(('hid'), primary_key=True)
+    start_date = models.DateField(null=True,blank=True)
+    end_date = models.DateField(null=True,blank=True)
+    name = models.CharField(max_length=100,null=True,blank=True)
+    
+    
+# reshna attendence#
+class attendance(models.Model):
+    cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
+    atid = models.AutoField(('hid'), primary_key=True)
+    date = models.DateField(null=True,blank=True)
+    employee= models.CharField(max_length=100,null=True,blank=True)
+    status = models.CharField(max_length=100,null=True,blank=True)
+    
+    
+class man_Journal_comment(models.Model):
+    comment=models.CharField(max_length=300)
+    proj=models.ForeignKey(mjournal,on_delete=models.CASCADE,null=True,blank=True)

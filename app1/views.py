@@ -8,10 +8,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect,HttpResponse
 from datetime import datetime, date, timedelta
-from .models import advancepayment, paydowncreditcard, salesrecpts, timeact, timeactsale, Cheqs, suplrcredit, addac, \
-    bills, invoice, expences, payment, credit, delayedcharge, estimate, service, noninventory, bundle, employee, \
-    payslip, inventory, customer, supplier, company, accounts, ProductModel, ItemModel, accountype, \
-    expenseaccount, incomeaccount, accounts1, recon1, recordpay, addtax1, bankstatement, customize, e_waybills, e_waybill_item, Transportation
+from .models import *
 from django.forms import ModelForm
 from django.contrib.auth.models import auth, User
 from django.contrib import messages
@@ -29,16 +26,20 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import get_object_or_404
-from app1.models import BankAccountHolder
+from app1.models import *
 from django.db.models import F
 from django.db.models import Count
 from . models import *
-from .forms import BankAccountHolderForm, BankAccountForm, BankConfigurationForm, MailingAddressForm, BankingDetailsForm, OpeningBalanceForm
-from .forms import BankAccountFilterForm
+from .forms import *
 import io
 import xlsxwriter
 from django.http import HttpResponse
 from datetime import datetime as dt
+from django.http import HttpResponseBadRequest
+import pandas as pd
+from django.core import serializers
+from io import BytesIO
+import zipfile
 
 def index(request):
     return render(request, 'app1/index.html')
@@ -30931,6 +30932,7 @@ def create_item(request):
             iinv = request.POST.get('invacc')
             istock = request.POST.get('stock')
             istatus = request.POST['status']
+            stockrate = request.POST.get('stock_rate')#reshna added
             item = itemtable(name=iname,item_type=itype,unit=iunit,
                                 hsn=ihsn,tax_reference=itax,
                                 purchase_cost=ipcost,
@@ -30947,6 +30949,7 @@ def create_item(request):
                                 stockin=istock,
                                 stock=istock,
                                 status=istatus,
+                                stock_rate=stockrate,
                                 cid=cmp1)
             item.save()
             return redirect('goitem')
@@ -31041,7 +31044,16 @@ def update_item(request, id):
             item.inter_st = request.POST.get('inter_st')
             item.inventry = request.POST.get('invacc')
             item.stock = request.POST.get('stock')
+            # print(request.POST.get('status'))
             item.status = request.POST.get('status')
+            item.stock_rate = request.POST.get('stock_rate')#reshna added
+            # i=request.POST.get('e')
+            # print(i)
+            # try:
+            #     print("Value of 'e' parameter:", i)
+            # except Exception as e:
+            #     print("Error while saving item:", str(e))
+
             item.save()
             return redirect('goitem')
         return render(request,'app1/item_view.html',{'cmp1': cmp1})    
@@ -31064,13 +31076,14 @@ def add_mjournal(request):
         acc = accounts1.objects.filter(cid=cmp1)
         cust = customer.objects.filter(cid=cmp1)
         vndr = vendor.objects.filter(cid=cmp1)
+        employee=payrollemployee.objects.filter(cid_id=cmp1)
         
-        context = {'acc':acc,'cmp1':cmp1,'cust':cust,'vndr':vndr}
+        context = {'acc':acc,'cmp1':cmp1,'cust':cust,'vndr':vndr,'employee':employee}
         return render(request,'app1/add_mjournal.html',context)   
         
 
     except:
-        return redirect('gomjoural')    
+        return redirect('gomjoural')       
 
 
 @login_required(login_url='regcomp')
@@ -31082,6 +31095,7 @@ def create_mjournal(request):
             return redirect('/')
         cmp1 = company.objects.get(id=request.session['uid'])
         if request.method == 'POST':
+            
             cmp1 = company.objects.get(id=request.session['uid'])
             mjdate = request.POST['dateto1']
             mjno = request.POST['jnum']
@@ -31096,14 +31110,21 @@ def create_mjournal(request):
             total = request.POST['total_amount']
             total1 = request.POST['total_amount1']
             differ = request.POST['differ']
+            
+            if 'draft' in request.POST:
+                status = "Draft"
+            elif 'save' in request.POST:
+                status = "Publish"
+            else:
+                return HttpResponseBadRequest("Invalid form submission")
                 
             mjrnl1 = mjournal(date=mjdate, mj_no=mjno, ref_no=mjrno, notes=notes,j_type=mjtype, currency=currency, attach=file, 
                             s_totaldeb=subtotal, s_totalcre=subtotal1, total_deb=total, total_cre=total1, difference=differ,
-                            cid=cmp1)
-
+                            cid=cmp1, status=status)
             if subtotal == subtotal1:
+                
                 mjrnl1.save()
-
+                
                 acc = request.POST.getlist('account[]')
                 desc = request.POST.getlist('jdesc[]')
                 cont = request.POST.getlist('jcontact[]')
@@ -31118,24 +31139,30 @@ def create_mjournal(request):
                     for ele in mapped:
                         mjrnlAdd,created = mjournal1.objects.get_or_create(account = ele[0],desc = ele[1],contact=ele[2],debit=ele[3],
                         credit=ele[4],mjrnl=mj,cid=cmp1)
-
             else:    
                 messages.info( request, 'Please ensure that the debit and credit are equal')
-            return redirect('add_mjournal')
+            return redirect('sort_journal')
         return render(request, 'app1/mjournal.html',{'cmp1':cmp1})                        
     return redirect('/')
          
 
 @login_required(login_url='regcomp')
 def view_mj(request,id):
-    try:
-        cmp1 = company.objects.get(id=request.session['uid'])
-        mjl = mjournal.objects.filter(id=id,cid=cmp1)
-        mjl1 = mjournal1.objects.filter(mjrnl=id,cid=cmp1)
-        context = {'mjl':mjl,'mjl1':mjl1,'cmp1': cmp1}
-        return render(request,'app1/view_mj.html',context)
-    except:
-        return redirect('gomjoural')         
+    cmp1 = company.objects.get(id=request.session['uid'])
+    upd = mjournal.objects.get(id=id, cid=cmp1)
+
+    saleitem = mjournal1.objects.filter(mjrnl=id)
+
+    context ={
+        'sale':upd,
+        'cmp1':cmp1,
+        'saleitem':saleitem,
+        
+
+    }
+
+
+    return render(request,'app1/view_mj.html',context)  
 
 @login_required(login_url='regcomp')
 def mj_edit_page(request,id):  
@@ -31149,53 +31176,115 @@ def mj_edit_page(request,id):
         vndr = vendor.objects.filter(cid=cmp1)
         mjrnl = mjournal.objects.filter(id=id)
         acc  = accounts1.objects.filter(cid=cmp1)
+        employee=payrollemployee.objects.filter(cid_id=cmp1)
         mjl1 = mjournal1.objects.filter(mjrnl=id,cid=cmp1)
-        context = {'mjrnl':mjrnl,'acc':acc,'mj1':mjl1,'cust':cust,'vndr':vndr,'cmp1': cmp1}
+        context = {'mjrnl':mjrnl,'acc':acc,'mj1':mjl1,'cust':cust,'vndr':vndr,'cmp1': cmp1,'employee':employee}
         return render(request,'app1/mj_edit.html',context)
     return redirect('gomjoural') 
 
 @login_required(login_url='regcomp')
 def update_mj(request, id):
-    try:
-        cmp1 = company.objects.get(id=request.session['uid'])
-        if request.method == 'POST':
-            mjrnl = mjournal.objects.get(id=id)
-            mjrnl.date = request.POST.get('dateto1')
-            mjrnl.mj_no = request.POST.get('jnum')
-            mjrnl.ref_no = request.POST.get('rjnum')
-            mjrnl.notes = request.POST.get('jnotes')
-            mjrnl.j_type = request.POST.get('jtype')
-            mjrnl.currency = request.POST.get('jcurrency')
-            mjrnl.attach = request.POST.get('pic')
-            mjrnl.s_totaldeb = request.POST.get('sub_total')
-            mjrnl.s_totalcre = request.POST.get('sub_total1')
-            mjrnl.total_deb = request.POST.get('total_amount')
-            mjrnl.total_cre = request.POST.get('total_amount1')
-            mjrnl.difference = request.POST.get('differ')
-            mjrnl.status = request.POST.get('status')
+    mjrnl = get_object_or_404(mjournal, id=id)
+    cmp1 = get_object_or_404(company, id=request.session.get('uid'))
+    print(cmp1)
+
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        mj_no = request.POST.get('mj_no')
+        ref_no = request.POST.get('ref_no')
+        notes = request.POST.get('notes')
+        currency = request.POST.get('currency')
+        file = request.FILES.get('file')
+        sub_total = request.POST['sub_total']
+        sub_total1 = request.POST['sub_total1']
+        # total_amount = request.POST['total_amount']
+        # total_amount1 = request.POST['total_amount1']
+        # differ = request.POST['differ'] 
+        j_type = request.POST.get('jtype') == 'True'
+
+        mjrnl.date = date
+        mjrnl.mj_no = mj_no
+        mjrnl.ref_no = ref_no
+        mjrnl.notes = notes
+        mjrnl.currency = currency
+        mjrnl.j_type = j_type
+        mjrnl.attach = file
+        mjrnl.s_totaldeb = sub_total
+        mjrnl.s_totalcre = sub_total1
+        # mjrnl.total_deb = total_amount
+        # mjrnl.total_cre = total_amount1
+        # mjrnl.difference = differ      
+        mjrnl.user = request.user
+        u = User.objects.get(id = request.user.id)
+        
+        total_deb = 0
+        total_cre = 0
+
+        
+     
+
+        # Set the 'cid' field explicitly to the 'company' object
+        mjrnl.cid = cmp1
+        
+        if 'draft' in request.POST:
+            status = "Draft"
+        elif 'save' in request.POST:
+            status = "Publish"
+
+        mjrnl.status = status  # Set the status field
+
+
+        mjrnl.save()
+        p_bill = mjournal.objects.get(id=mjrnl.id)
+
+        account = request.POST.getlist("account")
+        desc = request.POST.getlist("desc")
+        contact = request.POST.getlist("contact")
+        debit = request.POST.getlist("debit")
+        credit = request.POST.getlist("credit")
+
+        obj_dele = mjournal1.objects.filter(mjrnl=p_bill.id)
+        obj_dele.delete()
+        
+        # Update existing mjournal1 objects based on the updated data
+        # Assuming you have already defined account, desc, contact, debit, and credit lists
+        if len(account) == len(desc) == len(contact) == len(debit) == len(credit) and account and desc and contact and debit and credit:
+            mapped = zip(account, desc, contact, debit, credit)
+            mapped = list(mapped)
+            
+            # Rest of your code that uses the 'mapped' variable
+            for ele in mapped:
+                mjrnl1, created = mjournal1.objects.update_or_create(
+                    mjrnl=p_bill,
+                    cid=cmp1,
+                    account=ele[0],
+                    defaults={
+                        'desc': ele[1],
+                        'contact': ele[2],
+                        'debit': ele[3],
+                        'credit': ele[4],
+                    }
+                )
+                total_deb = sum(float(value) for value in debit if value) if debit else 0
+                total_cre = sum(float(value) for value in credit if value) if credit else 0
+
+
+            difference = total_deb - total_cre
+
+            # Update the mjrnl object with the calculated values
+            mjrnl.total_deb = total_deb
+            mjrnl.total_cre = total_cre
+            mjrnl.difference = difference
+
+            # Save the updated mjrnl object
             mjrnl.save()
 
-            acc = request.POST.getlist('account[]')
-            desc = request.POST.getlist('jdesc[]')
-            cont = request.POST.getlist('jcontact[]')
-            deb = request.POST.getlist('jdebit[]')
-            cred = request.POST.getlist('jcredit[]')
 
-            mjid = request.POST.getlist("id[]")
 
-            id = mjournal.objects.get(id=mjrnl.id)
 
-            if len(acc)==len(desc)==len(cont)==len(deb)==len(cred) and acc and desc and cont and deb and cred and mjid:
-                mapped=zip(acc,desc,cont,deb,cred,mjid)
-                mapped=list(mapped)
-                for ele in mapped:
-                    created = mjournal1.objects.filter(id=ele[5]).update(account = ele[0],desc = ele[1],contact=ele[2],debit=ele[3],
-                    credit=ele[4])
+        return redirect('gomjoural')
 
-            return redirect('gomjoural')
-        return render(request,'app1/view_mj.html',{'cmp1': cmp1})    
-    except:
-        return redirect('gomjoural')     
+    return render(request, 'app1/mj_edit.html', {'mjrnl': mjrnl, 'cmp1': cmp1})
  
 @login_required(login_url='regcomp')
 def deletemj(request, id):
@@ -36052,7 +36141,7 @@ def createpurchasedebit(request):
             return redirect('/')
         cmp1 = company.objects.get(id=request.session['uid'])
         if request.method == 'POST':
-            debit_no = '1000'
+          
             pdebit = purchasedebit(vendor = request.POST['vendor'],
                                     address = request.POST['address'],
                                     email=request.POST['email'],
@@ -36063,13 +36152,28 @@ def createpurchasedebit(request):
                                     sgst=request.POST['sgst'],
                                     igst=request.POST['igst'],
                                     subtotal=request.POST['subtotal'],
-                                    taxamount=request.POST['taxamount'],
+                                    taxamount=request.POST['tax_amount'],
                                     grandtotal=request.POST['grandtotal'],
+                                    debit_no=request.POST['debitno'],
+                                    tcs=request.POST['tcs'],
+                                    tcs_amount=request.POST['tcs_amount'],
+                                    round_off=request.POST['round_off'],
+            
+                                    balance_due=request.POST['balance_due'],
+                                    amtrecvd=request.POST['amtrecvd'],
+           
+                                    total_discount=request.POST['tot_dis'],
+                                    ship_charge=request.POST['shipcharge'],
+                                    paid_amount=request.POST['paid'],
+                                    payment_type=request.POST['paytype'],
+                                    balance_amount=request.POST['bal_due'],
+            
+
+
                                     cid=cmp1
                                 )
             pdebit.save()
-            pdebit.debit_no = int(pdebit.debit_no) + pdebit.pdebitid
-            pdebit.save()
+            
 
             pl3=profit_loss()
             pl3.details = pdebit.vendor
@@ -36177,6 +36281,7 @@ def createpurchasedebit(request):
             quantity = request.POST.getlist("quantity[]")
             price = request.POST.getlist("price[]")
             tax = request.POST.getlist("tax[]")
+            discount=request.POST.getlist("reduce[]")
             total = request.POST.getlist("total[]")
 
             pdeb=purchasedebit.objects.get(pdebitid=pdebit.pdebitid)
@@ -36192,16 +36297,16 @@ def createpurchasedebit(request):
                     pAdd,created = itemstock.objects.get_or_create(items = ele[0],qty = ele[1],transactions="Vendor Credits",details=dl,
                     date=dt,debit=pdeb,cid=cmp1)
          
-            if len(items)==len(hsn)==len(quantity)==len(price)==len(tax)==len(total):
+            if len(items)==len(hsn)==len(quantity)==len(price)==len(tax)==len(discount)==len(total):
                 
-                mapped=zip(items,hsn,quantity,price,tax,total)
+                mapped=zip(items,hsn,quantity,price,tax,discount,total)
                 mapped=list(mapped)
                 #debit add
                
                 for ele in mapped:
                     
                     porderAdd,created = purchasedebit1.objects.get_or_create(items = ele[0],hsn=ele[1],quantity=ele[2],price=ele[3],
-                    tax=ele[4],total=ele[5],pdebit=pdeb,cid=cmp1)
+                    tax=ele[4],discount=ele[5],total=ele[6],pdebit=pdeb,cid=cmp1)
 
                     itemqty1 = itemtable.objects.get(name=ele[0],cid=cmp1)
                     if itemqty1.stock != 0:
@@ -36240,8 +36345,11 @@ def viewpurchasedebit(request,id):
         cmp1 = company.objects.get(id=request.session['uid'])
         pdebt=purchasedebit.objects.get(pdebitid=id)
         pdebt1 = purchasedebit1.objects.all().filter(pdebit=id)
-        return render(request,'app1/viewpurchasedebit.html',{'cmp1': cmp1,'pdebt':pdebt,'pdeb':pdebt1})
+        comments = debitnotecomments.objects.filter(cid_id=request.session["uid"],debid_id=id)
+       
+        return render(request,'app1/viewpurchasedebit.html',{'cmp1': cmp1,'pdebt':pdebt,'pdeb':pdebt1,'comments':comments})
     return redirect('gopurchasedebit')
+
 
 def render_pdfdebit_view(request,id):
 
@@ -36318,12 +36426,23 @@ def editpurchasedebit(request,id):
             pdebt.debitdate=request.POST['debitdate']
             pdebt.email=request.POST['email']
             pdebt.billno=request.POST['billno']
-            pdebt.subtotal=request.POST['subtotal']
+            pdebt.subtotal=request.POST['sub_total']
             pdebt.cgst=request.POST['cgst']
             pdebt.sgst=request.POST['sgst']
             pdebt.igst=request.POST['igst']
-            pdebt.taxamount=request.POST['taxamount']
-            pdebt.grandtotal=request.POST['grandtotal']
+            pdebt.taxamount=request.POST['tax_amount']
+            pdebt.grandtotal=request.POST['grand_total']
+            pdebt.discount=request.POST['discount']
+            pdebt.tcs=request.POST['tcs']
+            pdebt.tcs_amount=request.POST['tcs_amount']
+            pdebt.balance_due=request.POST['balance_due']
+            pdebt.amtrecvd=request.POST['amtrecvd']
+            pdebt.round_off=request.POST['round_off']
+            pdebt.total_discount=request.POST['tot_dis']
+            pdebt.ship_charge=request.POST['shipcharge']
+            pdebt.paid_amount=request.POST['paid']
+            pdebt.payment_type=request.POST['paytype'] 
+            pdebt.balance_amount=request.POST['bal_due']
 
             pdebt.save()
 
@@ -36394,14 +36513,15 @@ def editpurchasedebit(request,id):
             quantity = request.POST.getlist("quantity[]")
             price = request.POST.getlist("price[]")
             tax = request.POST.getlist("tax[]")
+            discount = request.POST.getlist("reduce[]")
             total = request.POST.getlist("total[]")
 
             pdebid = request.POST.getlist("id[]")
 
             pdebitid=purchasedebit.objects.get(pdebitid=pdebt.pdebitid)
 
-            if len(items)==len(hsn)==len(quantity)==len(price)==len(tax)==len(total):
-                mapped=zip(items,hsn,quantity,price,tax,total)
+            if len(items)==len(hsn)==len(quantity)==len(price)==len(tax)==len(discount)==len(total):
+                mapped=zip(items,hsn,quantity,price,tax,discount,total)
                 mapped=list(mapped)
                 # for ele in mapped:
                 #     porderAdd,created = purchasedebit1.objects.get_or_create(items = ele[0],hsn=ele[1],quantity=ele[2],price=ele[3],
@@ -36415,7 +36535,7 @@ def editpurchasedebit(request,id):
                     if int(len(items))>int(count):
                         
                         created = purchasedebit1.objects.get_or_create(items = ele[0],hsn=ele[1],quantity=ele[2],price=ele[3],
-                        tax=ele[4],total=ele[5],pdebit=pdebitid)
+                        tax=ele[4],discount=ele[5],total=ele[6],pdebit=pdebitid)
 
                     else:
                      
@@ -36423,7 +36543,7 @@ def editpurchasedebit(request,id):
                         print("myid")
                         print(dbs.pdebit)
                         created = purchasedebit1.objects.filter(pdebit=pdebitid,items = ele[0],hsn=ele[1]).update(items = ele[0],hsn = ele[1],quantity=ele[2],price=ele[3],
-                        tax=ele[4],total=ele[5])
+                        tax=ele[4],discount=[5],total=ele[6])
 
             return redirect('viewpurchasedebit',id)
         return render(request,'app1/gopurchasedebit.html',{'cmp1': cmp1})
@@ -39682,8 +39802,8 @@ def additem_challan(request):
 def pricelist(request):
     try:
         cmp1 = company.objects.get(id=request.session['uid'])
-        pricelist=Pricelist.objects.filter(cid=cmp1)
-        context = {'cmp1': cmp1, 'pricelist':pricelist}
+        employee=Pricelist.objects.filter(cid=cmp1)
+        context = {'cmp1': cmp1, 'employee':employee}
         return render(request,'app1/pricelist.html',context)
             
     except:
@@ -39740,7 +39860,18 @@ def create_pricelist(request):
         name=request.POST['name']
         typedata=request.POST['type']
         itemratedata=request.POST['item-rate']
-        print(itemratedata)
+        
+        # Check the selected item-rate value and update it accordingly
+        if itemratedata == 'Markup':
+            itemratedisplay = 'Markup the item rates by a percentage'
+        elif itemratedata == 'Markdown':
+            itemratedisplay = 'Markdown the item rates by a percentage'
+        else:
+            itemratedisplay = 'Markup the item rates by a percentage'  # Default value
+
+            
+        # print(itemratedata)
+        
         description=request.POST['description']
         upordown=request.POST['select']
         percentage=request.POST['cent']
@@ -39793,8 +39924,8 @@ def inactive_pricelist(request,pk):
 def plactive(request):
     try:
         cmp1 = company.objects.get(id=request.session['uid'])
-        pricelist=Pricelist.objects.filter(cid=cmp1,is_active=True)
-        context = {'cmp1': cmp1, 'pricelist':pricelist}
+        employee=Pricelist.objects.filter(cid=cmp1,is_active=True)
+        context = {'cmp1': cmp1, 'employee':employee}
         return render(request,'app1/plactive.html',context)
             
     except:
@@ -39804,12 +39935,12 @@ def plactive(request):
 def plinactive(request):
     try:
         cmp1 = company.objects.get(id=request.session['uid'])
-        pricelist=Pricelist.objects.filter(cid=cmp1,is_active=False)
-        context = {'cmp1': cmp1, 'pricelist':pricelist}
+        employee=Pricelist.objects.filter(cid=cmp1,is_active=False)
+        context = {'cmp1': cmp1, 'employee':employee}
         return render(request,'app1/plinactive.html',context)
             
     except:
-        return redirect('pricelist')        
+        return redirect('pricelist')       
       
 
 @login_required(login_url='regcomp')
@@ -42560,28 +42691,83 @@ def cashflow(request):
 
 @login_required(login_url='regcomp')
 def daybook(request):
-        cmp1 = company.objects.get(id=request.session["uid"])  
+    cmp1 = company.objects.get(id=request.session["uid"])
+    prclist = Pricelist.objects.filter(cid=cmp1.cid).all()
+    stkadj = stockadjust.objects.filter(cid=cmp1.cid).all()
+    bnktran = bank_transactions.objects.filter(cid=cmp1.cid).all()
+    cust = customer.objects.filter(cid=cmp1.cid).all()
+    estimates = estimate.objects.filter(cid=cmp1.cid).all()
+    salesorders = salesorder.objects.filter(cid=cmp1.cid).all()
+    invoices = invoice.objects.filter(cid=cmp1.cid).all()
+    creditnote = salescreditnote.objects.filter(cid=cmp1.cid).all()
+    sales = payment.objects.filter(cid=cmp1.cid).all()
+    retainerinvoices = RetainerInvoices.objects.filter(cid=cmp1.cid).all()
+    deliverychallan = challan.objects.filter(cid=cmp1.cid).all()
+    recinv = recinvoice.objects.filter(cid=cmp1.cid).all()
+    ven = vendor.objects.filter(cid=cmp1.cid).all()
+    purchaseorders = purchaseorder.objects.filter(cid=cmp1.cid).all()
+    bill_data = bills.objects.filter(cid=cmp1.cid).all()
+    exp = expences.objects.filter(cid=cmp1.cid).all()
+    debitnote = purchasedebit.objects.filter(cid=cmp1.cid).all()
+    recbill = recurring_bill.objects.filter(cid=cmp1.cid).all()    
+    manualjournal = mjournal.objects.filter(cid=cmp1.cid).all()
+    payrollemp = payrollemployee.objects.filter(cid=cmp1.cid).all()
+    payslp = payslip.objects.filter(cid=cmp1.cid).all()
+    recpt = salesrecpts.objects.filter(cid=cmp1.cid).all()
+    supl = suplrcredit.objects.filter(cid=cmp1.cid).all()
+    crd = credit.objects.filter(cid=cmp1.cid).all()
 
-        fromdates=request.user.date_joined.date()
-        todates=date.today()
-
-        
-        
-        context = {'cmp1':cmp1,"fromdate":fromdates,"todate":todates}
-        return render(request, 'app1/daybook.html', context)
+    # delychr = delayedcharge.objects.filter(cid=cmp1.cid).all()
+    # itm = itemtable.objects.filter(cid=cmp1.cid).all()
+    # bill = purchasebill.objects.filter(cid=cmp1.cid).all()
+    # expenses = purchase_expense.objects.filter(cid=cmp1.cid).all()
+    # purchase = purchasepayment.objects.filter(cid=cmp1.cid).all()
+    context={
+        'cmp1':cmp1,
+        'prclist':prclist,
+        'stkadj':stkadj,
+        'bnktran':bnktran,
+        'cust':cust,
+        'estimates':estimates,
+        'salesorders':salesorders,
+        'invoices':invoices,
+        'creditnote':creditnote,
+        'sales':sales,
+        'retainerinvoices':retainerinvoices,
+        'deliverychallan':deliverychallan,
+        'recinv':recinv,
+        'ven':ven,
+        'purchaseorders':purchaseorders,
+        'bill_data':bill_data,
+        'exp':exp,
+        'debitnote':debitnote,
+        'recbill':recbill,        
+        'manualjournal':manualjournal,        
+        'payrollemp':payrollemp,        
+        'payslp':payslp,
+        'recpt':recpt,
+        'supl':supl,
+        'crd':crd,
+     }
+    return render(request, 'app1/daybook.html', context)
 
 
 @login_required(login_url='regcomp')
 def purchase(request):
-        cmp1 = company.objects.get(id=request.session["uid"])   
+        cmp1 = company.objects.get(id=request.session["uid"])
+        bills=purchasebill.objects.filter(cid=cmp1.cid).all()
+        recurringbills = recurring_bill.objects.filter(cid=cmp1.cid).all()
+        debitnote =purchasedebit.objects.filter(cid=cmp1.cid).all()
 
-        fromdates=request.user.date_joined.date()
-        todates=date.today()
-
+        context = {'cmp1':cmp1,
+                'bills':bills,
+                'recurringbills':recurringbills,
+                'debitnote':debitnote,
         
         
-        context = {'cmp1':cmp1,"fromdate":fromdates,"todate":todates}
+        }
         return render(request, 'app1/purchase.html', context)
+
 
 
 
@@ -42751,33 +42937,6 @@ def deleteloan(request,eid):
     employee.delete()
     return redirect('employeeloanpage')  
 
-
-@login_required(login_url='regcomp')
-def update_item(request, id):
-    cmp1 = company.objects.get(id=request.session['uid'])
-    if request.method == 'POST':
-        item = itemtable.objects.get(id=id)
-        item.name = request.POST.get('name')
-        item.item_type = request.POST.get('type')
-        item.unit = request.POST.get('unit')
-        item.hsn = request.POST.get('hsn')
-        item.tax_reference = request.POST.get('taxref')
-        item.purchase_cost = request.POST.get('pcost')
-        item.sales_cost = request.POST.get('salesprice')
-        item.itmdate = request.POST.get('itmdate')
-        # item.tax_rate = request.POST.get('tax')
-        item.acount_pur = request.POST.get('pur_account')
-        item.account_sal = request.POST.get('sale_account')
-        item.pur_desc = request.POST.get('pur_desc')
-        item.sale_desc = request.POST.get('sale_desc')
-        item.intra_st = request.POST.get('intra_st')
-        item.inter_st = request.POST.get('inter_st')
-        item.inventry = request.POST.get('invacc')
-        item.stock = request.POST.get('stock')
-        item.status = request.POST.get('status')
-        item.save()
-        return redirect('view_item',id=id)
-        return render(request,'app1/item_view.html',{'cmp1': cmp1})     
    
 def get_vendor_statement(request, su, cmp1):
     if request.method == 'POST':
@@ -44327,8 +44486,8 @@ def pdfrbill_view(request,id):
     if pisa_status.err:
        return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
-
-
+    
+    
 def sales_by_customer(request):
     cmp1 = company.objects.get(id=request.session['uid'])
     cust=customer.objects.filter(cid=cmp1)
@@ -44346,7 +44505,582 @@ def sales_by_item(request):
         "cmp1":cmp1,
     }
     return render(request,'app1/sales_by_item.html',context)
+    
+    
+def module_settings(request):
+    selected_options = request.session.get('selected_options', None)
+    context = {'selected_options': json.dumps(selected_options)}
+    return render(request,"app1/module_settings.html",context)
 
+
+def hide_options(request):
+    if request.method == 'POST':
+        selected_options = list(request.POST.getlist('selected_options'))
+
+    request.session['selected_options'] = selected_options
+    context = {'selected_options': json.dumps(selected_options)}
+    return render(request,"app1/dashbord.html",context)
+
+@login_required(login_url='regcomp')
+def salessummaryreport(request):
+    cmp1 = company.objects.get(id=request.session["uid"])   
+    inv = invoice.objects.filter(cid=cmp1)
+    cnote = salescreditnote.objects.filter(cid=cmp1)
+    rinv = recinvoice.objects.filter(cid=cmp1)
+    context = {'cmp1':cmp1,"inv":inv,"cnote":cnote,"rinv":rinv}
+    return render(request, 'app1/sales_summary_report.html', context)
+    
+from django.db.models.functions import Cast
+from django.db.models import IntegerField
+
+@login_required(login_url='regcomp')
+def sort_journal(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    mj = mjournal.objects.filter(cid=cmp1).annotate(mj_no_int=Cast('mj_no', IntegerField())).order_by('mj_no_int')
+    return render(request, 'app1/mjournal.html', {'mj': mj, 'cmp1': cmp1})
+    
+    
+# Abin - Price List , Manual Journal Corrections
+  
+
+@login_required(login_url='regcomp')
+def sortemployeename2(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    employee = Pricelist.objects.filter(cid=cmp1).order_by('name')  # Assuming 'name' is the field you want to order by
+    return render(request, 'app1/pricelist.html', {'employee': employee, 'cmp1': cmp1})
+
+@login_required(login_url='regcomp')
+def sort_by_types(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    employee = Pricelist.objects.filter(cid=cmp1).order_by('types')
+    return render(request, 'app1/pricelist.html', {'employee': employee, 'cmp1': cmp1})
+
+
+from django.db.models import OuterRef, Subquery
+
+@login_required(login_url='regcomp')
+def sort_contactname(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    
+    subquery = mjournal1.objects.filter(mjrnl=OuterRef('id')).order_by('id').values('contact')[:1]
+    
+    mj = mjournal.objects.filter(cid=cmp1).annotate(
+        first_contact=Subquery(subquery)
+    ).order_by('first_contact')
+    
+    return render(request, 'app1/mjournal.html', {'mj': mj, 'cmp1': cmp1})
+
+
+
+
+def billconvert2(request, id):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        pbill = mjournal.objects.get(billid=id)
+        pbill.status = 'Billed'
+        pbill.save()
+        return redirect('view_mj', id=id)  # Pass the 'id' parameter to the 'view_mj' view
+    return redirect('/')
+
+def challan_convert2(request,id):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    upd = mjournal.objects.get(id=id, cid=cmp1)
+
+    upd.status = 'Approved'
+    upd.save()
+
+
+
+    return redirect(view_mj,id)
+
+
+
+def m_journal_pdf(request, id):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    upd = mjournal.objects.get(id=id, cid=cmp1)
+    saleitem = mjournal1.objects.filter(mjrnl=id, cid=cmp1)
+
+    template_path = 'app1/pdf_manual_journal.html'
+    context = {
+        'sale': upd,
+        'cmp1': cmp1,
+        'saleitem': saleitem,
+    }
+    fname = upd.mj_no
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename={fname}.pdf'
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    
+    return response
+
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+def price_list_pdf(request, pk):
+    try:
+        cmp1 = company.objects.get(id=request.session['uid'])
+        pl = Pricelist.objects.get(id=pk, cid=cmp1)
+        items = pricelist_individual.objects.filter(pricelist1=pk)
+
+        template_path = 'app1/pdf_pricelist.html'
+        context = {
+            'pl': pl,
+            'cmp1': cmp1,
+            'items': items,
+        }
+        fname = pl.name
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename={fname}.pdf'
+        template = get_template(template_path)
+        html = template.render(context)
+
+        # Create a PDF
+        pisa_status = pisa.CreatePDF(html, dest=response)
+
+        if pisa_status.err:
+            error_message = 'PDF generation error. Check your CSS code.'
+            return HttpResponse(error_message)
+
+        return response
+    except Exception as e:
+        # Handle exceptions, log them, or return an appropriate response
+        return HttpResponse(f'An error occurred: {str(e)}')
+
+
+def m_journal_convert1(request,id):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    upd = mjournal.objects.get(id=id, cid=cmp1)
+
+    upd.status = 'Publish'
+    upd.save()
+
+
+
+    return redirect(view_mj,id)
+
+def add_comment_retinvoice3(request, id):
+    if request.method == 'POST':
+        ret_inv = mjournal.objects.get(id=id)
+        ret_inv.comments = request.POST['comment']
+        ret_inv.save()
+        return redirect('view_mj', id=ret_inv.id)
+
+@login_required(login_url='regcomp')
+def manualJournal_account(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method=='POST':
+            acctype = request.POST['acctype']
+            name = request.POST['name']
+            des = request.POST['description']                           
+            balance = request.POST.get('balance')
+            if balance == "":
+                balance=0.0
+            asof = request.POST['asof']
+            dbbalance = request.POST['dbbalance']
+            if dbbalance == "":
+                dbbalance = 0.0
+            account = accounts1(acctype=acctype, name=name, description=des, balance=balance, asof=asof, cid=cmp1,dbbalance=dbbalance)
+            account.save()
+            
+            return HttpResponse({"message": "success"})
+        
+def man_Journal_acc_dropdown(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        comp = company.objects.get(id=request.session["uid"])
+        options = {}
+        option_objects = accounts1.objects.filter(cid = comp)
+        for option in option_objects:
+            print(option.name)
+            options[option.accounts1id] = option.name
+
+        return JsonResponse(options)
+
+
+def backup_view(request):
+    if request.method == 'POST':
+        from_date = request.POST.get('from_date')
+        to_date = request.POST.get('to_date')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        
+        if from_date and to_date:
+            # Fetch sales data for the selected date
+            user_data = serializers.serialize('json',User.objects.filter(id=request.user.id))
+            cmp_data = serializers.serialize('json', company.objects.filter(id=request.session['uid']))
+            cust_data = serializers.serialize('json', customer.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            suppl_data = serializers.serialize('json', supplier.objects.filter(cid=cmp1))
+            advpay_data = serializers.serialize('json', advancepayment.objects.filter(cid=cmp1,paymentdate__range=[from_date, to_date]))
+            paydwncrd_data = serializers.serialize('json', paydowncreditcard.objects.filter(cid=cmp1,dateofpayment__range=[from_date, to_date]))
+            slrc_data = serializers.serialize('json', salesrecpts.objects.filter(cid=cmp1,saledate__range=[from_date, to_date]))
+            timeat_data = serializers.serialize('json', timeact.objects.filter(cid=cmp1,timdate__range=[from_date, to_date]))
+            timeatsale_data = serializers.serialize('json', timeactsale.objects.filter(cid=cmp1,timdatesale__range=[from_date, to_date]))
+            cheq_data = serializers.serialize('json', Cheqs.objects.filter(cid=cmp1,paydate__range=[from_date, to_date]))
+            invoice_data = serializers.serialize('json', invoice.objects.filter(cid=cmp1,invoicedate__range=[from_date, to_date]))
+            invitm_data = serializers.serialize('json', invoice_item.objects.filter(cid=cmp1))
+            bill_data = serializers.serialize('json', bills.objects.filter(cid=cmp1,paymdate__range=[from_date, to_date]))
+            suplcr_data = serializers.serialize('json', suplrcredit.objects.filter(cid=cmp1,paymdate__range=[from_date, to_date]))
+            cr_data = serializers.serialize('json', credit.objects.filter(cid=cmp1,creditdate__range=[from_date, to_date]))
+            expn_data = serializers.serialize('json', expences.objects.filter(cid=cmp1,paymdate__range=[from_date, to_date]))
+            dlych_data = serializers.serialize('json', delayedcharge.objects.filter(cid=cmp1,delayedchargedate__range=[from_date, to_date]))
+            srv_data = serializers.serialize('json', service.objects.filter(cid=cmp1))
+            ninv_data = serializers.serialize('json', noninventory.objects.filter(cid=cmp1))
+            bun_data = serializers.serialize('json', bundle.objects.filter(cid=cmp1))
+            inv_data = serializers.serialize('json', inventory.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            acctype_data = serializers.serialize('json', accountype.objects.filter(cid=cmp1))
+            bnkstm_data = serializers.serialize('json', bankstatement.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            accs_data = serializers.serialize('json', accounts.objects.filter(cid=cmp1))
+            accs1_data = serializers.serialize('json', accounts1.objects.filter(cid=cmp1))
+            expacc_data = serializers.serialize('json', expenseaccount.objects.filter(cid=cmp1,enddate__range=[from_date, to_date]))
+            emp_data = serializers.serialize('json', employee.objects.filter(cid=cmp1))
+            payslip_data = serializers.serialize('json', payslip.objects.filter(cid=cmp1,paydate__range=[from_date, to_date]))
+            recon_data = serializers.serialize('json', recon1.objects.filter(cid=cmp1,endingdate__range=[from_date, to_date]))
+            recpay_data = serializers.serialize('json', recordpay.objects.filter(cid=cmp1,paymentdate__range=[from_date, to_date]))
+            est_data = serializers.serialize('json', estimate.objects.filter(cid=cmp1,estimatedate__range=[from_date, to_date]))
+            empitm_data = serializers.serialize('json', estimate_item.objects.filter(cid=cmp1))
+            salord_data = serializers.serialize('json', salesorder.objects.filter(cid=cmp1,saledate__range=[from_date, to_date]))
+            salitm_data = serializers.serialize('json', sales_item.objects.filter(cid=cmp1))
+            pay_data = serializers.serialize('json', payment.objects.filter(cid=cmp1,paymdate__range=[from_date, to_date]))
+            payitm_data = serializers.serialize('json', paymentitems.objects.filter(cid=cmp1,invdate__range=[from_date, to_date]))
+            custst_data = serializers.serialize('json', cust_statment.objects.filter(cid=cmp1,Date__range=[from_date, to_date]))
+            item_data = serializers.serialize('json', itemtable.objects.filter(cid=cmp1,itmdate__range=[from_date, to_date]))
+            mjour_data = serializers.serialize('json', mjournal.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            curr_data = serializers.serialize('json', currencies.objects.filter(cid=cmp1))
+            stkrea_data = serializers.serialize('json', stockreason.objects.filter(cid=cmp1))
+            stkadj_data = serializers.serialize('json', stockadjust.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            etran_data = serializers.serialize('json', etransporter.objects.filter(cid=cmp1))
+            ewayinv_data = serializers.serialize('json', ewayinv.objects.filter(cid=cmp1))
+            ven_data = serializers.serialize('json', vendor.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            purord_data = serializers.serialize('json', purchaseorder.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            purorditm_data = serializers.serialize('json', purchaseorder_item.objects.filter(cid=cmp1))
+            purbill_data = serializers.serialize('json', purchasebill.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            purbillitm_data = serializers.serialize('json', purchasebill_item.objects.filter(cid=cmp1))
+            purexpn_data = serializers.serialize('json', purchase_expense.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            purpay_data = serializers.serialize('json', purchasepayment.objects.filter(cid=cmp1,paymentdate__range=[from_date, to_date]))
+            purpay1_data = serializers.serialize('json', purchasepayment1.objects.filter(cid=cmp1,billdate__range=[from_date, to_date]))
+            purdeb_data = serializers.serialize('json', purchasedebit.objects.filter(cid=cmp1,debitdate__range=[from_date, to_date]))
+            purdeb1_data = serializers.serialize('json', purchasedebit1.objects.filter(cid=cmp1))
+            itmstk_data = serializers.serialize('json', itemstock.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            vndstat_data = serializers.serialize('json', vendor_statment.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            proloss_data = serializers.serialize('json', profit_loss.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            balsheet_data = serializers.serialize('json', balance_sheet.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            itmsstk_data = serializers.serialize('json', item_stock.objects.filter(cid=cmp1))
+            bankpay_data = serializers.serialize('json', banking_payment.objects.filter(cid=cmp1,date__range=[from_date, to_date]))
+            salescrdnote_data = serializers.serialize('json', salescreditnote.objects.filter(cid=cmp1,creditdate__range=[from_date, to_date]))
+            retinv_data = serializers.serialize('json', RetainerInvoices.objects.filter(cid=cmp1,invoice_date__range=[from_date, to_date]))
+            reccexp_data = serializers.serialize('json', recurring_expense.objects.filter(cid=cmp1,start_date__range=[from_date, to_date]))
+            challan_data = serializers.serialize('json', challan.objects.filter(cid=cmp1,challan_date__range=[from_date, to_date]))
+            challanitm_data = serializers.serialize('json', challanitem.objects.filter(cid=cmp1))
+            prclit_data = serializers.serialize('json', Pricelist.objects.filter(cid=cmp1))
+            payrollemp_data = serializers.serialize('json', payrollemployee.objects.filter(cid=cmp1,joindate__range=[from_date, to_date]))
+            bnktran_data = serializers.serialize('json', bank_transactions.objects.filter(cid=cmp1,adj_date__range=[from_date, to_date]))
+            reccinv_data = serializers.serialize('json', recinvoice.objects.filter(cid=cmp1,startdate__range=[from_date, to_date]))
+            reccinvitm_data = serializers.serialize('json', recinvoice_item.objects.filter(cid=cmp1))
+            emplyloan_data = serializers.serialize('json', EmployeeLoan.objects.filter(company=cmp1,LoanDate__range=[from_date, to_date]))
+            reccbill_data = serializers.serialize('json', recurring_bill.objects.filter(cid=cmp1,start_date__range=[from_date, to_date]))
+            reccbillitm_data = serializers.serialize('json', recurringbill_item.objects.filter(cid=cmp1))
+
+                # Create a zip file containing the CSV data
+            zip_buffer = BytesIO()
+            with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                with zipf.open(f'backup_{date.today()}.json', 'w') as json_file:
+                    json_file.write(user_data.encode('utf-8'))
+                    json_file.write(cmp_data.encode('utf-8'))
+                    json_file.write(cust_data.encode('utf-8'))
+                    json_file.write(suppl_data.encode('utf-8'))
+                    json_file.write(advpay_data.encode('utf-8'))
+                    json_file.write(paydwncrd_data.encode('utf-8'))
+                    json_file.write(slrc_data.encode('utf-8'))
+                    json_file.write(timeat_data.encode('utf-8'))
+                    json_file.write(timeatsale_data.encode('utf-8'))
+                    json_file.write(cheq_data.encode('utf-8'))
+                    json_file.write(invoice_data.encode('utf-8'))
+                    json_file.write(invitm_data.encode('utf-8'))
+                    json_file.write(bill_data.encode('utf-8'))
+                    json_file.write(suplcr_data.encode('utf-8'))
+                    json_file.write(cr_data.encode('utf-8'))
+                    json_file.write(expn_data.encode('utf-8'))
+                    json_file.write(dlych_data.encode('utf-8'))
+                    json_file.write(srv_data.encode('utf-8'))
+                    json_file.write(ninv_data.encode('utf-8'))
+                    json_file.write(bun_data.encode('utf-8'))
+                    json_file.write(inv_data.encode('utf-8'))
+                    json_file.write(acctype_data.encode('utf-8'))
+                    json_file.write(bnkstm_data.encode('utf-8'))
+                    json_file.write(accs_data.encode('utf-8'))
+                    json_file.write(accs1_data.encode('utf-8'))
+                    json_file.write(expacc_data.encode('utf-8'))
+                    json_file.write(emp_data.encode('utf-8'))
+                    json_file.write(payslip_data.encode('utf-8'))
+                    json_file.write(recon_data.encode('utf-8'))
+                    json_file.write(recpay_data.encode('utf-8'))
+                    json_file.write(est_data.encode('utf-8'))
+                    json_file.write(empitm_data.encode('utf-8'))
+                    json_file.write(salord_data.encode('utf-8'))
+                    json_file.write(salitm_data.encode('utf-8'))
+                    json_file.write(pay_data.encode('utf-8'))
+                    json_file.write(payitm_data.encode('utf-8'))
+                    json_file.write(custst_data.encode('utf-8'))
+                    json_file.write(item_data.encode('utf-8'))
+                    json_file.write(mjour_data.encode('utf-8'))
+                    json_file.write(curr_data.encode('utf-8'))
+                    json_file.write(stkrea_data.encode('utf-8'))
+                    json_file.write(stkadj_data.encode('utf-8'))
+                    json_file.write(etran_data.encode('utf-8'))
+                    json_file.write(ewayinv_data.encode('utf-8'))
+                    json_file.write(ven_data.encode('utf-8'))
+                    json_file.write(purord_data.encode('utf-8'))
+                    json_file.write(purorditm_data.encode('utf-8'))
+                    json_file.write(purbill_data.encode('utf-8'))
+                    json_file.write(purbillitm_data.encode('utf-8'))
+                    json_file.write(purexpn_data.encode('utf-8'))
+                    json_file.write(purpay_data.encode('utf-8'))
+                    json_file.write(purpay1_data.encode('utf-8'))
+                    json_file.write(purdeb_data.encode('utf-8'))
+                    json_file.write(purdeb1_data.encode('utf-8'))
+                    json_file.write(itmstk_data.encode('utf-8'))
+                    json_file.write(vndstat_data.encode('utf-8'))
+                    json_file.write(proloss_data.encode('utf-8'))
+                    json_file.write(balsheet_data.encode('utf-8'))
+                    json_file.write(itmsstk_data.encode('utf-8'))
+                    json_file.write(bankpay_data.encode('utf-8'))
+                    json_file.write(salescrdnote_data.encode('utf-8'))
+                    json_file.write(retinv_data.encode('utf-8'))
+                    json_file.write(reccexp_data.encode('utf-8'))
+                    json_file.write(challan_data.encode('utf-8'))
+                    json_file.write(challanitm_data.encode('utf-8'))
+                    json_file.write(prclit_data.encode('utf-8'))
+                    json_file.write(payrollemp_data.encode('utf-8'))
+                    json_file.write(bnktran_data.encode('utf-8'))
+                    json_file.write(reccinv_data.encode('utf-8'))
+                    json_file.write(reccinvitm_data.encode('utf-8'))
+                    json_file.write(emplyloan_data.encode('utf-8'))
+                    json_file.write(reccbill_data.encode('utf-8'))
+                    json_file.write(reccbillitm_data.encode('utf-8'))
+
+                # Convert JSON to CSV and add to the ZIP file
+                csv_buffer = BytesIO()
+                user_df = pd.read_json(user_data)
+                cmp_df = pd.read_json(cmp_data)
+                cust_df = pd.read_json(cust_data)
+                suppl_df = pd.read_json(suppl_data)
+                advpay_df = pd.read_json(advpay_data)
+                paydwncrd_df = pd.read_json(paydwncrd_data)
+                slrc_df = pd.read_json(slrc_data)
+                timeat_df = pd.read_json(timeat_data)
+                timeatsale_df = pd.read_json(timeatsale_data)
+                cheq_df = pd.read_json(cheq_data)
+                invoice_df = pd.read_json(invoice_data)
+                invitm_df = pd.read_json(invitm_data)
+                bill_df = pd.read_json(bill_data)
+                suplcr_df = pd.read_json(suplcr_data)
+                cr_df = pd.read_json(cr_data)
+                expn_df = pd.read_json(expn_data)
+                dlych_df = pd.read_json(dlych_data)
+                srv_df = pd.read_json(srv_data)
+                ninv_df = pd.read_json(ninv_data)
+                bun_df = pd.read_json(bun_data)
+                inv_df = pd.read_json(inv_data)
+                acctype_df = pd.read_json(acctype_data)
+                bnkstm_df = pd.read_json(bnkstm_data)
+                accs_df = pd.read_json(accs_data)
+                accs1_df = pd.read_json(accs1_data)
+                expacc_df = pd.read_json(expacc_data)
+                emp_df = pd.read_json(emp_data)
+                payslip_df = pd.read_json(payslip_data)
+                recon_df = pd.read_json(recon_data)
+                recpay_df = pd.read_json(recpay_data)
+                est_df = pd.read_json(est_data)
+                empitm_df = pd.read_json(empitm_data)
+                salord_df = pd.read_json(salord_data)
+                salitm_df = pd.read_json(salitm_data)
+                pay_df = pd.read_json(pay_data)
+                payitm_df = pd.read_json(payitm_data)
+                custst_df = pd.read_json(custst_data)
+                item_df = pd.read_json(item_data)
+                mjour_df = pd.read_json(mjour_data)
+                curr_df = pd.read_json(curr_data)
+                stkrea_df = pd.read_json(stkrea_data)
+                stkadj_df = pd.read_json(stkadj_data)
+                etran_df = pd.read_json(etran_data)
+                ewayinv_df = pd.read_json(ewayinv_data)
+                ven_df = pd.read_json(ven_data)
+                purord_df = pd.read_json(purord_data)
+                purorditm_df = pd.read_json(purorditm_data)
+                purbill_df = pd.read_json(purbill_data)
+                purbillitm_df = pd.read_json(purbillitm_data)
+                purexpn_df = pd.read_json(purexpn_data)
+                purpay_df = pd.read_json(purpay_data)
+                purpay1_df = pd.read_json(purpay1_data)
+                purdeb_df = pd.read_json(purdeb_data)
+                purdeb1_df = pd.read_json(purdeb1_data)
+                itmstk_df = pd.read_json(itmstk_data)
+                vndstat_df = pd.read_json(vndstat_data)
+                proloss_df = pd.read_json(proloss_data)
+                balsheet_df = pd.read_json(balsheet_data)
+                itmsstk_df = pd.read_json(itmsstk_data)
+                bankpay_df = pd.read_json(bankpay_data)
+                salescrdnote_df = pd.read_json(salescrdnote_data)
+                retinv_df = pd.read_json(retinv_data)
+                reccexp_df = pd.read_json(reccexp_data)
+                challan_df = pd.read_json(challan_data)
+                challanitm_df = pd.read_json(challanitm_data)
+                prclit_df = pd.read_json(prclit_data)
+                payrollemp_df = pd.read_json(payrollemp_data)
+                bnktran_df = pd.read_json(bnktran_data)
+                reccinv_df = pd.read_json(reccinv_data)
+                reccinvitm_df = pd.read_json(reccinvitm_data)
+                emplyloan_df = pd.read_json(emplyloan_data)
+                reccbill_df = pd.read_json(reccbill_data)
+                reccbillitm_df = pd.read_json(reccbillitm_data)
+
+                user_df.to_csv(csv_buffer, index=False)
+                cmp_df.to_csv(csv_buffer, index=False)
+                cust_df.to_csv(csv_buffer, index=False)
+                suppl_df.to_csv(csv_buffer, index=False)
+                advpay_df.to_csv(csv_buffer, index=False)
+                paydwncrd_df.to_csv(csv_buffer, index=False)
+                slrc_df.to_csv(csv_buffer, index=False)
+                timeat_df.to_csv(csv_buffer, index=False)
+                timeatsale_df.to_csv(csv_buffer, index=False)
+                cheq_df.to_csv(csv_buffer, index=False)
+                invoice_df.to_csv(csv_buffer, index=False)   
+                invitm_df.to_csv(csv_buffer, index=False)
+                bill_df.to_csv(csv_buffer, index=False)
+                suplcr_df.to_csv(csv_buffer, index=False)
+                cr_df.to_csv(csv_buffer, index=False)
+                expn_df.to_csv(csv_buffer, index=False)
+                dlych_df.to_csv(csv_buffer, index=False)
+                srv_df.to_csv(csv_buffer, index=False)
+                ninv_df.to_csv(csv_buffer, index=False)
+                bun_df.to_csv(csv_buffer, index=False)
+                inv_df.to_csv(csv_buffer, index=False)
+                acctype_df.to_csv(csv_buffer, index=False)
+                bnkstm_df.to_csv(csv_buffer, index=False)
+                accs_df.to_csv(csv_buffer, index=False)
+                accs1_df.to_csv(csv_buffer, index=False)
+                expacc_df.to_csv(csv_buffer, index=False)
+                emp_df.to_csv(csv_buffer, index=False)
+                payslip_df.to_csv(csv_buffer, index=False)
+                recon_df.to_csv(csv_buffer, index=False)
+                recpay_df.to_csv(csv_buffer, index=False)
+                est_df.to_csv(csv_buffer, index=False)
+                empitm_df.to_csv(csv_buffer, index=False)
+                salord_df.to_csv(csv_buffer, index=False)
+                salitm_df.to_csv(csv_buffer, index=False)
+                pay_df.to_csv(csv_buffer, index=False)
+                payitm_df.to_csv(csv_buffer, index=False)
+                custst_df.to_csv(csv_buffer, index=False)
+                item_df.to_csv(csv_buffer, index=False)    
+                mjour_df.to_csv(csv_buffer, index=False)
+                curr_df.to_csv(csv_buffer, index=False)
+                stkrea_df.to_csv(csv_buffer, index=False)
+                stkadj_df.to_csv(csv_buffer, index=False)
+                etran_df.to_csv(csv_buffer, index=False)
+                ewayinv_df.to_csv(csv_buffer, index=False)
+                ven_df.to_csv(csv_buffer, index=False)
+                purord_df.to_csv(csv_buffer, index=False)
+                purorditm_df.to_csv(csv_buffer, index=False)
+                purbill_df.to_csv(csv_buffer, index=False)
+                purbillitm_df.to_csv(csv_buffer, index=False)
+                purexpn_df.to_csv(csv_buffer, index=False)
+                purpay_df.to_csv(csv_buffer, index=False)
+                purpay1_df.to_csv(csv_buffer, index=False)
+                purdeb_df.to_csv(csv_buffer, index=False)
+                purdeb1_df.to_csv(csv_buffer, index=False)
+                itmstk_df.to_csv(csv_buffer, index=False)
+                vndstat_df.to_csv(csv_buffer, index=False)
+                proloss_df.to_csv(csv_buffer, index=False)
+                balsheet_df.to_csv(csv_buffer, index=False)
+                itmsstk_df.to_csv(csv_buffer, index=False)
+                bankpay_df.to_csv(csv_buffer, index=False)
+                salescrdnote_df.to_csv(csv_buffer, index=False)
+                retinv_df.to_csv(csv_buffer, index=False)
+                reccexp_df.to_csv(csv_buffer, index=False)
+                challan_df.to_csv(csv_buffer, index=False)
+                challanitm_df.to_csv(csv_buffer, index=False)
+                prclit_df.to_csv(csv_buffer, index=False)
+                payrollemp_df.to_csv(csv_buffer, index=False)
+                bnktran_df.to_csv(csv_buffer, index=False)
+                reccinv_df.to_csv(csv_buffer, index=False)
+                reccinvitm_df.to_csv(csv_buffer, index=False)
+                emplyloan_df.to_csv(csv_buffer, index=False)
+                reccbill_df.to_csv(csv_buffer, index=False)
+                reccbillitm_df.to_csv(csv_buffer, index=False)
+
+                with zipf.open(f'backup_{date.today()}.csv', 'w') as csv_file:
+                    csv_file.write(csv_buffer.getvalue())
+
+            # Prepare the response with the zipped data
+            zip_buffer.seek(0)
+            response = HttpResponse(zip_buffer.read(), content_type='application/zip')
+            response['Content-Disposition'] = f'attachment; filename=backup_{date.today()}.zip'
+
+ 
+
+        
+        return response
+                
+    return JsonResponse({'error': 'Invalid request'})
+    
+    
+def add_man_Journal_comment(request,id):
+    p=mjournal.objects.get(id=id)
+    if request.method== 'POST':
+        comment=request.POST['comments']
+        c= man_Journal_comment(comment=comment,proj=p)
+        c.save()
+        print("=====================================dddddddddddd")
+    return redirect('view_mj',id)
+
+
+def delete_man_Journal_comment(request, id): 
+    try:
+        comment = man_Journal_comment.objects.get(id=id)
+        p = comment.proj
+        comment.delete()
+        return redirect('view_mj', p.id)
+    except man_Journal_comment.DoesNotExist:
+        # Handle the case where the comment does not exist
+        return redirect('view_mj', p.id)
+        
+def view_mj(request, id):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    upd = mjournal.objects.get(id=id, cid=cmp1)
+    saleitem = mjournal1.objects.filter(mjrnl=id)
+    cmt = man_Journal_comment.objects.filter(proj=upd)  # Retrieve comments related to the project
+
+    context = {
+        'sale': upd,
+        'cmp1': cmp1,
+        'saleitem': saleitem,
+        'project': upd,
+        'cmt': cmt,  # Include comments in the context
+    }
+
+    return render(request, 'app1/view_mj.html', context)
+    
+    
 # ---E-Way Bill---shemeem---start---
 @login_required(login_url='regcomp')
 def e_waybills_page(request):
@@ -44767,3 +45501,314 @@ def attach_ewbill_file(request,billId):
         return redirect('eWayBillOverview',billId)
 
 # -----E-Way Bill---shemeem---end---
+
+@login_required(login_url='regcomp')
+def pdebitconvert(request,id):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        pdebt = purchasedebit.objects.get(pdebitid=id)
+        pdebt.status = 'Save'
+        pdebt.save()
+        return redirect(viewpurchasedebit,id)
+    return redirect('/')
+    
+    
+def pdebt_draft(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pdebit = purchasedebit.objects.filter(cid=cmp1,status='Draft').all()
+    return render(request,'app1/gopurchasedebit.html',{'cmp1':cmp1,'pdebit':pdebit})
+    
+    
+def pdebt_save(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pdebit = purchasedebit.objects.filter(cid=cmp1,status='Save').all()
+    return render(request,'app1/gopurchasedebit.html',{'cmp1':cmp1,'pdebit':pdebit})
+    
+def debitnotereport(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    debitnote = purchasedebit.objects.filter(cid=cmp1.cid).all()
+
+    context={
+        'cmp1':cmp1,
+        'debitnote':debitnote
+    }
+    return render(request,'app1/debitnotereport.html',context)
+    
+    
+@login_required(login_url='regcomp')
+def debitnote_comments(request, pdebitid):
+    if request.method == 'POST':
+        debt = purchasedebit.objects.get(cid_id=request.session["uid"], pdebitid=pdebitid) 
+        cmp = company.objects.get(id=request.session["uid"])
+        comments= debitnotecomments(debid=debt,cid=cmp,comment=request.POST['comments'])
+        comments.save()
+        return redirect('viewpurchasedebit',pdebitid)
+        
+@login_required(login_url='regcomp')
+def deletedebitcomments(request,pdebitid, commentid):
+    try:
+        comment = debitnotecomments.objects.get(cid_id=request.session["uid"],debid = pdebitid,commentid=commentid)
+        comment.delete()
+        return redirect('viewpurchasedebit', pdebitid)
+    except:
+        return redirect('viewpurchasedebit', pdebitid) 
+        
+        
+def get_vendor_data_bill(request):
+    company1 = company.objects.get(id=request.session["uid"])
+    id = request.GET.get('id')
+    options = {}
+    vendor_object= vendor.objects.get(vendorid=id)
+    option_objects = purchasebill.objects.filter(vendor_mail=vendor_object.email)
+    print(option_objects)
+    if option_objects:
+        for option in option_objects:
+            
+            options[option.billid] = [option.bill_no]
+    else:
+        options={"null"}
+    return JsonResponse(options)
+    
+    
+##reshna-holiday
+
+def holidayss(request):
+    cmp1 = company.objects.get(id=request.session['uid'])
+    
+  
+    holidayy = holidays.objects.filter(cid=cmp1)
+    holiday_events = []
+
+    for holiday in holidayy:
+        # Calculate the date range for the holiday
+        date_range = [holiday.start_date + timedelta(days=i) for i in range((holiday.end_date - holiday.start_date).days + 1)]
+
+        # Create separate events for each date in the range
+        for date in date_range:
+            event = {
+                'title': holiday.name,
+                'start': date.isoformat(),
+                'end': date.isoformat(),
+                'color': 'red', 
+            }
+            holiday_events.append(event)
+
+    context = {
+        "cmp1": cmp1,
+        "holiday_events": json.dumps(holiday_events),  # Serialize the event data to JSON
+        "holiday":holidayy,
+    }
+
+    return render(request, 'app1/holidays.html', context)
+    
+def addholidays(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method == 'POST':
+            name = request.POST.get('name')
+            start_date=request.POST.get('start_date')
+            end_date=request.POST.get('end_date')
+          
+            hdays = holidays(name=name,start_date=start_date,end_date=end_date,cid=cmp1)
+            hdays.save()
+        return redirect('holidayss')
+        return render(request,'app1/holidays.html',{'cmp1': cmp1})
+    return redirect('/')
+    
+def generate_pdf(request):
+    
+    cmp1 = company.objects.get(id=request.session['uid'])
+    holidayy = holidays.objects.filter(cid=cmp1)
+    template_path = 'app1/pdf_holidays.html'
+    context ={
+        'holiday':holidayy,
+        'cmp1':cmp1,
+
+    }
+    fname='holidays'
+   
+    # Create a Django response object, and specify content_type as pdftemp_creditnote
+    response = HttpResponse(content_type='application/pdf')
+    #response['Content-Disposition'] = 'attachment; filename="certificate.pdf"'
+    response['Content-Disposition'] =f'attachment; filename={fname}.pdf'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    
+
+
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+##end#
+
+
+#reshna attendance
+def attendancepagee(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        
+        cmp1 = company.objects.get(id=request.session['uid'])
+        holidays_data = holidays.objects.filter(cid=cmp1)
+        employees = payrollemployee.objects.filter(cid=cmp1)
+    
+        context = {
+            'cmp1': cmp1,
+            'holidays': holidays_data,
+            'employees':  employees
+        }
+
+        return render(request, 'app1/attendance.html', context)
+
+    return redirect('/')
+    
+    
+@login_required(login_url='regcomp')
+def save_attendance(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method == 'POST':
+            date = request.POST.get('date')
+            status = request.POST.get('status')
+            employeeid = request.POST.get('employeeid')
+            new_attendance = attendance(cid=cmp1, date=date, employee=employeeid, status=status)
+            new_attendance.save()
+
+            return redirect('attendancepagee')
+        return render(request,'app1/attendance.html',{'cmp1': cmp1})
+    return redirect('/') 
+    
+
+# def get_attendance_details(request):
+#     # if request.method == 'GET':
+#     employee_id = request.GET.get('employee1_id')
+        
+#         # Query the Attendance model to get details for the selected employee
+#     attendance_details = attendance.objects.filter(employee=employee_id)
+        
+#         # Prepare the data as a list of dictionaries
+#     attendance_list = []
+#     for attendance in attendance_details:
+#         attendance_dict = {
+#                 'date': attendance.date.strftime('%Y-%m-%d'),  # Format the date as needed
+#                 'status': attendance.status,
+#             }
+#         attendance_list.append(attendance_dict)
+        
+#         # Return the data as JSON response
+#     return JsonResponse({'attendance_details': attendance_list}, content_type='application/json')
+
+#     # else:
+#     #     return JsonResponse({'error': 'Invalid request method'})
+
+@login_required(login_url='regcomp')
+def get_attendance_details(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        
+        comp = company.objects.get(id=request.session["uid"])
+
+        # Get the employee_id from the POST request data
+        employee_id = request.POST.get('employee1_id')
+
+        # Query the Attendance model to get details for the selected employee
+        attendance_details = attendance.objects.filter(employee=employee_id, cid=comp)
+
+        # Prepare the data as a list of dictionaries
+        attendance_list = []
+        for attendance_entry in attendance_details:
+            attendance_dict = {
+                'date': attendance_entry.date.strftime('%Y-%m-%d'),  # Format the date as needed
+                'status': attendance_entry.status,
+            }
+            attendance_list.append(attendance_dict)
+
+        # Return the attendance details as a JSON response
+        return JsonResponse({'attendance_details': attendance_list}, safe=False)
+
+    return redirect('/')
+
+def get_calendar_events(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        
+        comp = company.objects.get(id=request.session["uid"])
+
+
+        employee_id = request.GET.get('employee_id')  
+        if employee_id:
+        
+            attendance_details = attendance.objects.filter(employee=employee_id, cid=comp)
+
+            holidays_list = holidays.objects.filter(cid=comp)
+
+        
+            events = []
+
+            for attendance_entry in attendance_details:
+                events.append({
+                'title': attendance_entry.status,
+                'start': attendance_entry.date.strftime('%Y-%m-%d'),
+                'color': 'green', 
+                 })
+
+            for holiday in holidays_list:
+                events.append({
+                'title': holiday.name,
+                'start': holiday.start_date.strftime('%Y-%m-%d'),
+                'end': holiday.end_date.strftime('%Y-%m-%d'),
+                'color': 'red',  
+                 })
+
+            return JsonResponse(events, safe=False)
+
+        return JsonResponse([], safe=False) 
+        
+        
+def get_counts(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        
+        comp = company.objects.get(id=request.session["uid"])
+        if request.method == 'GET':
+            employee_id = request.GET.get('employee_id')
+            total_holidays = holidays.objects.filter(cid=comp,hid__isnull=False).count()
+            present_count = attendance.objects.filter(employee=employee_id, status='Present').count()
+            absent_count = attendance.objects.filter(employee=employee_id, status='Absent').count()
+
+            data = {
+            'total_holidays': total_holidays,
+            'present_count': present_count,
+            'absent_count': absent_count,
+            }
+
+            return JsonResponse(data)

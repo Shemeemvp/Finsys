@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-@ym=g-9p=kgp46%-$ug_t#g%3o5g(f6+37-wzyd16h=z*&grds
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['accuhub.in']
 
 # Application definition
 
@@ -88,9 +88,9 @@ WSGI_APPLICATION = 'infoxfinsys.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'infoxtec_FinsysFinal',
-        'USER':'root',
-        'PASSWORD':'',
+        'NAME': 'infoxtec_FinsysFinalFile',
+        'USER':'infoxtec_FinsysFinalFile',
+        'PASSWORD':'FinsysFinalFile',
         'HOST':'localhost',
         'PORT':'3306',
     }
@@ -130,8 +130,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+# STATIC_URL = '/static/'
+# STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -149,9 +149,9 @@ EMAIL_HOST_PASSWORD = 'jkdpqggohjsmhyay'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
-# STATIC_ROOT = os.path.join(BASE_DIR,'static')
-# STATIC_URL = '/static/'
-# STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_URL = '/static/'
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
 # STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')

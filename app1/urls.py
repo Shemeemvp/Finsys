@@ -1137,10 +1137,33 @@ urlpatterns = [
     path('rbill_file<int:id>',views.rbill_file,name='rbill_file'),
     path('pdfrbill_view<int:id>',views.pdfrbill_view,name='pdfrbill_view'),
     # # recurring_bills-Reshna-end
+    
     path('sales_by_customer',views.sales_by_customer,name='sales_by_customer'),
     path('sales_by_item',views.sales_by_item,name='sales_by_item'),
- 
-
+    
+    path('module_settings/',views.module_settings,name='module_settings'),
+    path('hide_options/',views.hide_options, name='hide_options'),
+    path('salessummaryreport/',views.salessummaryreport,name='salessummaryreport'),
+    
+    # Abin - Price List , Manual Journal Corrections
+    path('add_comment_retinvoice3/<int:id>',views.add_comment_retinvoice3,name='add_comment_retinvoice3'),
+    path('sortemployeename2', views.sortemployeename2, name='sortemployeename2'),
+    path('sort_by_types', views.sort_by_types, name='sort_by_types'),
+    path('sort_contactname', views.sort_contactname, name='sort_contactname'),
+    path('sort_journal', views.sort_journal, name='sort_journal'),
+    re_path(r'^billconvert2/(?P<id>\d+)$',views.billconvert2,name='billconvert2'),
+    path('challan_convert2/<int:id>',views.challan_convert2,name='challan_convert2'),
+    path('m_journal_pdf/<int:id>', views.m_journal_pdf, name='m_journal_pdf'),
+    path('m_journal_convert1/<int:id>',views.m_journal_convert1,name='m_journal_convert1'),
+    path('manualJournal_account',views.manualJournal_account,name='manualJournal_account'),
+    path('man_Journal_acc_dropdown',views.man_Journal_acc_dropdown,name = 'man_Journal_acc_dropdown'),
+    path('price_list_pdf/<int:pk>', views.price_list_pdf, name='price_list_pdf'),
+    
+    path('backup/', views.backup_view, name='backup_view'),
+    
+    path('add_man_Journal_comment/<int:id>', views.add_man_Journal_comment, name='add_man_Journal_comment'),
+    path('delete_man_Journal_comment/<int:id>', views.delete_man_Journal_comment, name='delete_man_Journal_comment'),
+    
     # <-----E-Way Bill---shemeem---start--->
     path('e_waybills',views.e_waybills_page,name='go_ewaybill'),
     path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
@@ -1163,6 +1186,31 @@ urlpatterns = [
     path('ewbill_overview_pdf/<int:billId>',views.ewaybillPdf,name='ewaybillPdf'),
     path('attach_ewbill_file/<int:billId>',views.attach_ewbill_file, name='attach_ewbill_file'),
     # <-----E-Way Bill---shemeem---end--->
+    
+    ###debitnote_and_report haripriya ###
+    path('pdebitconvert/<int:id>',views.pdebitconvert,name='pdebitconvert'),
+    path('pdebt_draft',views.pdebt_draft,name='pdebt_draft'),
+    path('pdebt_save',views.pdebt_save,name='pdebt_save'),
+    path('debitnotereport',views.debitnotereport,name='debitnotereport'),
+  
+    re_path(r'^get_vendor_data_bill$',views.get_vendor_data_bill,name='get_vendor_data_bill'), 
+    path('debitnote_comments/<int:pdebitid>', views.debitnote_comments, name='debitnote_comments'),
+    path('deletedebitcomments/<int:pdebitid>/<int:commentid>', views.deletedebitcomments, name='deletedebitcomments'),
+    ##debitnote_and_report_end haripriya###
+    
+    # reshna-holidays
+    path('holidayss',views.holidayss,name='holidayss'),
+    path('addholidays',views.addholidays,name='addholidays'),
+    path('generate_pdf',views.generate_pdf,name='generate_pdf'),
+    # reshna-attendance
+    path('attendancepagee/',views.attendancepagee,name='attendancepagee'),
+    path('save_attendance',views.save_attendance,name='save_attendance'),
+    # path('fetch_employee_details/<str:employee_id>/', views.fetch_employee_details, name='fetch_employee_details'),
+    path('get_attendance_details',views.get_attendance_details,name='get_attendance_details'),
+    path('get_calendar_events',views.get_calendar_events,name='get_calendar_events'),
+    path('get_counts',views.get_counts,name='get_counts'),
+    # path('attendance_pdf',views.attendance_pdf,name='attendance_pdf'),
+ 
      
      
 ]
