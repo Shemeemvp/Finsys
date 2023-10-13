@@ -1174,7 +1174,8 @@ urlpatterns = [
     path('update_ewbill/<int:billId>', views.update_eway_bill, name = 'update_eway_bill'),
     path('convert_ewbill/<int:billId>',views.convert_ewbill, name='convert_ewbill'),
     path('delete_ewbill/<int:billId>',views.delete_ewbill, name='delete_ewbill'),
-    
+    path('create_item_unit_ewbill',views.createitemunit_ewbill, name = 'createitemunit_ewbill'),
+    path('get_items_unit_ewbill',views.getitemunitewbill, name = 'getitemunitewbill'),
     
     path('get_customer_details', views.get_customer, name = 'get_customer'),
     path('new_transport_mode',views.new_transport_mode, name= 'new_transport_mode'),

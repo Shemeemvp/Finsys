@@ -45362,10 +45362,12 @@ def edit_eway_bill(request, billId):
             trnsprt = Transportation.objects.all()
             items = e_waybill_item.objects.filter(cid = cmp1).filter(bill = billId)
             createddate = date.today().strftime("%Y-%m-%d")
+            itmunits = unittable.objects.filter(cid = cmp1)
             context = {
                         'cmp1': cmp1,
                         'item':itm ,
                         'cust':cust,
+                        'itemunits':itmunits,
                         'date':createddate,
                         'trnsp':trnsprt,
                         'ewbill':ewbill,
@@ -45551,6 +45553,42 @@ def attach_ewbill_file(request,billId):
             ewbill.file=request.FILES.get('file')
         ewbill.save()
         return redirect('eWayBillOverview',billId)
+
+def createitemunit_ewbill(request):
+    try:
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method == 'POST':
+            usymbol = request.POST.get('usymbol')
+            uname = request.POST.get('uname')
+            unit = unittable(unit_symbol=usymbol,name=uname,cid=cmp1)
+            unit.save()
+
+            return JsonResponse({"message": "success"})
+        return JsonResponse({"message": "invlalid"}) 
+    except:
+        return JsonResponse({"message": "invalid"})
+
+def getitemunitewbill(request):
+        if 'uid' in request.session:
+            if request.session.has_key('uid'):
+                uid = request.session['uid']
+            else:
+                return redirect('/')
+            cmp1= company.objects.get(id=request.session["uid"])
+            options = {}
+            list= []
+            option_objects = unittable.objects.filter(cid = cmp1)
+            # for option in option_objects:           
+            #     options[option.id] = option.name
+
+            for item in option_objects:
+                itemUnitDict = {
+                'symbol': item.unit_symbol,
+                'name': item.name,
+                }
+                list.append(itemUnitDict)
+
+            return JsonResponse({'units':list},safe=False)
 
 # -----E-Way Bill---shemeem---end---
 
