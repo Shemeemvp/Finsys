@@ -378,10 +378,11 @@
                                             {% endfor %}
                                            </select>
                 
-                                            <a href="#">
+                                            <!-- <a href="#">
                                                 <button type="button" class="btn btn-outline-secondary ml-1" 
                                                 data-target="#newitem" data-toggle="modal">+</button>
-                                            </a>
+                                            </a> -->
+                                            <button class="btn btn-outline-secondary ml-1" data-bs-target="#newitem" data-bs-toggle="modal">+</button>
                                         </div>
                                       
                                      
@@ -1503,7 +1504,412 @@
     </div>
   </div>
 <!-- New Item Modal -->
-<div class="modal fade" id="newitem">
+
+<div class="modal fade" id="newUnitAddModal" aria-hidden="true" aria-labelledby="newUnitAddModalLabel" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background-color: #213b52;">
+        <div class="modal-header">
+          <h3 class="m-3" id="newUnitAddModalLabel">Unit Create</h3>
+          <button type="button" class="close"  data-bs-toggle="modal" data-bs-target="#newitem" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+            <div class="card p-3 m-3">
+            <form method="post" autocomplete="off" id="newunitform">
+                {% csrf_token %}
+                <div class="row mt-2 mb-2">
+                    <div class="col-md-6">
+                        <label for="acctyp">Unit Symbol</label>
+                        <input type="text" name="unitsymbol" id="unitsymbol" class="custom-select-md form-control w-100">        
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Name</label>
+                        <input name="uname" id="unitname" class="custom-select-md form-control w-100">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4 mt-4 mb-4">
+                        <button type="button" id="saveNewUnit" class="btn btn-outline-info rounded-pill w-100">Create</button>
+                    </div>
+                    <div class="col-md-4"></div>
+                </div>
+            </form>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div> 
+
+
+  <div class="modal fade" id="newitem" aria-hidden="true" aria-labelledby="newItemAddLabel" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl">
+        <div class="modal-content" style="background-color: #213b52;">
+            <div class="modal-header">
+                <h3 class="m-3" id="newItemAddLabel">New Item</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card p-3 m-3">
+                    <form method="post" autocomplete="off" id="modalItem">
+                        {%csrf_token%}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-md-12 mx-0">
+                                        <div class="row">
+                                        <div class="col-md-6 mt-3">
+                                            <label for="item_name"
+                                                   style="color: white;">Name</label>
+                                            <input type="text" name="name" class="form-control" id="item_name"
+                                                      style="background-color: #2a4964; color: white;"
+                                                     autocomplete="off" required>
+                                        </div>
+                                        <div class="col-md-6 mt-3">
+                                            <label for="type"
+                                                   style="color: white;">Type</label>
+                                            <select name="type" class="form-control"  id="type"
+                                                      style="background-color: #2a4964; color: white;"
+                                                      required>
+                                                      <option selected disabled value="">Choose...</option>
+                                                    <option value="goods">Goods</option>
+                                                <option value="services">Services</option></select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="row">
+                                                <div class="col-md-12 mx-0">
+                                                    <div class="row">
+                                                        <div class="col-md-6 mt-3">
+                                                            <label for="unit" style="color: white;">Unit
+                                                                </label>
+                                                            <div class="d-flex">
+                                                                <select class="custom-select" name="unit" id="itemunit"
+                                                                        required
+                                                                        style="background-color: #2a4964; color: white;">
+                                                                        <option selected disabled value="">Choose...</option>
+                                                                        {% for a in itemunits %}
+                                                                        <option style="text-transform:Uppercase;">{{ a.unit_symbol}}-{{ a.name }}</option>
+                                                                        {% endfor %}
+                                                                        <option>BAG-BAGS</option>
+                                                                        <option>BAL-BALE</option>
+                                                                        <option>BDL-BUNDLES</option>
+                                                                        <option>BKL-BUCKLES</option>
+                                                                        <option>BOX-BOX</option>
+                                                                        <option>BOU-BILLIONS OF UNITS</option>
+                                                                        <option>BTL-BOTTLES</option>
+                                                                        <option>BUN-BUNCHES</option>
+                                                                        <option>CAN-CANS</option>
+                                                                        <option>CBM-CUBIC METER</option>
+                                                                        <option>CMS-CENTIMETER</option>
+                                                                        <option>CCM-CUBIC CENTIMETER</option>
+                                                                        <option>CTN-CARTONS</option>
+                                                                        <option>DOZ-DOZEN</option>
+                                                                        <option>DRM-DRUM</option>
+                                                                        <option>GGR-GREAT GROSS</option>
+                                                                        <option>GMS-GRAMS</option>
+                                                                        <option>GRS-GROSS</option>
+                                                                        <option>GYD-GROSS YARDS</option>
+                                                                        <option>KGS-KILOGRAMS</option>
+                                                                        <option>KLR-KILOLITER</option>
+                                                                        <option>KME-KILOMETRE</option>
+                                                                        <option>MTS Metric ton</option>
+                                                                        <option>MLT-MILLILITRE</option>
+                                                                        <option>MTR-METERS</option>
+                                                                        <option>NOS-NUMBER</option>
+                                                                        <option>PAC-PACKS</option>
+                                                                        <option>PCS-PIECES</option>
+                                                                        <option>PRS-PAIRS</option>
+                                                                        <option>QTL-QUINTAL</option>
+                                                                        <option>ROL-ROLLS</option>
+                                                                        <option>SQF-SQUARE FEET</option>
+                                                                        <option>SET-SETS</option>
+                                                                        <option>SQM-SQUARE METERS</option>
+                                                                        <option>SQY-SQUARE YARDS</option>
+                                                                        <option>TBS-TABLETS</option>
+                                                                        <option>TGM-TEN GROSS</option>
+                                                                        <option>THD-THOUSANDS</option>
+                                                                        <option>TON-TONNES</option>
+                                                                        <option>TUB-TUBES</option>
+                                                                        <option>UGS-US GALLONS</option>
+                                                                        <option>UNT-UNITS</option>
+                                                                        <option>YDS-YARDS</option>
+                                        
+                                                                   
+                                                                </select>
+                                                                <!-- <a href="{% url 'add_unit' %}">
+                                                                    <button type="button"
+                                                                            class="btn btn-outline-secondary ml-1">+
+                                                                    </button>
+                                                                </a> -->
+                                                                <a class="btn btn-outline-secondary ml-1" data-bs-target="#newUnitAddModal" data-bs-toggle="modal" data-bs-dismiss="modal">+</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-6 mt-3">
+                                                            <label for="hsn" style="color: white;">HSN
+                                                                Code</label>
+                                                        <input type="text" name="hsn" class="form-control" id="hsn"
+                                                                   style="background-color: #2a4964; color: white;"
+                                                                  
+                                                                   placeholder="Enter a valid HSN code" required oninput="validateHSN()">
+                                                                   <div id="errorText" style="color: red;"></div>
+                                                        </div>
+                                                       
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-md-6 mt-3">
+                                                           
+                                                        </div>
+                                                       
+                                                    </div>
+                                                    
+                                    <div class="row">
+                                        <div class="col-md-3 mt-3">
+                                            <label for="validationCustom05" name style="color: white;">Tax Reference
+                                                </label>
+                                         
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check mt-1">
+                                               
+                                                    <input class="form-check-input" name="taxref" onchange="ShowHideTax(inclusive)" type="checkbox" id="inclusive"
+                                                         value="taxable">
+                                                    <label style="color: white;" for="inclusive">Taxable</label>
+                                              
+                                            </div>
+                                        </div>
+                                        <div class="form-check mt-1">
+                                            <input class="form-check-input" name="taxref" type="checkbox"
+                                                   value="non taxable" 
+                                                   id="check">
+                                            <label style="color: white;" for="check">Non Taxable</label>
+                                        </div>
+                                    </div>
+                                    <div class="row"  id="intrastateFiled" style="display: none;">
+                                        <div class="col-md-6 mt-3">
+                                            <label for="validationCustom05"
+                                                   style="color: white;">Intra State Tax Rate</label>
+                                                   <select name="intra_st" class="form-control" 
+                                                   style="background-color: #2a4964; color: white;"
+                                                   id="intra_st" >
+                                                  
+                                                   <option value=0>GST 0 (0%)</option>
+                                                   <option value=5>GST 5 (5%)</option>
+                                                   <option value=12>GST 12 (12%)</option>
+                                                   <option value=18>GST 18 (18%)</option>
+                                                   <option value=28>GST 28 (28%)</option>
+                                                   
+                                        </select>
+                                        <br>
+                                            <label for="validationCustom05"
+                                                   style="color: white;">Inter State Tax Rate</label>
+                                            <select name="inter_st" class="form-control" 
+                                                      style="background-color: #2a4964; color: white;"
+                                                      id="inter_st" >
+                                                     
+                                                      <option value=0>IGST 0 (0%)</option>
+                                                   <option value=5>IGST 5 (5%)</option>
+                                                   <option value=12>IGST 12 (12%)</option>
+                                                   <option value=18>IGST 18 (18%)</option>
+                                                   <option value=28>IGST 28 (28%)</option>
+                                                   
+                                        </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mt-3">
+                                            <label for="validationCustom01"
+                                                   style="color: white;">Purchase Price</label>
+                                                <div class="row">
+                                                   <div >
+                                                   <input type="text" class="form-control" value="INR"
+                                                    style="margin-left:20px;width:60px;background-color: #2a4960; color: white;"></div>
+                                                   <div >
+                                                   <input type="number" name="pcost" class="form-control" 
+                                                   id="purprice" style="width:540px;background-color: #2a4964; color: white; width:200%"
+                                                   value="0"
+                                                   >
+                                                   </div>
+                                                </div>
+  
+                                        </div>
+                                        <div class="col-md-6 mt-3">
+                                            <label for="validationCustom01"
+                                                   style="color: white;">Sales Price</label>
+                                                   <div class="row">
+                                                    <div >
+                                                        <input type="text" class="form-control" value="INR"
+                                                         style="margin-left:20px;width:60px;background-color: #2a4960; color: white;"></div>
+                                                        <div >
+                                                    <div >
+                                                   <input type="text" name="salesprice" class="form-control"
+                                                   id="saleprice" style="width:540px;background-color: #2a4964; color: white; width:200%"
+                                                   value="0"
+                                                   >
+                                                    </div>
+                                                </div>
+  
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mx-0">
+                                        <div class="row">
+                                            <div class="col-md-6 mt-3">
+                                                <label for="validationCustom01"
+                                                       style="color: white;">Account</label>
+                                                       <select name="pur_account" class="form-control" 
+                                                       style="background-color: #2a4964; color: white;"
+                                                       id="pur_account" >
+                                                       <option >Cost of Goods Sold</option>
+                                                       {% for a in acc1 %}
+                                                       <option value="{{a.name}}">{{ a.name }}</option>
+                                                       {% endfor %}</select>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <label for="validationCustom01"
+                                                       style="color: white;">Account</label>
+                                                <select name="sale_account" class="form-control" 
+                                                          style="background-color: #2a4964; color: white;"
+                                                          id="sale_account" >
+                                                          <option >Sales</option>
+                                                       {% for a in acc2 %}
+                                                       <option value="{{a.name}}">{{ a.name }}</option>
+                                                       {% endfor %}</select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12 mx-0">
+                                                <div class="row">
+                                                    <div class="col-md-6 mt-3">
+                                                        <label for="validationCustom01"
+                                                               style="color: white;">Description</label>
+                                                               <textarea class="form-control" name="pur_desc"
+                                                               id="pur_desc" 
+                                                               style="background-color: #2a4964; color: white;"
+                                                               ></textarea>  
+                                                    </div>
+                                                    <div class="col-md-6 mt-3">
+                                                        <label for="validationCustom01"
+                                                               style="color: white;">Description</label>
+                                                               <textarea class="form-control" name="sale_desc"
+                                                               id="sale_desc"
+                                                               style="background-color: #2a4964; color: white;"
+                                                               ></textarea>
+                                                    </div>
+                                                </div>
+                                     
+                                    
+                                    <div class="row">
+                                        <div class="col-md-12 mx-0">
+                                            <div class="row mt-3" >
+                                               
+                                               
+                                  
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" onclick="ShowHideDiv(this)" type="checkbox"  id="track">
+                                                        <label class="form-check-label" for="track" >
+                                                          Track Inventory
+                                                        </label>
+                                                      </div>
+                                                     
+                                                </div>
+                                            
+                                            </div>
+  
+                                            <div class="row" id="inventorytrack" style="display: none">
+                                                <div class="col-md-6 mt-3">
+                                                    <label for="validationCustom01"
+                                                           style="color: white;">Inventory Account</label>
+                                                           <select name="invacc" class="form-control" id="invacc"
+                                                              style="background-color: #2a4964; color: white;"
+                                                              >
+                                                           <option selected disabled value="" >Choose...</option>
+                                                           <option value="Inventory Assets">Inventory Assets</option>
+                                                       
+                                                </select>
+                                                </div>
+                                                <div class="col-md-3 mt-3">
+                                                    <label for="validationCustom01"
+                                                           style="color: white;">Stock on hand</label>
+                                                           <input type="number" name="stock" class="form-control" id="stock"
+                                                           style="background-color: #2a4964; color: white;"
+                                                           value="0"
+                                                           >
+                                                </div>
+                                                <div class="col-md-3 mt-3">
+                                                    <label for="validationCustom01"
+                                                           style="color: white;">Stock Rate per Unit</label>
+                                                           <input type="number" name="stock_rate" class="form-control" id="stock_rate"
+                                                           style="background-color: #2a4964; color: white;"
+                                                           value="0"
+                                                           >
+                                                </div>
+                                            </div>
+                                           
+  
+                                        
+                           
+                                            <div class="row">
+                                                <div class="col-md-6 mt-3">
+                                                   
+                                                </div>
+                                               
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-3 mt-3">
+                                                    <label for="validationCustom05" name style="color: white;">Active/Inactive
+                                                        </label>
+                                                 
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" value="Active" type="radio" name="status" id="flexRadioDefault1" checked>
+                                                        <label class="form-check-label" for="flexRadioDefault1">
+                                                          Active
+                                                        </label>
+                                                      </div>
+                                                     
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" value="Inactive" type="radio" name="status" id="flexRadioDefault2" >
+                                                    <label class="form-check-label" for="flexRadioDefault2">
+                                                      Inactive
+                                                    </label>
+                                                  </div>
+                                                  <!-- <div class="col-md-3">
+                                                    <input type="date" name="itmdate" id="date3" class="form-control">
+                                                </div> -->
+                                            </div>
+                                        </div>
+                                        </div>
+                                   
+                                        <div class="row">
+                                            <div class="col-md-4"></div>
+                                            <div class="col-md-4">
+                                            <button class="btn btn-outline-info rounded-pill w-100 text-light" data-dismiss="modal" type="button" id="itemSave">SUBMIT</button>
+                                        
+                                        <div class="col-md-4"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+              </div>
+          </div>
+      </div>
+    </div> 
+  </div> 
+
+
+
+<!-- <div class="modal fade" id="newitem">
     <div class="modal-dialog modal-xl">
         <div class="modal-content" style="background-color: #213b52;">
             <div class="modal-header">
@@ -1777,45 +2183,8 @@
             </div>
         </div>
     </div> 
-</div>
+</div> -->
 
-
-  <div class="modal fade" id="unit">
-    <div class="modal-dialog">
-        <div class="modal-content" style="background-color: #213b52;">
-            <div class="modal-header">
-                <h5 class="m-3">Unit Create</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card p-3 m-3">
-                    <form method="post" action="{% url 'createunit_rbill'%}" autocomplete="off">
-                        {% csrf_token %}
-                        <div class="row mt-2 mb-2">
-                            <div class="col-md-6">
-                                <label for="acctyp">Unit Symbol</label>
-                                <input type="text" name="usymbol" id="select1" class="custom-select-md form-control w-100">        
-                            </div>
-                            <div class="col-md-6">
-                                <label for="name">Name</label>
-                                <input name="uname" id="name" class="custom-select-md form-control w-100">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4"></div>
-                            <div class="col-md-4 mt-4 mb-4">
-                                <button type="submit" class="btn btn-outline-info rounded-pill w-100">Create</button>
-                            </div>
-                            <div class="col-md-4"></div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>   
-    </div>
-</div> 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -1823,6 +2192,7 @@
   
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     <script>
     // var enteredVName = "";
     $(document).on("click","#vendorSave",function(){
@@ -2607,6 +2977,29 @@ $(document).ready(function(){
                 inventorytrack.style.display = track.checked ? "flex" : "none";
     
             }
+
+            function ShowHideTax(inclusive) {
+                var inter = document.getElementById("intrastateFiled");
+    
+                inter.style.display = inclusive.checked ? "block" : "none";
+    
+            }
+
+            function validateHSN() {
+                var hsnField = document.getElementById("hsn");
+                var errorText = document.getElementById("errorText");
+                var hsnValue = hsnField.value;
+
+                // Check if the HSN value has more than 6 digits
+                if (isNaN(hsnValue) || hsnValue.length !== 6) {
+                    errorText.innerText = "HSN must be exactly 6 digits ";
+                    hsnField.style.borderColor = "red";
+                } else {
+                    errorText.innerText = "";
+                    hsnField.style.borderColor = ""; // Reset border color
+                }
+            }
+            
             $(document).on('click','.remove_row',function(){
                 var row_id = $(this).attr("id");
                 $('#addr0'+row_id+'').remove();
@@ -2656,17 +3049,19 @@ $(document).ready(function(){
                 inter_st : $("#inter_st").val(),
                 invacc : $("#invacc").val(),
                 stock : $("#stock").val(),
+                stock_rate:$("#stock_rate").val(),
                 // itmdate : $("#date3").val(),
                 status : status1,
-                csrfmiddlewaretoken: '{{ csrf_token }}',
+                csrfmiddlewaretoken: $("input[name = csrfmiddlewaretoken]").val(),
                 
                 },
             
                 success: function(response) {
                     console.log(response)
                     document.getElementById("modalItem").reset();
+                    $('#newitem').modal('toggle');
                     reloadItem();
-                    // reloadItem2();
+                    reloadItem2();
                 },
             });        
             });
@@ -2721,6 +3116,108 @@ $(document).ready(function(){
             }
             });
             }
+
+            $(document).on("click","#saveNewUnit",function(){
+    var unitsymbol = $("#unitsymbol").val();
+    var unitname = $("#unitname").val();
+    if (unitname !="" && unitsymbol != ""){
+        $.ajax({
+        type : 'POST',
+        url:"{% url 'createitemunit_ewbill' %}",
+        data:{
+            uname : unitname,
+            usymbol : unitsymbol,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        },
+        
+        success: function(response) {
+            console.log("AJAX Success - Response Data:", response);
+            document.getElementById("newunitform").reset();
+            $('#newUnitAddModal').modal('toggle');
+            $('#newitem').modal('toggle');
+            reloadItemUnit();
+            
+            if(response.message == "success"){
+                // alert('unit added')
+            }else{
+                alert('Something went wrong..!')
+            }
+        },         
+    });
+    }
+    else{
+        alert('Invalid')
+    }
+});
+
+function reloadItemUnit() {
+$.ajax({
+url: "{% url 'getitemunitewbill' %}",
+type: "GET",
+dataType: "json",
+data: $(this).serialize(),
+csrfmiddlewaretoken: '{{ csrf_token }}',
+
+success: function(data) {
+    console.log("AJAX Success - Dropdown Data:", data);
+
+    var dropdown = $('#itemunit');
+    dropdown.empty()
+    dropdown.append(`<option selected disabled value="">Choose...</option>`,
+                `<option>BAG-BAGS</option>`,
+                `<option>BDL-BUNDLES</option>`,
+                `<option>BKL-BUCKLES</option>`,
+                `<option>BOX-BOX</option>`,
+                `<option>BOU-BILLIONS OF UNITS</option>`,
+                `<option>BTL-BOTTLES</option>`,
+                `<option>BUN-BUNCHES</option>`,
+                `<option>CAN-CANS</option>`,
+                `<option>CBM-CUBIC METER</option>`,
+                `<option>CMS-CENTIMETER</option>`,
+                `<option>CCM-CUBIC CENTIMETER</option>`,
+                `<option>CTN-CARTONS</option>`,
+                `<option>DOZ-DOZEN</option>`,
+                `<option>DRM-DRUM</option>`,
+                `<option>GGR-GREAT GROSS</option>`,
+                `<option>GMS-GRAMS</option>`,
+                `<option>GRS-GROSS</option>`,
+                `<option>GYD-GROSS YARDS</option>`,
+                `<option>KGS-KILOGRAMS</option>`,
+                `<option>KLR-KILOLITER</option>`,
+                `<option>KME-KILOMETRE</option>`,
+                `<option>MTS Metric ton</option>`,
+                `<option>MLT-MILLILITRE</option>`,
+                `<option>MTR-METERS</option>`,
+                `<option>NOS-NUMBER</option>`,
+                `<option>PAC-PACKS</option>`,
+                `<option>PCS-PIECES</option>`,
+                `<option>PRS-PAIRS</option>`,
+                `<option>QTL-QUINTAL</option>`,
+                `<option>ROL-ROLLS</option>`,
+                `<option>SQF-SQUARE FEET</option>`,
+                `<option>SET-SETS</option>`,
+                `<option>SQM-SQUARE METERS</option>`,
+                `<option>SQY-SQUARE YARDS</option>`,
+                `<option>TBS-TABLETS</option>`,
+                `<option>TGM-TEN GROSS</option>`,
+                `<option>THD-THOUSANDS</option>`,
+                `<option>TON-TONNES</option>`,
+                `<option>TUB-TUBES</option>`,
+                `<option>UGS-US GALLONS</option>`,
+                `<option>UNT-UNITS</option>`,
+                `<option>YDS-YARDS</option>`);
+    $.each(data, function(key, value) {
+        for(let i=0; i<value.length; i++){
+            dropdown.append($('<option></option>').attr('value', key).text(value[i].symbol+"-"+value[i].name).val(value[i].symbol+"-"+value[i].name))
+        }
+        
+    });
+},
+error: function(xhr, status, error) {
+console.error(xhr.responseText);
+}
+});
+}
 
    // calculation---------------------------
 

@@ -1560,8 +1560,8 @@
             </div>
             <div class="modal-body">
                 <div class="card p-3 m-3">
-                    <form action="" method="post" novalidate autocomplete="off" id="modalItem">
-  
+                    <form method="post" autocomplete="off" id="modalItem">
+                        {%csrf_token%}
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="row">
@@ -1701,7 +1701,7 @@
                                                    style="color: white;">Intra State Tax Rate</label>
                                                    <select name="intra_st" class="form-control" 
                                                    style="background-color: #2a4964; color: white;"
-                                                   id="validationCustom05" >
+                                                   id="intra_st" >
                                                   
                                                    <option value=0>GST 0 (0%)</option>
                                                    <option value=5>GST 5 (5%)</option>
@@ -1715,7 +1715,7 @@
                                                    style="color: white;">Inter State Tax Rate</label>
                                             <select name="inter_st" class="form-control" 
                                                       style="background-color: #2a4964; color: white;"
-                                                      id="validationCustom05" >
+                                                      id="inter_st" >
                                                      
                                                       <option value=0>IGST 0 (0%)</option>
                                                    <option value=5>IGST 5 (5%)</option>
@@ -1814,40 +1814,6 @@
                                     
                                     <div class="row">
                                         <div class="col-md-12 mx-0">
-                                            <!-- <div class="row">
-                                                <div class="col-md-6 mt-3">
-                                                    <label for="validationCustom01"
-                                                           style="color: white;">Intra State Tax Rate</label>
-                                                           <select name="intra_st" class="form-control" 
-                                                           style="background-color: #2a4964; color: white;"
-                                                           id="intra_st" >
-                                                           <option >Choose...</option>
-                                                           <option value=0>GST 0 (0%)</option>
-                                                           <option value=5>GST 5 (5%)</option>
-                                                           <option value=12>GST 12 (12%)</option>
-                                                           <option value=18>GST 18 (18%)</option>
-                                                           <option value=28>GST 28 (28%)</option>
-                                                           <option value=0>Out of Scope(0%)</option>
-                                                </select>
-                                                </div>
-                                            
-                                                <div class="col-md-6 mt-3">
-                                                    <label for="inter_st"
-                                                           style="color: white;">Inter State Tax Rate</label>
-                                                    <select name="inter_st" class="form-control" 
-                                                              style="background-color: #2a4964; color: white;"
-                                                              id="inter_st" >
-                                                              <option >Choose...</option>
-                                                              <option value=0>IGST 0 (0%)</option>
-                                                           <option value=5>IGST 5 (5%)</option>
-                                                           <option value=12>IGST 12 (12%)</option>
-                                                           <option value=18>IGST 18 (18%)</option>
-                                                           <option value=28>IGST 28 (28%)</option>
-                                                           <option value=0>Out of Scope(0%)</option>
-                                                </select>
-                                                </div>
-                                            </div>
-                                            <br> -->
                                             <div class="row mt-3" >
                                                
                                                
@@ -1934,7 +1900,7 @@
                                         <div class="row">
                                             <div class="col-md-4"></div>
                                             <div class="col-md-4">
-                                            <button class="btn btn-outline-info rounded-pill w-100 text-light" data-dismiss="modal" type="submit" id="itemSave">SUBMIT</button>
+                                            <button class="btn btn-outline-info rounded-pill w-100 text-light" data-dismiss="modal" type="button" id="itemSave">SUBMIT</button>
                                         
                                         <div class="col-md-4"></div>
                                     </div>
@@ -2196,6 +2162,7 @@ csrfmiddlewaretoken: '{{ csrf_token }}',
 
 success: function(data) {
     console.log("AJAX Success - Dropdown Data:", data);
+
     var dropdown = $('#itemunit');
     dropdown.empty()
     dropdown.append(`<option selected disabled value="">Choose...</option>`,
@@ -2242,10 +2209,9 @@ success: function(data) {
                 `<option>UNT-UNITS</option>`,
                 `<option>YDS-YARDS</option>`);
     $.each(data, function(key, value) {
-        console.log(key)
-        console.log(units.symbol);
-        console.log(units.name);
-    dropdown.append($('<option></option>').attr('value', key).text(value).val(value));
+        for(let i=0; i<value.length; i++){
+            dropdown.append($('<option></option>').attr('value', key).text(value[i].symbol+"-"+value[i].name).val(value[i].symbol+"-"+value[i].name))
+        }
         
     });
 },
@@ -2909,12 +2875,12 @@ $(document).ready(function(){
             $.ajax({
             
             type : 'POST',
-            url:"{% url 'createitem_rbill' %}",
+            url:"{% url 'createitem_ewbill' %}",
             
             data:{
                 type : $("#type").val(),
                 name : $("#item_name").val(),
-                unit : $("#unit").val(),
+                unit : $("#itemunit").val(),
                 hsn : $("#hsn").val(),
                 taxref : tax,
                 salesprice : $("#saleprice").val(),
@@ -2927,17 +2893,19 @@ $(document).ready(function(){
                 inter_st : $("#inter_st").val(),
                 invacc : $("#invacc").val(),
                 stock : $("#stock").val(),
+                stock_rate:$("#stock_rate").val(),
                 // itmdate : $("#date3").val(),
                 status : status1,
-                csrfmiddlewaretoken: '{{ csrf_token }}',
+                csrfmiddlewaretoken: $("input[name = csrfmiddlewaretoken]").val(),
                 
                 },
             
                 success: function(response) {
                     console.log(response)
                     document.getElementById("modalItem").reset();
+                    $('#newitem').modal('toggle');
                     reloadItem();
-                    reloadItem2()
+                    reloadItem2();
                 },
             });        
             });

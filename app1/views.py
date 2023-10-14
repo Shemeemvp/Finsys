@@ -45227,6 +45227,7 @@ def createitem_ewbill(request):
             iinter = request.POST['inter_st']
             iinv = request.POST.get('invacc')
             istock = request.POST.get('stock')
+            istock_rate = request.POST.get('stock_rate')
             istatus = request.POST['status']
             item = itemtable(name=iname,item_type=itype,unit=iunit,
                                 hsn=ihsn,tax_reference=itax,
@@ -45243,6 +45244,7 @@ def createitem_ewbill(request):
                                 inventry=iinv,
                                 stockin=istock,
                                 stock=istock,
+                                stock_rate = istock_rate,
                                 status=istatus,
                                 cid=cmp1)
             item.save()
@@ -45363,11 +45365,15 @@ def edit_eway_bill(request, billId):
             items = e_waybill_item.objects.filter(cid = cmp1).filter(bill = billId)
             createddate = date.today().strftime("%Y-%m-%d")
             itmunits = unittable.objects.filter(cid = cmp1)
+            acc2 = accounts1.objects.filter(cid=cmp1,acctype='Sales')
+            acc1 = accounts1.objects.filter(cid=cmp1,acctype='Cost of Goods Sold')
             context = {
                         'cmp1': cmp1,
                         'item':itm ,
                         'cust':cust,
                         'itemunits':itmunits,
+                        'acc1':acc1,    
+                        'acc2':acc2, 
                         'date':createddate,
                         'trnsp':trnsprt,
                         'ewbill':ewbill,
