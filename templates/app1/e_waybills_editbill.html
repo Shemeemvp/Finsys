@@ -360,7 +360,7 @@
                                     <td style="width: 20%;">
                 
                                         <div class="d-flex">
-                                            <select name='item[]' id="item1" class="form-control item" style="background-color: #2f516f; color: white; ">
+                                            <select name='item[]' id="item{{forloop.counter}}" class="form-control item" style="background-color: #2f516f; color: white; ">
                                                 <option value="">Select Item</option>
                                                 
                                                 {% for i in item %}
@@ -383,12 +383,12 @@
                                       
                                      
                                     </td>
-                                    <td><input type="text" name='hsn[]' id="hsn1" value="{{itm.hsn}}" placeholder='Enter HSN Code' class="form-control" style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="text" name='hsn[]' id="hsn{{forloop.counter}}" value="{{itm.hsn}}" placeholder='Enter HSN Code' class="form-control" style="background-color: #2f516f; color: white;" /></td>
                                     <!-- <td><input type="text" name='description[]' id="description" placeholder='Description' class="form-control" style="background-color: #2f516f; color: white;" /></td> -->
-                                    <td><input type="number" name='qty[]'placeholder='Enter Qty' id="qty1" value="{{itm.qty}}" class="form-control qty" step=0 min=0 style="background-color: #2f516f; color: white; " />
+                                    <td><input type="number" name='qty[]'placeholder='Enter Qty' id="qty{{forloop.counter}}" value="{{itm.qty}}" class="form-control qty" step=0 min=0 style="background-color: #2f516f; color: white; " />
                                       <!-- <div style="margin-top: 5Px;" class="d-flex"><span>Available Qty :</span> <span id="qtyspan1" class=''></span></div> -->
                                     </td>
-                                    <td><input type="number" name='price[]' id="unit1" value="{{itm.price}}" placeholder='Enter Unit Price' class="form-control price" step="0.00" min="0" style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="number" name='price[]' id="unit{{forloop.counter}}" value="{{itm.price}}" placeholder='Enter Unit Price' class="form-control price" step="0.00" min="0" style="background-color: #2f516f; color: white;" /></td>
                                     
                                     
                                    
@@ -396,7 +396,7 @@
                                       <input hidden value="{{cmp1.state}}" id="cmpstate">
                                       <input type="text"  id="select_tax" placeholder="Tax Rate" class="form-control seltax d-flex">
                                       {%if ewbill.igst == 0 %}
-                                      <select name='tax1[]' id="tax11" class="form-control tax intra_tax d-none">
+                                      <select name='tax1[]' id="tax1{{forloop.counter}}" class="form-control tax intra_tax d-none">
                                           <option selected value="{{itm.tax}}">{{itm.tax}}.0% GST({{itm.tax}}%)</option>
                                           <option value=28 >28.0% GST(28%)</option>
                                           <option value=18 >18.0% GST(18%)</option>
@@ -406,7 +406,7 @@
                                             <option value=0  >0.0% GST(0%)</option>
                                       </select>
                                       {%else%}
-                                      <select name='tax2[]' id="tax21" class="form-control tax inter_tax d-none">
+                                      <select name='tax2[]' id="tax2{{forloop.counter}}" class="form-control tax inter_tax d-none">
                                         <option selected value="{{itm.tax}}">{{itm.tax}}.0% IGST({{itm.tax}}%)</option>
                                           <option value=28 >28.0% IGST(28%)</option>
                                           <option value=18 >18.0% IGST(18%)</option>
@@ -417,9 +417,9 @@
                                       </select>
                                         {%endif%}         
                                     </td>
-                                    <td><input type="number" name='discount[]'  placeholder='Enter Discount' id="disc1" value={{itm.discount}} class="form-control disc" step=0 min=0 style="background-color: #2f516f;  color: white;"  />
+                                    <td><input type="number" name='discount[]'  placeholder='Enter Discount' id="disc{{forloop.counter}}" value={{itm.discount}} class="form-control disc" step=0 min=0 style="background-color: #2f516f;  color: white;"  />
                 
-                                    <td><input type="number" name='total[]' id="total1" placeholder=0 class="form-control total" value={{itm.total}} step="any" readonly style="background-color: #2f516f; color: white;" /></td>
+                                    <td><input type="number" name='total[]' id="total{{forloop.counter}}" placeholder=0 class="form-control total" value={{itm.total}} step="any" readonly style="background-color: #2f516f; color: white;" /></td>
                                     <td style="display: none;"><input type="number" step="any" name='taxamount1' id="taxamount1" class="form-control taxamount"/></td>   
                                     </td>
                                     <td>

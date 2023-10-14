@@ -1069,6 +1069,13 @@
                                                         <td style="color: #000;">:</td>
                                                         <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
                                                     </tr>
+                                                    {% if ewbill.adjustment != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">Adjustment</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.adjustment}}</td>
+                                                    </tr>
+                                                    {%endif%}
                                                     {% if ewbill.tcs != "0.00" %}
                                                     <tr style="display: none;">
                                                         <td style="color:black">TCS:</td>
@@ -1283,6 +1290,13 @@
                                                         <td style="color: #000;">:</td>
                                                         <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
                                                     </tr>
+                                                    {% if ewbill.adjustment != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">Adjustment</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.adjustment}}</td>
+                                                    </tr>
+                                                    {%endif%}
                                                     {% if ewbill.tcs != "0.00" %}
                                                     <tr style="display: none;">
                                                         <td style="color:black">TCS:</td>
@@ -1512,6 +1526,13 @@
                                                         <td style="color: #000;">:</td>
                                                         <td class="text-center" style="color: #000;">{{ewbill.shipping_charge}}</td>
                                                     </tr>
+                                                    {% if ewbill.adjustment != 0.0 %}
+                                                    <tr >
+                                                        <td style="color: #000;">Adjustment</td>
+                                                        <td style="color: #000;">:</td>
+                                                        <td class="text-center" style="color: #000;">{{ewbill.adjustment}}</td>
+                                                    </tr>
+                                                    {%endif%}
                                                     {% if ewbill.tcs != "0.00" %}
                                                     <tr style="display: none;">
                                                         <td style="color:black">TCS:</td>

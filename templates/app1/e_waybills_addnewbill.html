@@ -564,7 +564,7 @@
                             <div class="col">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="" id="invalidCheck" required>
-                                    <label>Agree to terms and conditions</label>
+                                    <label for="invalidCheck">Agree to terms and conditions</label>
                                     <div class="invalid-feedback">You must agree before submitting.</div>
                                 </div>
                             </div>
@@ -2531,7 +2531,17 @@ $(document).on("click", "#customerSave", function(){
 
     $(document).ready(function() {
     $('#customer').change(function() {
-
+        if($('#customer').val() == ""){
+            $("#email_row1").removeClass('d-flex');
+            $("#email_row1").addClass('d-none');
+            $("#gstin_row1").removeClass('d-flex');
+            $("#gstin_row1").addClass('d-none');
+            $("#gst_trt_row1").removeClass('d-flex');
+            $("#gst_trt_row1").addClass('d-none');
+            document.getElementById('customer_address').value = "";
+            document.querySelector("#placeofsupply").value = 'Kerala'
+            alert('Choose a customer')
+        }
         $.ajax({
             url: "{% url 'get_customer' %}", 
             data: { 
@@ -2563,15 +2573,42 @@ $(document).on("click", "#customerSave", function(){
                 }
                 const $select = document.querySelector("#placeofsupply");
                 $select.value = json_data[key]['state'];
+
                 if ( json_data[key]['state'] == document.getElementById("cmpstate").value ) {
-                    document.getElementById('cgst1').style.display = 'flex';
-                    document.getElementById('sgst1').style.display = 'flex';
-                    document.getElementById('igst1').style.display = 'none'; 
+                    // document.getElementById('cgst1').style.display = 'flex';
+                    // document.getElementById('sgst1').style.display = 'flex';
+                    // document.getElementById('igst1').style.display = 'none';
+                    $("#cgst1").addClass('d-flex');
+                    $("#cgst1").removeClass('d-none');
+                    $("#sgst1").addClass('d-flex');
+                    $("#sgst1").removeClass('d-none');
+                    $("#igst1").addClass('d-none');
+                    $("#igst1").removeClass('d-flex');
+
+                    $("#select_tax").removeClass('d-flex')
+                    $("#select_tax").addClass('d-none')
+                    $("#tax21").addClass('d-none')
+                    $("#tax21").removeClass('d-flex')
+                    $("#tax11").addClass('d-flex')
+                    $("#tax11").removeClass('d-none')
 
                 } else {
-                    document.getElementById('cgst1').style.display = 'none';
-                    document.getElementById('sgst1').style.display = 'none';
-                    document.getElementById('igst1').style.display = 'flex';
+                    // document.getElementById('cgst1').style.display = 'none';
+                    // document.getElementById('sgst1').style.display = 'none';
+                    // document.getElementById('igst1').style.display = 'flex';
+                    $("#cgst1").addClass('d-none');
+                    $("#cgst1").removeClass('d-flex');
+                    $("#sgst1").addClass('d-none');
+                    $("#sgst1").removeClass('d-flex');
+                    $("#igst1").addClass('d-flex');
+                    $("#igst1").removeClass('d-none');
+
+                    $("#select_tax").removeClass('d-flex')
+                    $("#select_tax").addClass('d-none')
+                    $("#tax11").addClass('d-none')
+                    $("#tax11").removeClass('d-flex')
+                    $("#tax21").addClass('d-flex')
+                    $("#tax21").removeClass('d-none')
 
                 }
                 }
@@ -3501,16 +3538,29 @@ console.error(xhr.responseText);
                 $(".inter_tax").addClass('d-none');
                 var bc = document.getElementById("placeofsupply").value;
                 var compstate = document.getElementById("cmpstate").value;
+                // alert(compstate)
                 if (bc == compstate ) {
-                    document.getElementById('cgst1').style.display = 'flex';
-                    document.getElementById('sgst1').style.display = 'flex';
-                    document.getElementById('igst1').style.display = 'none'; 
+                    // document.getElementById('cgst1').style.display = 'flex';
+                    // document.getElementById('sgst1').style.display = 'flex';
+                    // document.getElementById('igst1').style.display = 'none';
+                    $("#cgst1").addClass('d-flex');
+                    $("#cgst1").removeClass('d-none');
+                    $("#sgst1").addClass('d-flex');
+                    $("#sgst1").removeClass('d-none');
+                    $("#igst1").addClass('d-none');
+                    $("#igst1").removeClass('d-flex');
 
                 } else {
-                    document.getElementById('cgst1').style.display = 'none';
-                    document.getElementById('sgst1').style.display = 'none';
-                    document.getElementById('igst1').style.display = 'flex';
+                    // document.getElementById('cgst1').style.display = 'none';
+                    // document.getElementById('sgst1').style.display = 'none';
+                    // document.getElementById('igst1').style.display = 'flex';
 
+                    $("#cgst1").addClass('d-none');
+                    $("#cgst1").removeClass('d-flex');
+                    $("#sgst1").addClass('d-none');
+                    $("#sgst1").removeClass('d-flex');
+                    $("#igst1").addClass('d-flex');
+                    $("#igst1").removeClass('d-none');
                 }
                     
             });
