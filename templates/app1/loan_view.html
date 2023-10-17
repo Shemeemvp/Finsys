@@ -6,9 +6,10 @@
     <div class="card radius-15 h-20">
         <div class="row">
             <div class="col-md-12">
-                <center><h2 class="mt-3">BANKING</h2></center>
+                <center><h2 class="mt-3">LOAN ACCOUNT</h2></center>
                 
                 <hr style="width:95%">
+                
             </div>
         </div>
     </div>
@@ -18,7 +19,6 @@
     <div class="card-body">
         <div class="container-fluid">
             <div class="row">
-               
                 <div class="col-md-4">
                 <div class="search-bar">
                     <div class="input-group">
@@ -34,26 +34,24 @@
                             </div>
                         </div>
                       </div>
-                      <div class="col"></div>
-                      <div class="col"></div>
-                 
+                <div class="col"></div>
+                 <div class="col"></div>
                   <div class="col">
                     <div class="dropdown">
                         <button type="button" class="btn btn-outline-info dropdown-toggle text-grey"
                                 data-toggle="dropdown">Filter by
                         </button>
                         <div class="dropdown-menu" style="background-color: black;">
-                            <a class="dropdown-item" href="javascript:void(0);" onclick="sortTable('asc')"
-                               style="height: 40px; font-size: 15px; color: white;">Name Ascending</a>
-                            <a class="dropdown-item" href="javascript:void(0);" onclick="sortTable('desc')"
-                               style="height: 40px; font-size: 15px; color: white;">Name Descending</a>
+                            <a class="dropdown-item" href="{% url 'loan' %}">All</a>
+                            <a class="dropdown-item" href="{% url 'activeloan' %}">Active</a>
+                            <a class="dropdown-item" href="{% url 'inactiveloan'  %}">Inactive</a>
                         </div>
                 </div>
             </div>
             <div class="col">
                 <div class="dropdown">
                     <button type="button" class="btn btn-outline-info text-grey" >
-                       <a href="{% url 'create_bank' %}">Add Bank</a>
+                       <a href="{% url 'create_loan'  %}">Add Loan Account</a> 
                     </button>
                 </div>
             </div>
@@ -66,28 +64,41 @@
                 <table class="table table-responsive-md table-hover mt-4" id="tabletobe">
                     <thead>
                     <tr>
-                        <th id="nameList" >BANK NAME</th>
+                        <th>ACCOUNT</th>
                         <th>ACCOUNT NUMBER</th>
-                        <th>IFSCE CODE</th>
-                        <th>BRANCH NAME</th>
-                        <th>OPENING BALANCE</th>
+                        <th>LENDER</th>
+                        
+                        <th>LOAN AMOUNT</th>
                         <th>BALANCE</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for a in bank %}
+                        {% for i in loan %}
                 <tr >
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}">{{ a.bankname }}</td>
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}"> {{ a.account_number }}</td>
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}"> {{ a.ifsccode }}</td>
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}">{{ a.branchname }}</td>
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}">{{ a.openingbalance }}</td>
-                                <td class='clickable-row' data-href="view_bank/{{ a.id }}">{{a.balance}}</td>
-                               
-                                
-                            </tr>
+                    
 
-                            <div class="modal fade" id="editModal{{ a.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}">{{i.account_name}}</td>
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}">{{i.account_number}}</td>
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}"> {{i.lenderbank}}</td>
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}">{{i.loan_amount}}</td>
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}">{{i.balance}}</td>
+                                <td class='clickable-row' data-href="loan_list/{{ i.id }}">{{i.status}}</td>
+                                                            
+                                <td>
+                                    <div class="dropdown">
+                                        <i class="fa fa-ellipsis-v" style="font-size:24px" data-toggle="dropdown"></i>
+                                        <div class="dropdown-menu">
+                                            <a class="dropdown-item edit-item" href="{% url 'edit_loan' i.id %}" >Edit</a>
+                                            <a class="dropdown-item delete-item" href="#" data-toggle="modal" data-target="#deleteModal{{ i.id }}">Delete</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                        
+                            </tr>
+                            <div class="modal fade" id="editModal{{ i.id }}" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content" style="background-color: #213b52;">
                                         <div class="modal-header">
@@ -97,43 +108,70 @@
                                             </button>
                                         </div>
                                         <div class="modal-body">
-                                            <form id="bankForm" method="post" action="{% url 'edit_bank' a.id %}">
+                                            <form id="bankForm" method="post" action="">
                                                 {% csrf_token %}
                                                <div class="form-group">
+                                               <div class="row form-inline">
                                                 <div class="col-md-4">
-                                                    <label for="">BANK NAME</label>
+                                                    <label for="">ACCOUNT NAME</label>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <input class="form-control" type="text" name="bname" value="{{a.bankname}}" >
+                                                    <input class="form-control" type="text" name="acc_name" value="" >
                                                 </div>
-
-                                                
                             
                                                 <div class="col-md-4">
-                                                    <label for="">BANK IFSC CODE</label>
+                                                    <label for="">LENDER BANK</label>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <input class="form-control" type="text" name="ifsc" value="{{a.ifsccode}}" >
+                                                    <input class="form-control" type="text" name="lender" value="" >
                                                 </div>
+                                               </div>
                             
                                                 <div class="col-md-4">
                                                     <label for="">BRANCH NAME</label>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <input class="form-control" type="text" name="branch" value="{{a.branchname}}" >
+                                                    <input class="form-control" type="text" name="branch" value="" >
                                                 </div>
+
                                                 <div class="col-md-4">
-                                                    <label for="">OPENING BALANCE</label>
+                                                    <label for="">DESCRIPTION</label>
                                                 </div>
                                                 <div class="col-md-8">
-                                                    <input class="form-control" type="text" name="Opening" value="{{a.openingbalance}}" >
+                                                    <input class="form-control" type="text" name="branch" value="" >
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="">ACCOUNT NUMBER</label>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" name="Opening" value="" >
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label for="">CURRENT BALANCE</label>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" name="Opening" value="" >
                                                 </div>
                             
                                                 <div class="col-md-4">
-                                                    <label for="">DATE</label>
+                                                    <label for="">BALANCE AS OF</label>
                                                 </div>
                                                 <div class="col-md-8">
                                                     <input class="form-control" type="date" name="date" value="{{a.date | date:'Y-m-d' }}" >
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label for="">LOAN RECIEVED</label>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" name="bname" value="" >
+                                                </div>
+
+                                                <div class="col-md-4">
+                                                    <label for="">INTREST</label>
+                                                </div>
+                                                <div class="col-md-8">
+                                                    <input class="form-control" type="text" name="Opening" value="" >
                                                 </div>
                                                </div>
                                                <div class="modal-footer">
@@ -147,10 +185,10 @@
                                     </div>
                                 </div>
                             </div>
-                            {% for a in bank %}
+                           
                             <!-- Your existing table row -->
                         
-                            <div class="modal fade" id="deleteModal{{ a.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                            <div class="modal fade" id="deleteModal{{ i.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
                                     <div class="modal-content" style="background-color: #213b52;">
                                         <div class="modal-header">
@@ -164,18 +202,16 @@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                                            <a href="{% url 'delete' a.id  %}" class="btn btn-danger delete-confirm" >Delete</a>
+                                            <a href="{% url 'delet_loan' i.id %}" class="btn btn-danger delete-confirm" >Delete</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        {% endfor %}
-                        
-                    {% endfor %}
-                  
+                      
                   
                    
-                  
+                            {% endfor %}
+
                     </tbody>
                 </table>
             </div>
@@ -186,29 +222,6 @@
 
 
 <script>
-    function sortTable(order) {
-        const table = document.getElementById('tabletobe');
-        const rows = Array.from(table.getElementsByTagName('tr'));
-
-        rows.shift(); // Remove the table header row from sorting
-
-        rows.sort(function(a, b) {
-            const bankNameA = a.querySelector('td:first-child').textContent;
-            const bankNameB = b.querySelector('td:first-child').textContent;
-
-            if (order === 'asc') {
-                return bankNameA.localeCompare(bankNameB);
-            } else if (order === 'desc') {
-                return bankNameB.localeCompare(bankNameA);
-            }
-        });
-
-        rows.forEach(function(row) {
-            table.appendChild(row);
-        });
-    }
-</script>
-<script>
     $(document).ready(function () {
         $(".edit-item").on("click", function () {
             $("#editModal").modal("show");
@@ -217,22 +230,22 @@
 </script>
 
     <!-- Modal HTML -->
-<div  class="modal fade" id="addBankModal" tabindex="-1" role="dialog" aria-labelledby="addBankModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content" style="background-color: #213b52;">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addBankModalLabel">Add Bank Modal</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+    <div class="modal fade" id="addBankModal" tabindex="-1" role="dialog" aria-labelledby="addBankModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="background-color: #213b52;width: 100%;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addBankModalLabel">Add Bank Modal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                   
+                </div>
             </div>
-            <div class="modal-body">
-               
-            </div>
-            
         </div>
     </div>
-</div>
+    
 
 <script>
     jQuery(document).ready(function($) {

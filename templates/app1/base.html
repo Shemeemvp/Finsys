@@ -147,7 +147,9 @@
                   <li><a href="{% url 'gobilling' %}">Bill</li>
                   <li><a href="{% url 'cash_in_hand' %}">Cash In Hand</a></li>
                   <li><a href="{% url 'bnnk' %}">Offline Banking</a></li>
-
+                  <li><a href="{% url 'loan' %}">Loan Account</a>
+                    <li><a href="{% url 'sales_report' %}">Sales</a>
+                  </li>
 
                 </ul>
               </div>
@@ -355,7 +357,7 @@
                   </a>
                 </li>
 
-                <li id="loanaccount"><a href=""><i class="bx bx-right-arrow-alt"></i>Loan Account</a>
+                <li><a href="{% url 'loan' %}"><i class="bx bx-right-arrow-alt"></i>Loan Account</a>
                 </li>
               </ul>
             </li>
@@ -473,8 +475,8 @@
               <li id="transactonreport">
                 <a><i class="bx bx-right-arrow-alt"></i>Transaction Reports</a>
                 <ul class="px-4">
-                  <li><a><i class="bx bx-right-arrow-alt"></i>Sales
-                    </a>
+                  <li><a href="{% url 'sales_report' %}"><i class="bx bx-right-arrow-alt"></i>Sales</a></li>
+
                     <ul class="px-4">
                       <li><a href="{% url 'sales_by_customer' %}"><i class="bx bx-right-arrow-alt"></i>Sales by Customer</a></li>
                       <li><a href="{% url 'sales_by_item' %}"><i class="bx bx-right-arrow-alt"></i>Sales By Item</a></li>

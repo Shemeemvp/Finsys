@@ -1168,15 +1168,14 @@ urlpatterns = [
     path('e_waybills',views.e_waybills_page,name='go_ewaybill'),
     path('add_ewaybill',views.addnew_ewbill,name='addnew_ewbill'),
     path('create_new_ewaybill',views.create_ewbill, name = 'create_ewbill'),
-    path('create_new_item_ewbill', views.createitem_ewbill, name='createitem_ewbill'),
     path('eway_bill_overview/<int:billId>',views.eWayBillOverview,name='eWayBillOverview'),
     path('edit_eway_bill/<int:billId>',views.edit_eway_bill,name='edit_eway_bill'),
     path('update_ewbill/<int:billId>', views.update_eway_bill, name = 'update_eway_bill'),
     path('convert_ewbill/<int:billId>',views.convert_ewbill, name='convert_ewbill'),
     path('delete_ewbill/<int:billId>',views.delete_ewbill, name='delete_ewbill'),
+    path('create_new_item_ewbill', views.createitem_ewbill, name='createitem_ewbill'),
     path('create_item_unit_ewbill',views.createitemunit_ewbill, name = 'createitemunit_ewbill'),
     path('get_items_unit_ewbill',views.getitemunitewbill, name = 'getitemunitewbill'),
-    
     path('get_customer_details', views.get_customer, name = 'get_customer'),
     path('new_transport_mode',views.new_transport_mode, name= 'new_transport_mode'),
     path('get_transport_modes',views.trasportation_modes, name= 'trasportation_modes'),
@@ -1212,6 +1211,38 @@ urlpatterns = [
     path('get_calendar_events',views.get_calendar_events,name='get_calendar_events'),
     path('get_counts',views.get_counts,name='get_counts'),
     # path('attendance_pdf',views.attendance_pdf,name='attendance_pdf'),
+    
+    path('loan',views.loan,name='loan'),
+    path('activeloan', views.activeloan, name='activeloan'),
+    path('inactiveloan', views.inactiveloan, name='inactiveloan'),
+    path('loan_list/<int:id>',views.loan_list,name='loan_list'),
+    path('loan_statement/<int:id>',views.loan_statement,name='loan_statement'),
+    path('create_loan_account',views.create_loan_account,name='create_loan_account'),
+    path('delet_loan/<int:id>',views.delet_loan,name='delet_loan'),
+    path('create_loan',views.create_loan,name='create_loan'),
+    path('edit_loan_account/<int:id>',views.edit_loan_account,name='edit_loan_account'),
+    path('edit_loan/<int:id>',views.edit_loan,name='edit_loan'),
+    path('loan_trans/<int:id>',views.loan_trans,name='loan_trans'),
+    path('crt_loan_trans/<int:id>',views.crt_loan_trans,name='crt_loan_trans'),
+    path('loan_pdf/<int:id>',views.loan_pdf,name='loan_pdf'),
+    path('active_status/<int:id>',views.active_status,name='active_status'),
+    path('inactive_status/<int:id>',views.inactive_status,name='inactive_status'),
+    path('sales_report',views.sales_report,name='sales_report'),
+    path('edit_loan_payment/<int:id>',views.edit_loan_payment,name='edit_loan_payment'),
+    
+    path('delete_loan_payment/<int:id>',views.delete_loan_payment,name='delete_loan_payment'),
+    path('edit_transaction/<int:id>',views.edit_transaction,name='edit_transaction'),
+    
+    path('itemdatadebit',views.itemdatadebit,name='itemdatadebit'),
+    
+    path('create_bank',views.create_bank,name='create_bank'),
+    path('e_bank/<int:id>',views.e_bank,name='e_bank'),
+    path('edit_bank_trans/<int:id>',views.edit_bank_trans,name='edit_bank_trans'),
+    path('bank_to_cash',views.bank_to_cash,name='bank_to_cash'),
+    path('cash_to_bank',views.cash_to_bank,name='cash_to_bank'),
+    path('bank_to_bank',views.bank_to_bank,name='bank_to_bank'),
+    path('bank_adjust',views.bank_adjust,name='bank_adjust'),
+
  
      
      

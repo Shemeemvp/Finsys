@@ -2052,6 +2052,7 @@ class bankings_G(models.Model):
     bankname = models.CharField(max_length=100)
     ifsccode = models.CharField(max_length=20)
     branchname = models.CharField(max_length=100)
+    account_number = models.IntegerField(default=0)
     openingbalance = models.IntegerField()
     date = models.DateField()
     cid = models.ForeignKey(company, on_delete=models.CASCADE)
@@ -2082,7 +2083,7 @@ class recinvoice(models.Model):
     profilename = models.CharField(max_length=100)
     recinvoiceno = models.IntegerField(default=1000)
     terms = models.CharField(max_length=100, default='')
-    startdate = models.CharField(max_length=100, default='')
+    startdate = models.DateField( default='')
     enddate = models.CharField(max_length=100, default='')
     bname = models.CharField(max_length=255, default='')
     placosupply = models.CharField(max_length=100, default='')
@@ -2275,3 +2276,36 @@ class attendance(models.Model):
 class man_Journal_comment(models.Model):
     comment=models.CharField(max_length=300)
     proj=models.ForeignKey(mjournal,on_delete=models.CASCADE,null=True,blank=True)
+    
+    
+class loan_account(models.Model):
+    account_name=models.TextField(max_length=100)
+    account_number=models.TextField(max_length=100)
+    lenderbank=models.TextField(max_length=100)
+    recieced_bank=models.TextField(max_length=100)
+    intrest=models.TextField(max_length=100)
+    term=models.TextField(max_length=100)
+    loan_amount=models.TextField(max_length=100)
+    processing=models.TextField(max_length=100)
+    paid=models.TextField(max_length=100)
+    status=models.TextField(max_length=100)
+    desc=models.TextField(max_length=100)
+    cid = models.ForeignKey(company, on_delete=models.CASCADE)
+    balance=models.IntegerField(default=0)    
+    date=models.DateField(blank=True,null=True)
+    recieved_amount=models.IntegerField(default=0)   
+    
+    
+class loan_transaction(models.Model):
+    bank_type=models.TextField(max_length=100)
+    from_trans=models.TextField(max_length=100)
+    to_trans=models.TextField(max_length=100)
+    cid = models.ForeignKey(company, on_delete=models.CASCADE)
+    loan=models.ForeignKey(loan_account, on_delete=models.CASCADE ,null=True,blank=True)
+    loan_amount=models.IntegerField(default=0,blank=True,null=True)
+    loan_desc=models.TextField(blank=True,null=True)
+    loan_date=models.DateField(blank=True,null=True)
+    loan_intrest=models.TextField(max_length=100,default=0)
+    balance=models.IntegerField(default=0)   
+    type=models.TextField(max_length=100)
+    total = models.IntegerField(default=0)
