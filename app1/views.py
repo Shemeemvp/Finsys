@@ -39522,6 +39522,10 @@ def challancreate(request):
             c=customer.objects.get(email=cust)
             print(c)
             
+            if 'save_as_saved' in request.POST:
+                stat = 'Saved'
+            elif 'save_as_draft' in request.POST:
+                stat = 'Draft'
             
             inv2 = challan(customer=c,
                             challan_date=request.POST['challandate'],
@@ -39541,6 +39545,7 @@ def challancreate(request):
                             ref=request.POST['ref'],
                             chal_no =request.POST['chal_no'],
                             adjustment =float(request.POST['Adjustment']),
+                            status= stat
 
                         )
             inv2.save()

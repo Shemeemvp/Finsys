@@ -1781,12 +1781,13 @@ class challan(models.Model):
     
     invoice_status = (
         ('Draft','Draft'),
-        
+        ('Saved','Saved'), #changed - Shemeem
         ('Invoiced','Invoiced'),
 
     )
     
-    status =models.CharField(max_length=150,choices=invoice_status,default='Draft')
+    # status =models.CharField(max_length=150,choices=invoice_status,default='Draft')
+    status =models.CharField(max_length=150,choices=invoice_status) #changed - shemeem
     ref=models.TextField(max_length=100)
     shipping=models.IntegerField()
     adjustment=models.FloatField(default=0)
