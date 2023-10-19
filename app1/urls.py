@@ -931,7 +931,9 @@ urlpatterns = [
     path('additem_challan',views.additem_challan,name='additem_challan'),
     path('sort_chellan_customername', views.sort_chellan_customername, name='sort_chellan_customername'),
     path('sort_chellan_chellannumber', views.sort_chellan_chellannumber, name='sort_chellan_chellannumber'),
-    
+    path('check_dc_number_cont',views.checkDCNumberConti, name='checkDCNumberConti'), #added - shemeem
+    path('dc_draft_to_save/<int:id>',views.challan_draftToSave, name='challan_draftToSave'), #added - shemeem
+
     # urls for Price list
     
     path('price_list/',views.pricelist,name='pricelist'),

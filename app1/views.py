@@ -43,6 +43,7 @@ import zipfile
 from django.db.models import Sum, F
 from itertools import chain
 from django.db.models import F, Sum, ExpressionWrapper, DecimalField
+import re
 
 def index(request):
     return render(request, 'app1/index.html')
@@ -30293,11 +30294,10 @@ def getitems2(request):
     price = item.sales_cost
     gst = item.intra_st
     sgst = item.inter_st
-   
-
+    stock = item.stock
 
     
-    return JsonResponse({"status":" not",'hsn':hsn,'desp':desp,'qty':qty,'price':price,'gst':gst,'sgst':sgst,
+    return JsonResponse({"status":" not",'hsn':hsn,'desp':desp,'qty':qty,'price':price,'gst':gst,'sgst':sgst,'stock':stock,
         
         })
 @login_required(login_url='regcomp')
@@ -39810,6 +39810,50 @@ def additem_challan(request):
     print('done!!!!!!!!!!!')
 
     return JsonResponse({"status": " not", 'names': names})    
+
+def checkDCNumberConti(request):
+    try:
+        temp = re.findall(r'\d+', request.GET['challan_number'])
+        number = list(map(int, temp))
+        entry = int(number[0]) - 1
+
+        message=""
+        for i in challan.objects.all():
+            print('cnum==',request.GET['challan_number'])
+            if i.chal_no == request.GET['challan_number']:
+                message="Challan already exists..!"
+                status = False
+                break
+            elif int(re.findall(r'\d+', i.chal_no)[0]) == entry:
+                message=""
+                status = True
+                break
+            else:
+                message="Challan number is not continous..!"
+                status = False
+        # print(number)
+
+        return JsonResponse({"status":status, "number":number, "message":message})
+
+    except Exception as e:
+        print(e)
+        status = False
+        message = "Something went wrong..!"
+        return JsonResponse({"status":status,"message":message})
+
+
+def challan_draftToSave(request, id):
+    try:
+        cmp1 = company.objects.get(id=request.session['uid'])
+        upd = challan.objects.get(id=id, cid=cmp1)
+        upd.status = 'Saved'
+        upd.save()
+        
+        return redirect(delivery_view, id)
+    except Exception as e:
+        print(e)
+        return redirect(delivery_view, id)
+    
 
 
 # ---------------------------------------------------------views for pricelist---------------------

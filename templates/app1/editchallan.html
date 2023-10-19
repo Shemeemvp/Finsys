@@ -64,8 +64,10 @@
                     document.getElementById('rate1').value = data3
                     document.getElementById('desc1').value = data1
                     document.getElementById('hsn1').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan1').innerHTML = data6
 
-                    document.getElementById('qty1').value = data2
+                    // document.getElementById('qty1').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -117,8 +119,10 @@
                     // console.log('pos:'+place_of_supply);
                     document.getElementById('rate2').value = data3
                     document.getElementById('desc2').value = data1                    
-                    document.getElementById('qty2').value = data2
+                    // document.getElementById('qty2').value = data2
                     document.getElementById('hsn2').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan2').innerHTML = data6
 
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
@@ -176,8 +180,10 @@
                     document.getElementById('rate3').value = data3
                     document.getElementById('desc3').value = data1
                     document.getElementById('hsn3').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan3').innerHTML = data6
 
-                    document.getElementById('qty3').value = data2
+                    // document.getElementById('qty3').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -231,8 +237,10 @@
                     document.getElementById('rate4').value = data3
                     document.getElementById('desc4').value = data1
                     document.getElementById('hsn4').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan4').innerHTML = data6
 
-                    document.getElementById('qty4').value = data2
+                    // document.getElementById('qty4').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -286,8 +294,10 @@
                     document.getElementById('rate5').value = data3
                     document.getElementById('desc5').value = data1
                     document.getElementById('hsn5').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan5').innerHTML = data6
 
-                    document.getElementById('qty5').value = data2
+                    // document.getElementById('qty5').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -342,8 +352,10 @@
                     document.getElementById('rate6').value = data3
                     document.getElementById('desc6').value = data1
                     document.getElementById('hsn6').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan6').innerHTML = data6
 
-                    document.getElementById('qty6').value = data2
+                    // document.getElementById('qty6').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -399,8 +411,10 @@
                     document.getElementById('rate7').value = data3
                     document.getElementById('desc7').value = data1
                     document.getElementById('hsn7').value = data
+                    data6 = response.stock
+                    document.getElementById('qtyspan7').innerHTML = data6
 
-                    document.getElementById('qty7').value = data2
+                    // document.getElementById('qty7').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -457,8 +471,10 @@
 
                     document.getElementById('rate8').value = data3
                     document.getElementById('desc8').value = data1
+                    data6 = response.stock
+                    document.getElementById('qtyspan8').innerHTML = data6
                     
-                    document.getElementById('qty8').value = data2
+                    // document.getElementById('qty8').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -515,8 +531,9 @@
 
                     document.getElementById('rate9').value = data3
                     document.getElementById('desc9').value = data1
-                    
-                    document.getElementById('qty9').value = data2
+                    data6 = response.stock
+                    document.getElementById('qtyspan9').innerHTML = data6
+                    // document.getElementById('qty9').value = data2
                     var pos = document.getElementById('plosu').value;
                     var comp = "{{cmp1.state}}"
                   
@@ -578,8 +595,9 @@
                 <td class='text-right '>
             <input type='text' id='hsn${RowCount}'  class='form-control  border-0 text-black text-right hsn' name='hsn[]' value='' onchange="validateHSN(this)">
         </td>
-                <td class='text-right'><input type='number' id='qty${RowCount}'
+                <td class='text-right' style="position: relative;"><input type='number' id='qty${RowCount}'
                         class='form-control border-0 text-black text-right qty' name='quantity[]' value='0' onchange="calc()">
+                        <div style="position: absolute;" class="d-flex"><span>Available Qty :</span> <span id="qtyspan${RowCount}" class=''></span></div>
                 </td>
                 <td class='text-right'><input type='number' id='rate${RowCount}' onchange="calc()"
                         class='form-control border-0 text-black text-right rate' name='rate[]' value='0.00'
@@ -675,6 +693,11 @@
     border-radius: 5px;
     color: white;
   }
+  input:read-only {
+            /* background-color: rgba(0,0,0,.4) !important; */
+            background-color: rgb(255 255 255 / 14%) !important;
+            color: #fff;
+  }
 </style>
 <form action="{% url 'edited_challan' ch.id %}" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
   {% csrf_token %}
@@ -750,12 +773,63 @@
                   
                     <label class="col-form-label mt-4 mb-2">Email </label>
                     <input class="custom-select" name="email" placeholder="Email" value="{{ch.customer.email}}" required style="background-color: #2f516f; color: white;"  onclick="calc()" id="email" readonly>
+
+                    <label for="gst_trt_inp" class="mt-4">GST Treatment</label>
+                    <input type="text" class="form-control" id="gst_trt_inp1" value="{{ch.customer.gsttype}}" name="gst_trt_inp" readonly>
+
+                    <div class="d-none" id="gstin_row1" style="flex-direction: column;">
+                        <label for="gstin_inp" class="mt-4">GST Number</label>
+                        <input type="text" class="form-control"  id="gstin_inp1" name="gstin_inp" readonly>
+                    </div>
                 </div>
                 
             
                     <div class="col-md-5 ml-4 mt-3">
                         <label class="text-gray-light">Bill To:</label>
-                        <textarea class="form-control mb-4" name="bname" id="bname"  onclick="calc()" rows="7" type="text" value="{{ch.billto}}" style="background-color: #2f516f; color: white;" readonly>{{ch.billto}}</textarea>
+                        <textarea class="form-control" name="bname" id="bname"  onclick="calc()" rows="7" type="text" value="{{ch.billto}}" style="background-color: #2f516f; color: white;" readonly>{{ch.billto}}</textarea>
+
+                        <label class="col-form-label mt-4">Place of supply</label>
+                        <select type="text" class="form-control " id="plosu" name="placosupply" style="background-color: #2f516f; color: white;" onclick="calc()" onclick="state">
+                            <option value="{{ch.pl}}">{{ch.pl}}</option>
+                            <option value="Andaman and Nicobar Islads">Andaman and Nicobar Islads</option>
+                            <option value="Andhra Predhesh">Andhra Predhesh</option>
+                            <option value="Arunachal Predesh">Arunachal Predesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                            <option value="Damn anad Diu">Damn anad Diu</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Predesh">Himachal Predesh</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Ladakh">Ladakh</option>
+                            <option value="Lakshadweep">Lakshadweep</option>
+                            <option value="Madhya Predesh">Madhya Predesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Puducherry">Puducherry</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Predesh">Uttar Predesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Other Territory">Other Territory</option>
+                        </select>
                     </div>
                     <div class="col-md-3 mt-3">
                       <input type="number" class="form-control mt-4" id="newtrm" placeholder="0" onchange="addtemopt(this)" style="display: none;">
@@ -764,13 +838,14 @@
                     
             </div>
 
-
+            <hr>
             <div class="row">
                 <div class="col-md-5 ml-4 mt-2 mr-4">
                     <label class="col-form-label">Challan number</label>
-                    <input type="text"  id="ref" class="form-control" name="chal_no" value="{{ch.chal_no}}" style="background-color: #2f516f; color: white;" onselect="calc()">
+                    <input type="text"  id="challan_num" class="form-control" name="chal_no" value="{{ch.chal_no}}" style="background-color: #2f516f; color: white;" onselect="calc()">
+                    <span id="challan_warning" class="text-danger"></span>
                   </div>
-                  <div class="col-md-5 ml-4 mt-3">
+                  <div class="col-md-5 ml-4 mt-2">
                     <label class="col-form-label">Challan Date:</label>
                     <div>
                         <input type="date" value="{{ ch.challan_date |date:'Y-m-d'}}" class="form-control" name="challandate" style="background-color: #2f516f; color: white;">
@@ -795,7 +870,7 @@
                 </div>
                 <div class="col-md-5 ml-4 mt-3">
                     <label class="col-form-label">Refrence number</label>
-                    <input type="text"  id="ref" value="{{ch.ref}}" class="form-control" name="ref" style="background-color: #2f516f; color: white;" onselect="calc()">
+                    <input type="text"  id="ref" readonly value="{{ch.ref}}" class="form-control" name="ref" style="background-color: #2f516f; color: white;" onselect="calc()">
                   </div>
                 <div class="col-md-3 mt-3"></div>
                 <div class="col-md-3 mt-3"></div>
@@ -804,7 +879,7 @@
           
 
           
-          <div class="row">
+          <!-- <div class="row">
             <div class="col-md-5 ml-4 mt-3 mr-4">
               <label class="col-form-label">Place of supply</label>
               <select type="text" class="form-control " id="plosu" name="placosupply" style="background-color: #2f516f; color: white;" onclick="calc()" onclick="state">
@@ -852,7 +927,7 @@
             <div class="col-md-3 mt-3"></div>
             <div class="col-md-3 mt-3"></div>
             <div class="col-md-3 mt-3"></div>
-          </div>
+          </div> -->
           <div class="row clearfix">
             <div class="col-md-12 table-responsive-md mt-3">
               <table class="table table-bordered table-hover mt-3 text-white" id="item_table"  onchange="calc()">
@@ -916,9 +991,10 @@
         </script>
         
         
-                        <td class='text-right'><input type='number' id='qty{{ forloop.counter }}'
+                        <td class='text-right' style="position: relative;"><input type='number' id='qty{{ forloop.counter }}'
                           class='form-control border-0 text-black text-right qty' name='quantity[]'
                           value='{{k.quantity}}' onclick="calc()"  >
+                          <div style="position: absolute;" class="d-flex"><span>Available Qty :</span> <span id="qtyspan1" class=''>{{k.stock}}</span></div>
                         </td>
         
                         <td class='text-right'><input type='number' id='rate{{ forloop.counter }}'
@@ -977,8 +1053,42 @@
     $('#item_table').on('input', 'input', calc);
 });
 
+$(document).ready(function(){
+    // window.onload(function(){
+        // alert(`{{ch.customer.gsttype}}`)
+        if (`{{ch.customer.gsttype}}` === "unregistered Business" || `{{ch.customer.gsttype}}` === "Consumer" || `{{ch.customer.gsttype}}` === "Overseas") {
+                    $("#gstin_row1").addClass('d-none');
+                    $("#gstin_row1").removeClass('d-flex');
+            } else {
+                $("#gstin_row1").removeClass('d-none');
+                $("#gstin_row1").addClass('d-flex');
+                $('#gstin_inp1').val("" +`{{ch.customer.gstin}}`);
+            }
+    // })
+})
 
-
+$(document).ready(function() {
+    $('#challan_num').on('blur', function() {
+      var num = $('#challan_num').val();
+    //   alert(num)
+      $.ajax({
+        type: "GET",
+        url: "{% url 'checkDCNumberConti' %}",
+        data: {
+            challan_number: num
+        }
+      }).done(function(response) {
+        console.log(response.status);
+        console.log(response.message);
+        if (!response.status){
+            $('#challan_warning').text(response.message);
+        }
+        else{
+            $('#challan_warning').text("");
+        }
+      })
+    });
+})
 
 function calc() {
     // loop through each row in the table
@@ -1286,7 +1396,7 @@ function test(taxamount) {
         <div class="row clearfix " style="margin-top:20px">
             <div class="col-md-6">
 
-                <textarea class="form-control mt-5"  id="" name="Note" value="{{ch.note}}"  placeholder="Note" style="height: 190px;"></textarea>
+                <textarea class="form-control mt-5"  id="" name="Note" value="{{ch.note}}"  placeholder="Note" style="height: 190px;">{{ch.note}}</textarea>
 
                 <input type="file" name="file"  style="margin-top: 10px; width: 70%;">
             </div>
@@ -1383,11 +1493,16 @@ function test(taxamount) {
         </div>        
           <div class="row">
             <div class="col-md-10 mt-3"></div>
-            <div class="col-md-2 mt-3">
+            <!-- <div class="col-md-2 mt-3">
               <button type="submit"  class="btn btn-outline-info rounded-pill w-100 text-grey pull-left">
                 Save To Draft
               </button>
-            </div>
+            </div> -->
+            <div class="col-md-2 mt-3">
+                <button type="submit"  class="btn btn-outline-info rounded-pill w-100 text-grey pull-left">
+                  Save
+                </button>
+              </div>
           </div>
           <div class="notices mt-3">
             <div class="text-muted">NOTICE:</div>
