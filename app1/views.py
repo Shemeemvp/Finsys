@@ -39542,7 +39542,7 @@ def challancreate(request):
                             taxamount = float(request.POST['totaltax']),
                             grand=float(request.POST['t_total']),
                             shipping=float(request.POST['ship']),
-                            ref=request.POST['ref'],
+                            # ref=request.POST['ref'],
                             chal_no =request.POST['chal_no'],
                             adjustment =float(request.POST['Adjustment']),
                             status= stat
@@ -39550,6 +39550,10 @@ def challancreate(request):
                         )
             inv2.save()
             
+            chln = challan.objects.get(id = inv2.id)
+            chln.ref = inv2.id
+            chln.save()
+
             product=request.POST.getlist('item[]')
             hsn=request.POST.getlist('hsn[]')
             quantity=request.POST.getlist('quantity[]')
@@ -39718,15 +39722,27 @@ def render_pdfchallan_view(request,id):
 def challan_convert1(request,id):
     cmp1 = company.objects.get(id=request.session['uid'])
     upd = challan.objects.get(id=id, cid=cmp1)
-    upd.status = 'Approved'
+    upd.is_converted = True #changed - shemeem
     upd.save()
+
     invo=invoice(invoiceno=upd.id,cid=cmp1,customername=upd.customer.firstname,email=upd.customer.email,
                                    invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,
                                    subtotal=upd.subtotal,IGST=upd.igst,CGST=upd.cgst,SGST=upd.sgst,taxamount=upd.taxamount,shipping_charge=upd.shipping,status='Approved')
 
     invo.save()
+    
+    # shemeem added - getting challan items and storing into invoice_items table
+    ch_items = challanitem.objects.filter(dl_id = upd.id, cid_id = cmp1)
 
-    return redirect(delivery_view,id)
+    for item in ch_items:
+        inv_items = invoice_item(invoice = invo, cid = cmp1, product = item.product,hsn = item.hsn,qty = item.quantity,price = item.rate,total = item.total,tax = item.tax,discount = item.discount)
+        inv_items.save()
+        stk = itemtable.objects.get(name = item.product, hsn = item.hsn, cid = cmp1)
+        stk.stock -= item.quantity
+        stk.save()
+
+
+    return redirect(delivery_challan)
 
 def removecl(request):
     print("sadsad")

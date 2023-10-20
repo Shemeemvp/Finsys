@@ -1786,8 +1786,8 @@ class challan(models.Model):
 
     )
     
-    # status =models.CharField(max_length=150,choices=invoice_status,default='Draft')
-    status =models.CharField(max_length=150,choices=invoice_status) #changed - shemeem
+    status =models.CharField(max_length=150,choices=invoice_status, default='Draft')
+    is_converted = models.BooleanField(default=False, null=True)
     ref=models.TextField(max_length=100)
     shipping=models.IntegerField()
     adjustment=models.FloatField(default=0)

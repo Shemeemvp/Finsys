@@ -134,7 +134,11 @@
                                     <td>{{ p.customer.email }}</td>
                                     <td>{{ p.grand }}</td>
                                     <td>{{ p.status }}</td>
-                                    <td>Convert to Invoice</td>
+                                    {% if p.is_converted %}
+                                    <td><button class="btn btn-success btn-sm" disabled>Converted</button></td>
+                                    {% else %}
+                                    <td><a href="{% url 'challan_convert1' p.id %}"><button class="btn btn-outline-light btn-sm">Convert to Invoice</button></a></td>
+                                    {% endif %}
                                 </tr> 
                                 
                             {% endfor %}

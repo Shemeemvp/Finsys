@@ -2309,6 +2309,224 @@ transform: rotate(-45deg); */
     </div>
 
 
+
+
+    <div id="slip" style="display: none;">
+        <div class="card radius-15">
+            <div class="card-body" id="card">
+                <div class="card-title">
+                    <center><h2 class="mb-0">VIEW DELIVERY CHALLAN</h2> <h4></h4></center>
+                    <hr>
+                </div>
+                <div class="btn-group" style="float: left; ">
+
+
+                    <a style="padding: 10px; cursor: pointer;" onclick="Overview()"> Overview</a>
+
+                    <a style="padding: 10px; cursor: pointer;" onclick="Statment()"> Statement</a>
+                    <a style="padding: 10px; cursor: pointer;" onclick="Slip()"> Slip</a>
+                </div>
+                <nav class="navbar navbar-expand-lg navbar-light" style="background-color:rgba(0,0,0,.01);">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarScroll">
+                        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+                          <li class="nav-item mx-1">
+                            <a href="{% url 'editchallan' estimate.id %}" role="button" class=" btn btn-outline-info rounded-pill text-grey p-1"> &nbsp;&nbsp;Edit&nbsp;&nbsp;</a>
+
+                          </li>
+                          <li class="nav-item mx-1">
+                            <a  href="{% url 'deletechallan' estimate.id %}" role="button"id="deleteButton" class=" btn btn-outline-info rounded-pill text-grey p-1">&nbsp;&nbsp;Delete&nbsp;&nbsp; 
+                            </a>
+                          </li>
+                            <li class="nav-item active mx-1" >
+                            <a class="nav-link text-light  btn btn-outline-info rounded-pill text-grey p-1" role="button" id="printslip" onclick="printSpecificArea('print_slip')">&nbsp;&nbsp;Print&nbsp;&nbsp;<span class="sr-only">(current)</span></a>
+                            </li>
+      
+                            <li class="nav-item mx-1">
+                              <a class="btn btn-outline-info rounded-pill text-grey p-1" role="button" href="{% url 'render_pdfchallan_view' estimate.id %}" id="downloadButton" >&nbsp;&nbsp;PDF&nbsp;&nbsp;</a>
+                            </li>
+                            {% if estimate.status != 'Approved' %}
+                                <div class="dropdown p-0 nav-item mx-1 " style="margin-top: 10px;">
+                                    <li  class="btn btn-outline-info rounded-pill text-grey p-1  dropdown-toggle  "data-toggle="dropdown"> &nbsp;&nbsp;Convert&nbsp;&nbsp;</li>
+                                        <ul class="dropdown-menu" style="background-color: black;">
+                                        <a class="dropdown-item " href="{% url 'challan_convert1' estimate.id %}"> &nbsp;Approved </a>
+                                    
+                                        </ul>
+                              
+                                </div>
+                            {% endif %}
+
+                            <div class="dropdown p-0 nav-item mx-1 "  style="margin-top: 10px;" onclick="uplodfile()">
+                              <li  class=" dropdown-toggle btn btn-outline-info rounded-pill text-grey p-1"data-toggle="dropdown"> &nbsp;&nbsp;Share&nbsp;&nbsp;</li>
+                              <ul class="dropdown-menu" style="background-color: black;">
+      
+                                  <!-- <li style="margin-left: 50px;"  ></i>{% post_to_facebook object_or_url "Facebook!" %}</li> -->
+                                  <li style="margin-left: 50px;" > {% post_to_whatsapp object_or_url "WhatsApp" %}</li>
+                                  <li style="margin-left: 50px;" >{% send_email object.title "New Song: {{object.title}}. Check it out!" object_or_url "Email" %}</li>
+                                  
+                              </ul>
+                            </div>
+  
+                            <div class="dropdown p-0 nav-item mx-1 "  style="margin-top: 10px;">
+                                <li  class=" dropdown-toggle btn btn-outline-info rounded-pill text-grey p-1"data-toggle="dropdown">&nbsp;&nbsp;Attach file&nbsp;&nbsp;</li>
+                                <ul class="dropdown-menu" style="background-color: black;">
+                                    <a class="dropdown-item" style="cursor: pointer;" data-toggle="modal" data-target="#exampleModal">Attach file</a>
+                                    {% if estimate.file != "default.jpg" %}
+                                        <a class="dropdown-item fas fa-download" style="cursor: pointer;"download  href="{{estimate.file.url}}" >Download file</a>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </ul>
+                    </div>
+                </nav>
+            
+                
+            </div>
+        </div>
+
+        <!-- slip -->
+        <div id="dlchln_slip">
+            <div class="p-3 mt-3" style="background-color: #8888889d;">
+                <div class="row">
+                    <div class="col-sm-12 col-md-12 col-lg-12">
+                        <div id="outer" style="width: 100%;border-radius: 15px;background-color: rgba(31, 31, 31, 0.774);">
+                            <div class="row">
+                                <div class="col-sm-3 col-md-3 col-lg-3"></div>
+                                <div class="col-sm-6 col-md-6 col-lg-6">
+                                    <div id="print_slip" class="p-3 pb-5" style="width: 100%;background-color: beige;">
+                                        <div class="row">
+                                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                              <h5 class="text-dark font-weight-bold" style="text-align: center;">Delivery Challan</h5>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12 col-lg-12 col-md-12">
+                                                <h6 class="text-dark mt-1" style="text-transform: uppercase;text-align: center;">{{ cmp1.cname }}</h6>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12 col-lg-12 col-md-12">                            
+                                                <!-- <p class="text-dark mb-0 font-weight-bold" style="text-align: center;"> {{ cmp1.cname }}</p> -->
+                                                <p class="text-dark mb-0" style="text-align: center;"> {{ cmp1.caddress }} , {{ cmp1.city }} ,{{ cmp1.state }}  </p>
+                                            </div>
+                                      </div>
+                                      <div class="row mt-2">
+                                        <div class="col-sm-6 col-lg-6 col-md-6">
+                                            <p class="text-dark font-weight-bold mb-0">Bill to : </p>
+                                            <p class="text-dark">{{ estimate.billto|linebreaksbr }}</p>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-6 col-md-6">
+                                             <div class="challan_no d-flex justify-content-end pr-2">
+                                                 <p class="text-dark">Challan No: {{estimate.chal_no }}</p>
+                                             </div>
+                                             <div class="chdate d-flex justify-content-end pr-2">
+                                                 <p class="text-dark">Date: {{estimate.challan_date }}</p>
+                                             </div>
+                                        </div>
+                                        <!-- <div class="col-sm-2 col-md-2 col-lg-2"></div>
+                                        <div class="col-sm-4 col-md-4 col-lg-4">
+                                        </div> -->
+                                      </div>
+                                      
+                                      <div class="row ">
+                                        <div class="col-sm-12 col-md-12 col-lg-12">
+                                            <table class="table-bordered mb-3" style="margin-top: 8%;">
+                                                <thead style="background: none;">
+                                                    <tr>
+                                                        <th scope="col" class="col-1 text-dark text-center">#</th>
+                                                        <th scope="col" class="col-2 text-dark text-center">Item</th>
+                                                        <th scope="col" class="col-2 text-dark text-center">Hsn</th>
+                                                        <th scope="col" class="col-1 text-dark text-center">Qty</th>
+                                                        <th scope="col" class="col-2 text-dark text-center">Rate</th>
+                                                        <th scope="col" class="col-1 text-dark text-center">Discount</th>
+                                                        <th scope="col" class="col-1 text-dark text-center">Tax</th>
+                                                        <th scope="col" class="col-2 text-dark text-center">Amount</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for item in estitem %}
+                                                    <tr>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ forloop.counter }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.product }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.hsn }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.quantity }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.rate|floatformat:1 }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.discount|floatformat:1 }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.tax }}</td>
+                                                        <td class="text-center" style="color: black;font-size: smaller;">{{ item.total|floatformat:1 }}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 col-lg-12 col-md-12">
+                                            <table style="margin-right: 2%; float: right;">
+                                                <tr>
+                                                    <td class=" text-dark" style="font-size: smaller;">Sub-Total:</td>
+                                                    
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;"> {{estimate.subtotal|floatformat:1}}</td>
+                                                </tr>
+                                                {% if estimate.cgst != 0 %}
+                                                <tr>
+                                                    <td class="text-dark" tyle="font-size: smaller;">CGST:</td>
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.cgst|floatformat:1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if estimate.sgst != 0 %}
+                                                <tr>
+                                                    <td class="text-dark" style="font-size: smaller;">SGST:</td>
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.sgst|floatformat:1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if estimate.igst != 0 %}
+                                                <tr>
+                                                    <td class="text-dark" style="font-size: smaller;">IGST:</td>
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.igst|floatformat:1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if estimate.shipping_charge != 0 %}
+                                                <tr>
+                                                    <td class="text-dark" style="font-size: smaller;">Shipping Charge:</td>
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.shipping|floatformat:1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                {% if estimate.adjustment != 0 %}
+                                                <tr>
+                                                    <td class="text-dark" style="font-size: smaller;">Adjustment:</td>
+                                                    <td class="text-right text-dark" style="text-align: end;font-size: smaller;">{{ estimate.adjustment|floatformat:1}}</td>
+                                                </tr>
+                                                {% endif %}
+                                                <tr>
+                        
+                                                    <td class="text-dark" style="font-weight: bold;">Total:</td>
+                                                    <!-- <td class="text-right text-dark "></td>
+                                                    <td class="text-right text-dark"></td>
+                                                    <td class="text-right text-dark"></td> -->
+                                                    <td class="text-right text-dark " style="font-weight: bold;text-align: end;font-weight: bold;">{{ estimate.grand|floatformat:1}}</td>
+                                                </tr>
+                        
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 col-md-3 col-lg-3"></div>
+            
+                        </div>
+            
+                    </div>
+                </div>
+            </div>
+
+    </div>
+
+
+
+
 </div>
 
 
@@ -2423,6 +2641,22 @@ transform: rotate(-45deg); */
         // $(window).scrollTop(0); 
         document.getElementById('statment').scrollIntoView();
     }
+    
+ 
+    function printSelectedArea1() 
+    {
+      var selectedArea = document.getElementById("print_slip");
+      var printWindow = window.open('', 'PrintWindow');
+      printWindow.document.write('<html><head><title>Print Selected Area</title></head><body>' + selectedArea.innerHTML + '</body></html>');
+      printWindow.print();
+    //   printWindow.close();
+    }
+   
+   
+   
+//    $(function() {
+//        $("#printslip").click(printSelectedArea1); 
+//    });
 </script>
 
 
