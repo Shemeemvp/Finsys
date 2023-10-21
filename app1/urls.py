@@ -527,8 +527,14 @@ urlpatterns = [
 
     path('gstr11',views.gstr11,name='gstr11'),
 
-
-    
+    #payment received - urls ---added- shemeem
+    path('payment_received_sortby_cname',views.payment_received_sort_cname,name='payment_received_sort_cname'),
+    path('payment_received_sortby_pymnt_no',views.payment_received_sort_pnum,name='payment_received_sort_pnum'),
+    path('payment_received_filter_draft',views.gopayment_received_draft,name='gopayment_received_draft'),
+    path('payment_received_filter_saved',views.gopayment_received_saved,name='gopayment_received_saved'),
+    path('check_pymnt_number_cont',views.checkPymntNumberConti, name='checkPymntNumberConti'),
+    path('new_pymnt_method',views.new_payment_method, name='new_payment_method'),
+    path('getpymnt_methods',views.get_payment_methods, name='get_payment_methods'),
     
 
     

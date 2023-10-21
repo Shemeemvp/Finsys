@@ -1172,6 +1172,13 @@ class payment(models.Model):
     referno = models.CharField(max_length=255, )
     balance= models.FloatField(default='0')
     
+    #added -shemeem
+    py_status = (
+        ('Draft','Draft'),
+        ('Saved','Saved')
+    )
+    
+    status =models.CharField(max_length=150,choices=py_status,default='Draft',null=True)
   
     class meta:
         db_table = "payment"

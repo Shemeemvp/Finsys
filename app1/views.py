@@ -29632,10 +29632,11 @@ def payment_received(request):
         acounts_bnk = accounts1.objects.filter(cid=cmp1,acctype='Bank')
         acounts_cash=accounts1.objects.filter(cid=cmp1,acctype='Cash')
         acounts_undep=accounts1.objects.filter(cid=cmp1,acctype='Undepposited Funds')
+        pmthds = paymentmethod.objects.all()
 
         item = itemtable.objects.filter(cid=cmp1)
         context = {'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv, 'ser': ser,'item':item,
-                   'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep, }
+                   'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep,'pmethods':pmthds}
         return render(request, 'app1/payment_received.html', context)
     
 @login_required(login_url='regcomp')
@@ -30087,6 +30088,122 @@ def delete_payment(request,id):
     pay.delete()
 
     return redirect('gopayment_received')
+
+#shemeem added - pymnt rcvd views(conti.)
+def gopayment_received_draft(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pay = payment.objects.filter(cid=cmp1, status = 'Draft')
+    
+    context = {
+        'pay' :pay,
+        'cmp1': cmp1
+
+    }
+
+    return render(request, 'app1/gopayment_received.html',context)
+
+def gopayment_received_saved(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pay = payment.objects.filter(cid=cmp1, status = 'Saved')
+    
+    context = {
+        'pay' :pay,
+        'cmp1': cmp1
+
+    }
+
+    return render(request, 'app1/gopayment_received.html',context)
+
+def payment_received_sort_cname(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pay = payment.objects.filter(cid=cmp1).order_by('customer')
+    
+    context = {
+        'pay' :pay,
+        'cmp1': cmp1
+
+    }
+
+    return render(request, 'app1/gopayment_received.html',context)
+    
+def payment_received_sort_pnum(request):
+    cmp1 = company.objects.get(id=request.session["uid"])
+    pay = payment.objects.filter(cid=cmp1).order_by('refno')
+    
+    context = {
+        'pay' :pay,
+        'cmp1': cmp1
+
+    }
+
+    return render(request, 'app1/gopayment_received.html',context)
+
+
+def checkPymntNumberConti(request):
+    try:
+        temp = re.findall(r'\d+', request.GET['payment_number'])
+        number = list(map(int, temp))
+        entry = int(number[0]) - 1
+
+        message=""
+        for i in payment.objects.all():
+            print('refno&pnum',i.refno,request.GET['payment_number'])
+            # if i.refno == request.GET['payment_number']:
+            if payment.objects.filter(refno = request.GET['payment_number']).exists():
+                message="Payment No. already exists..!"
+                status = False
+                break
+            else:
+                pass
+
+            if int(re.findall(r'\d+', i.refno)[0]) == entry:
+                message=""
+                status = True
+                break
+            else:
+                message="Payment number is not continous..!"
+                status = False
+        # print(number)
+
+        return JsonResponse({"status":status, "number":number, "message":message})
+
+    except Exception as e:
+        print(e)
+        status = False
+        message = "Something went wrong..!"
+        return JsonResponse({"status":status,"message":message})
+
+
+@login_required(login_url='regcomp')
+def new_payment_method(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        if request.method=='POST':
+            pymnt= request.POST['new_payment']
+            p=paymentmethod(newmethod = pymnt, cid = cmp1)
+            p.save()
+            return JsonResponse({"message": "success"})
+
+
+def get_payment_methods(request):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1= company.objects.get(id=request.session["uid"])
+        options = {}
+        option_objects = paymentmethod.objects.filter(cid = cmp1)
+        for option in option_objects:           
+            options[option.id] = option.newmethod
+        return JsonResponse(options)
+
+
+
 
 def account_transactions(request,id):
     cmp1 = company.objects.get(id=request.session["uid"])
@@ -39835,12 +39952,13 @@ def checkDCNumberConti(request):
 
         message=""
         for i in challan.objects.all():
-            print('cnum==',request.GET['challan_number'])
-            if i.chal_no == request.GET['challan_number']:
-                message="Challan already exists..!"
+            if challan.objects.filter(chal_no = request.GET['challan_number']).exists():
+                message="Challan No. already exists..!"
                 status = False
                 break
-            elif int(re.findall(r'\d+', i.chal_no)[0]) == entry:
+            else:
+                pass
+            if int(re.findall(r'\d+', i.chal_no)[0]) == entry:
                 message=""
                 status = True
                 break
