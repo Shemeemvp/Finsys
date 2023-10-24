@@ -535,6 +535,7 @@ urlpatterns = [
     path('check_pymnt_number_cont',views.checkPymntNumberConti, name='checkPymntNumberConti'),
     path('new_pymnt_method',views.new_payment_method, name='new_payment_method'),
     path('getpymnt_methods',views.get_payment_methods, name='get_payment_methods'),
+    path('get_bank_acc_num', views.get_bankacc_num, name='get_bankacc_num'),
     
 
     

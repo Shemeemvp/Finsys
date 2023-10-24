@@ -72,22 +72,11 @@ class customer(models.Model):
     opening_balance_due = models.FloatField(null=True)
     date = models.DateField(null=True)
     opnbalance_status = models.CharField(max_length=100,default='Default')
-    
-
-    customer_status = (
-        ('Active','Active'),
-        ('Inactive','Inactive'),
-       
-
-    )
-    
+    credit_limit = models.FloatField(null=True)
+    customer_status = (('Active','Active'), ('Inactive','Inactive'))
     status =models.CharField(max_length=150,choices=customer_status,default='Active')
-
     receivables  = models.FloatField(null=True)
-
     file = models.FileField(upload_to='Customer',default="default.jpg")
-
-
 
     class meta:
         db_table = "customer"

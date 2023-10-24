@@ -9974,6 +9974,7 @@ def getdatainv(request):
     if request.method == 'POST':
         cmp1 = company.objects.get(id=request.session["uid"])
         id = request.POST['select']
+        cId = request.POST['custId']
         
         x = id.split()
         x.append(" ")
@@ -9982,19 +9983,23 @@ def getdatainv(request):
         if x[2] is not None:
             b = x[1] + " " + x[2]
         
+        cstmr = customer.objects.get(customerid = cId, cid = cmp1)
+        c_name = str(cstmr.customerid)+" "+cstmr.firstname+" "+cstmr.lastname
+        c_name1 = cstmr.firstname+" "+cstmr.lastname
+
         custobject = customer.objects.values().filter(firstname=a, lastname=b, cid=cmp1)
-        invitems = invoice.objects.values().filter(customername=id ,cid =cmp1,status='Approved')
-        
+        # invitems = invoice.objects.values().filter(customername=id ,cid =cmp1,status='Approved')
+        paymentList = []
         
         custopenblan = customer.objects.get(firstname=a,lastname=b,cid =cmp1)
         
         if custopenblan.opening_balance != 0.0:
-     
-            
             try:
                 cust1 = customer.objects.get(firstname=a,lastname=b,cid =cmp1,opnbalance_status="Default")
-              
-
+                dict = {
+                    'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
+                }
+                paymentList.append(dict)
                 date = cust1.date
                 opb = cust1.opening_balance
                 
@@ -10002,21 +10007,49 @@ def getdatainv(request):
 
             except:
                 cust1 = customer.objects.get(firstname=a,lastname=b,cid =cmp1)
-              
-
+                dict = {
+                    'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
+                }
+                paymentList.append(dict)
                 date = cust1.date
                 opb = cust1.opening_balance
                 
                 obdue = cust1.opening_balance_due
-            
         
-
-            
-
-        x_data = list(invitems)
-        ct= list(custobject)
+        invitems = invoice.objects.filter(customername=c_name ,cid =cmp1,status='Approved')
+        for i in invitems:
+            dict = {
+                    'date':i.invoicedate.strftime('%m/%d/%Y'),'inv_type':'Invoice','trans_no':i.invoice_orderno,'inv_amount':i.grandtotal
+            }
+            paymentList.append(dict)
         
-        return JsonResponse({"status":" not","invitem":x_data,"ct":ct,'date':date,'opb':opb,'obdue':obdue,})
+        crdtntitems = salescreditnote.objects.filter(customer=c_name ,cid =cmp1)
+        for i in crdtntitems:
+            dict = {
+                    'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
+            }
+            paymentList.append(dict)
+
+        retinvitesm = RetainerInvoices.objects.filter(customer=c_name1 ,cid =cmp1, status = 'Sent')
+        for i in retinvitesm:
+            dict = {
+                    'date':i.invoice_date.strftime('%m/%d/%Y'),'inv_type':'Retainer Invoice','trans_no':i.invoice_number,'inv_amount':i.total_amount
+            }
+            paymentList.append(dict)
+
+
+        recinvitesm = recinvoice.objects.filter(customername=c_name1 ,cid =cmp1)
+        for i in recinvitesm:
+            dict = {
+                    'date':i.startdate.strftime('%m/%d/%Y'),'inv_type':'Recurring Invoice','trans_no':i.recinvoiceno,'inv_amount':i.grandtotal
+            }
+            paymentList.append(dict)
+
+        # x_data = list(invitems)
+        # ct= list(custobject)
+        print(paymentList)
+        # return JsonResponse({"status":" not","invitem":x_data,"ct":ct,'date':date,'opb':opb,'obdue':obdue,})
+        return JsonResponse(json.dumps(paymentList),content_type="application/json", safe=False)
         # return redirect('goexpences')
 
 
@@ -29633,10 +29666,11 @@ def payment_received(request):
         acounts_cash=accounts1.objects.filter(cid=cmp1,acctype='Cash')
         acounts_undep=accounts1.objects.filter(cid=cmp1,acctype='Undepposited Funds')
         pmthds = paymentmethod.objects.all()
+        bnk_acnt = bankings_G.objects.filter(cid = cmp1)
 
         item = itemtable.objects.filter(cid=cmp1)
         context = {'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv, 'ser': ser,'item':item,
-                   'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep,'pmethods':pmthds}
+                   'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep,'pmethods':pmthds, 'bank':bnk_acnt}
         return render(request, 'app1/payment_received.html', context)
     
 @login_required(login_url='regcomp')
@@ -30203,6 +30237,21 @@ def get_payment_methods(request):
         return JsonResponse(options)
 
 
+def get_bankacc_num(request):
+    try:
+        if 'uid' in request.session:
+            if request.session.has_key('uid'):
+                uid = request.session['uid']
+            else:
+                return redirect('/')
+            cmp1= company.objects.get(id=request.session["uid"])
+            if request.method == 'POST':
+                bank = bankings_G.objects.get(id = request.POST['bankId'],cid = cmp1)
+                return JsonResponse({'status':True, 'accountNumber':bank.account_number})
+            return redirect(payment_received)
+    except Exception as e:
+        print(e)
+        return redirect(payment_received)
 
 
 def account_transactions(request,id):
@@ -39841,8 +39890,8 @@ def challan_convert1(request,id):
     upd = challan.objects.get(id=id, cid=cmp1)
     upd.is_converted = True #changed - shemeem
     upd.save()
-
-    invo=invoice(invoiceno=upd.id,cid=cmp1,customername=upd.customer.firstname,email=upd.customer.email,
+    cst_name = str(upd.customer.customerid)+" "+upd.customer.firstname+" "+upd.customer.lastname
+    invo=invoice(invoiceno=upd.id,cid=cmp1,customername=cst_name,email=upd.customer.email,
                                    invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,
                                    subtotal=upd.subtotal,IGST=upd.igst,CGST=upd.cgst,SGST=upd.sgst,taxamount=upd.taxamount,shipping_charge=upd.shipping,status='Approved')
 
