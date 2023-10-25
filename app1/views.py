@@ -9993,7 +9993,7 @@ def getdatainv(request):
         
         custopenblan = customer.objects.get(firstname=a,lastname=b,cid =cmp1)
         
-        if custopenblan.opening_balance != 0.0:
+        if custopenblan.opening_balance > 0:
             try:
                 cust1 = customer.objects.get(firstname=a,lastname=b,cid =cmp1,opnbalance_status="Default")
                 dict = {
@@ -29723,16 +29723,24 @@ def pym_acc_crt(request):
 def paymentcreate2(request):
     if request.method == 'POST':
         cmp1 = company.objects.get(id=request.session["uid"])
+        
+        if 'save_as_saved' in request.POST:
+            stat = 'Saved'
+        elif 'save_as_draft' in request.POST:
+            stat = 'Draft'
+        
         pay2 = payment(customer=request.POST['customer'],
                         email=request.POST['email'],
-                       paymdate=request.POST['paymdate'],
-                       pmethod=request.POST['pmethod'], refno='1000', depto=request.POST['depto'],
-                       amtreceived=request.POST['amtreceived'],
-                       amtapply=request.POST['amtapply'],
-                       amtcredit=request.POST['amtcredit'],
-                       cid=cmp1,
-                       referno=request.POST['ref'],
-
+                        paymdate=request.POST['paymdate'],
+                        pmethod=request.POST['pmethod'], 
+                        # depto=request.POST['depto'], #===removed - shemeem
+                        amtreceived=request.POST['amtapply'],
+                        amtapply=request.POST['amtapply'],
+                        amtcredit=request.POST['amtcredit'],
+                        cid=cmp1,
+                        # referno=request.POST['ref'],
+                        refno=request.POST['ref'],
+                        status = stat,
 
                     #    descrip=request.POST['invno0'], duedate=request.POST['duedate0'], orgamt=request.POST['inv_amount0'],
                     #    openbal=request.POST['openbal0'], payment=request.POST['payment0'],
@@ -29767,9 +29775,8 @@ def paymentcreate2(request):
                        
                         )
         pay2.save()
-        pay2.refno = int(pay2.refno) + pay2.paymentid
+        pay2.referno = pay2.paymentid
         pay2.save()
-
 
         statment2=cust_statment()
         statment2.customer = pay2.customer
@@ -29804,12 +29811,12 @@ def paymentcreate2(request):
         bs3.payments = pay2.amtapply
         bs3.save()
 
-        invno = request.POST.getlist("invno[]")
-        invdate = request.POST.getlist("invdate[]")
+        invno = request.POST.getlist("trans_no[]")
+        invdate = request.POST.getlist("inv_date[]")
 
         duedate = request.POST.getlist("duedate[]")
         invamount = request.POST.getlist("inv_amount[]")
-        balamount = request.POST.getlist("openbal[]")
+        balamount = request.POST.getlist("balance[]")
         paymentamount = request.POST.getlist("payment[]")
 
         payment_id=payment.objects.get(paymentid = pay2.paymentid )
@@ -29822,7 +29829,7 @@ def paymentcreate2(request):
                     invno = ele[0],
                     duedate=ele[1],
                     invamount=ele[2],
-                    balamount=int(ele[3]) - int(ele[4]) ,
+                    balamount=float(ele[2]) - float(ele[4]) ,
                     paymentamount=ele[4],
                     payment=payment_id,
                     cid = cmp1,
@@ -29830,24 +29837,26 @@ def paymentcreate2(request):
                      )
                
                 if ele[0] != "Customer opening balance":
-                   
-                    if invoice.objects.get(invoiceno=ele[0], cid=cmp1,baldue=ele[3]):
-                      
-                        invo = invoice.objects.get(invoiceno=ele[0], cid=cmp1,baldue=ele[3])
-                        invo.amtrecvd = int(invo.amtrecvd) + int(ele[4])
-                       
+                    try:
+                        if invoice.objects.get(invoiceno=ele[0], cid=cmp1,baldue=ele[3]) is not None:
                         
+                            invo = invoice.objects.get(invoiceno=ele[0], cid=cmp1,baldue=ele[3])
+                            invo.amtrecvd = int(invo.amtrecvd) + int(ele[4])
+                        
+                            
 
-                        invo.baldue = float(ele[3]) - int(ele[4]) 
-                        invo.save()
-                  
-                        if invo.baldue == 0.0:
-                            invo.status = "Paid"
-            
+                            invo.baldue = float(ele[3]) - int(ele[4]) 
                             invo.save()
+                    
+                            if invo.baldue == 0.0:
+                                invo.status = "Paid"
+                
+                                invo.save()
+                            else:
+                                pass
                         else:
                             pass
-                    else:
+                    except:
                         pass
                 else:
                     pass
@@ -29860,27 +29869,28 @@ def paymentcreate2(request):
                 amt+=m.balamount
         pay2.balance = amt     
         pay2.save()
-        amtreceived = float(request.POST['amtreceived'])
+        amtreceived = float(request.POST['amtapply'])
         accont = accounts1.objects.get(
             name='Account Receivable(Debtors)', cid=cmp1)
         accont.balance = accont.balance - amtreceived
         accont.save()
-        deposito = request.POST['depto']
-        try:
-            if accounts1.objects.get(name=deposito, cid=cmp1):
+        
+        # deposito = request.POST['depto']
+        # try:
+        #     if accounts1.objects.get(name=deposito, cid=cmp1):
                
-                acconut = accounts1.objects.get(name=deposito, cid=cmp1)
-                acconut.balance = acconut.balance + amtreceived
-                acconut.save()
-        except:
-            pass
-        try:
-            if accounts.objects.get(name=deposito, cid=cmp1):
-                acconut = accounts.objects.get(name=deposito, cid=cmp1)
-                acconut.balance = acconut.balance + amtreceived
-                acconut.save()
-        except:
-            pass
+        #         acconut = accounts1.objects.get(name=deposito, cid=cmp1)
+        #         acconut.balance = acconut.balance + amtreceived
+        #         acconut.save()
+        # except:
+        #     pass
+        # try:
+        #     if accounts.objects.get(name=deposito, cid=cmp1):
+        #         acconut = accounts.objects.get(name=deposito, cid=cmp1)
+        #         acconut.balance = acconut.balance + amtreceived
+        #         acconut.save()
+        # except:
+        #     pass
         # 
         paymetitem = paymentitems.objects.filter()
         

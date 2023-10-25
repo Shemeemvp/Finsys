@@ -16,7 +16,7 @@
                 <hr/>
             </div>
         </div>
-        <form action="paymentcreate2" method="post" class="post-form">
+        <form action="paymentcreate2" novalidate method="post">
             {% csrf_token %}
             <div class="card radius-15">
                 <div class="card-body">
@@ -53,11 +53,11 @@
                             </div>
                             <div class=" col-md-4 mt-3">
                                 <label class="scol-form-label">GST Treatment</label>
-                                <input type="email" name="email" id="gst_trt_inp" readonly class="form-control" placeholder="Email">
+                                <input type="text" name="gsttype" id="gst_trt_inp" readonly class="form-control" placeholder="Email">
                             </div>
                             <div class=" col-md-4 mt-3 d-none" id="gstin_row" style="flex-direction: column;">
                                 <label class="scol-form-label">GST #</label>
-                                <input type="email" name="email" id="gstin_inp" readonly class="form-control" placeholder="Email">
+                                <input type="text" name="gstin" id="gstin_inp" readonly class="form-control" placeholder="Email">
                             </div>
                             <!-- <div class="col-md-4">
                                 <label class="scol-form-label">Find by invoice number</label><br>
@@ -121,7 +121,7 @@
                                 </div>
                                 <div class="d-none pymnt-methd-inp" id="upi-field" style="flex-direction: column;">
                                     <label class="scol-form-label">UPI ID</label>
-                                    <input type="text" name="email" id="upi_inp" class="form-control" placeholder="UPI ID">
+                                    <input type="text" name="upiid" id="upi_inp" class="form-control" placeholder="UPI ID">
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -168,7 +168,7 @@
                                        style="display: none;">
                             </div>
                         </div>
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-md-4">
                             </div>
                             <div class="col-md-4"></div>
@@ -178,14 +178,14 @@
                                        class="form-control"
                                        name="amtreceived">
                             </div>
-                        </div>
-                        <div class="row mt-4 mb-4">
+                        </div> -->
+                        <!-- <div class="row mt-4 mb-4">
                             <div class="col-md-8"></div>
                             <div class="col-md-4">
                                 <h5 class="text-grey">AMOUNT RECEIVED</h5>
                                 <h5 class="text-light" id="amre">0.00</h5>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="row clearfix">
                             <div class="col-md-12 table-responsive-md">
                                 <table class="table table-bordered table-hover" id="tab_logic">
@@ -221,7 +221,7 @@
                                     </tr>
                                     <tr>
                                         <th class="text-center">Amount to Credit</th>
-                                        <td class="text-center"><input type="number" name='amtcredit' id="amtcredit" placeholder='0.00' class="form-control"></td>
+                                        <td class="text-center"><input type="number" min="0" step="0.00" name='amtcredit' id="amtcredit" placeholder='0.00' class="form-control"></td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -239,7 +239,6 @@
                             <div class="col-md-2">
                                 <button type="submit"
                                         name="save_as_draft"
-                                        onclick="alert('Are you sure you wants to save the payment?\nNo corrections after submission')"
                                         class="btn btn-outline-info rounded-pill w-100 text-grey pull-left">
                                     Save as Draft
                                 </button>
@@ -247,7 +246,6 @@
                             <div class="col-md-2">
                                 <button type="submit"
                                         name="save_as_saved"
-                                        onclick="alert('Are you sure you wants to save the payment?\nNo corrections after submission')"
                                         class="btn btn-outline-info rounded-pill w-100 text-grey pull-left">
                                     Save
                                 </button>
@@ -529,10 +527,10 @@
                                         <div style="position: absolute;" class="d-flex"><span>duedate : ${invdata[key]['date']} </span></div>
                                     </td>
                                     <td><input type="text" name='inv_type[]' id="" value="${invdata[key]['inv_type']}" class="form-control"/></td>
-                                    <td><input type="text" name='trans_no[]' value="${invdata[key]['trans_no']}" id="" class="form-control qty" step="0" min="0"/></td>
-                                    <td><input type="number" name='inv_amount[]' id="inv_amount${parseInt(key)+1}" value="${invdata[key]['inv_amount']}" class="form-control price" step="0.00" min="0"/></td>
+                                    <td><input type="text" name='trans_no[]' value="${invdata[key]['trans_no']}" id="" class="form-control"/></td>
+                                    <td><input type="number" readonly name='inv_amount[]' id="inv_amount${parseInt(key)+1}" value="${invdata[key]['inv_amount']}" class="form-control"/></td>
                                     <td><input type="number" name='payment[]' onkeyup="calcBalance(${parseInt(key)+1})" id="payment${parseInt(key)+1}" placeholder='0.00' class="form-control total pymnt_rcvd"/></td>
-                                    <td><input type="number" name='balance[]' id="balance${parseInt(key)+1}" placeholder='0.00' class="form-control total blnc_amnts"/></td>
+                                    <td><input type="number" readonly name='balance[]' id="balance${parseInt(key)+1}" placeholder='0.00' class="form-control total blnc_amnts"/></td>
                                 </tr>
                             `
                         )
