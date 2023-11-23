@@ -35,7 +35,7 @@ SECRET_KEY = 'django-insecure-@ym=g-9p=kgp46%-$ug_t#g%3o5g(f6+37-wzyd16h=z*&grds
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['accuhub.in']
 
 # Application definition
 
@@ -89,8 +89,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'infoxtec_FinsysFinalFile',
-        'USER':'root',
-        'PASSWORD':'',
+        'USER':'infoxtec_FinsysFinalFile',
+        'PASSWORD':'FinsysFinalFile',
         'HOST':'localhost',
         'PORT':'3306',
     }
@@ -149,9 +149,9 @@ EMAIL_HOST_PASSWORD = 'jkdpqggohjsmhyay'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
-# STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 
 # STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR,'static')

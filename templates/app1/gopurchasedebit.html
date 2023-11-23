@@ -85,7 +85,7 @@
                             {% for p in pdebit %}
                                 <tr onclick="window.location='viewpurchasedebit/{{ p.pdebitid }}';" style="text-align: center;">
                                     <th>{{ p.debitdate |date:'d-m-Y' }}</th>
-                                    <td>DN - {{ p.debit_no }}</td>
+                                    <td>{{ p.debit_no }}</td>
                                     <td>{{ p.vendor }}</a></td>
                                     <td>{{ p.email}}</a></td>
                                     <td>{{ p.grandtotal }}</td>
@@ -130,24 +130,27 @@
         //     $table.html(originalTableContent);
         // }
         function sortDebitNumberAscending(event) {
-                event.preventDefault(); 
-                var $table = $('#table tbody');
-                var rows = $table.find('tr').toArray();
-        
-                rows.sort(function(a, b) {
-                    var debitNumberA = parseInt($(a).find('td:nth-child(2)').text().split(' - ')[1]);
-                    var debitNumberB = parseInt($(b).find('td:nth-child(2)').text().split(' - ')[1]);
-        
-                    return debitNumberA - debitNumberB;
-                });
-        
-                $table.empty().append(rows);
-            }
-        
-            
-            $('#sort-debit-number').click(function(event) {
-                sortDebitNumberAscending(event);
-            });
+      event.preventDefault();
+      var $table = $('#table tbody');
+      var rows = $table.find('tr').toArray();
+
+      rows.sort(function(a, b) {
+        var debitNumberA = parseInt($(a).find('td:nth-child(2)').text().split(' - ')[1]);
+        var debitNumberB = parseInt($(b).find('td:nth-child(2)').text().split(' - ')[1]);
+
+        // Extract numeric part from bill number
+        var billNumberA = $(a).find('td:nth-child(2)').text().replace(/\D/g, '');
+        var billNumberB = $(b).find('td:nth-child(2)').text().replace(/\D/g, '');
+
+        return debitNumberA - debitNumberB || parseInt(billNumberA) - parseInt(billNumberB);
+      });
+
+      $table.empty().append(rows);
+    }
+
+    $('#sort-debit-number').click(function(event) {
+      sortDebitNumberAscending(event);
+    });
         
         function sortVendorNameAscending(event) {
             event.preventDefault(); 

@@ -167,22 +167,28 @@
                                                 </select>
                                                 <a class="btn btn-outline-secondary ml-1" role="button" data-target="#newitem" data-toggle="modal">+</a> 
                                             </div>
-                                            <label id="errorLabel" style="color: red;"></label>
+                                            <div id="errorLabel" style="color: red;"></div>
                                         </td>
                                         <td>
                                             <input type="text" name='hsn[]' id="hsn1" placeholder='HSN'
                                             class="form-control hsn"/>
                                         </td>
-                                        <td><input type="number" name='quantity[]' onchange="qtychange1(this)"  style='margin-top:21px' placeholder='Enter Qty' id="qty1" class="form-control qty" step=0 min=0>
+                                        <td>
+                                            <input type="number" name='quantitys'   style='margin-top:21px' placeholder='Enter Qty' id="quantitys" class="form-control quty" hidden  >
+                                            <input type="number" name='anotherQuantityInput'   style='margin-top:21px' placeholder='Enter Qty' id="anotherQuantityInput" value="0" class="form-control quty" hidden >
+                                            <input type="number" name='quantity[]' onchange="qtychange1(this)"  style='margin-top:21px' placeholder='Enter Qty' id="qty1" class="form-control qty" step=0 min=0 >
                                                     <div><span>Available Qty :</span> <span id="qtyspan"class='text-muted'></span></div>
                                         </td> 
                                         
                                         <td>
+                                            
                                             <input type="text" name='price[]' id="unit1" placeholder='Enter Unit Price'
                                             class="form-control price" step="0.00" min="0"/>
                                         </td>
                                         
                                         <td>
+                                            <input type="text" name='taxs' id="taxs" placeholder='Enter Unit Price'
+                                            class="form-control taxs" onchange="taxchange(this)" step="0.00" min="0" hidden >
                                             <select name='tax[]' id="tax1" class="form-control tax">
                                                 <option id="ta1" value=0 text={{ cmp1.state }} hidden>Select</option>
                                                 <option value=0 text={{ cmp1.state }}>00% GST(00%)</option>
@@ -225,7 +231,7 @@
                         <div class="col-md-6">
                             <label for="">Payment Type</label>
                             <div class="d-flex">
-                                <select class="form-control" name="paytype" id="paytype" required>
+                                <select class="form-control" name="paytype" id="paytype" required style="width:70%;">
                                     <option value="" hidden>Select</option>
                                     {% for i in bank %}
                                     <option value="{{i.id}}">{{i.bankname}}</option>
@@ -422,12 +428,18 @@
                         </div>
                     </div>
                     <div class="row mt-4 mb-4">
-                        <div class="col-md-9"></div>
-                        <div class="col-md-3 mt-3 mb-4">
-                            <button class="btn btn-outline-info w-100 text-light rounded-pill" type="submit">Submit
-                                form
-                            </button>
-                        </div>
+                        <div class="col-md-6"></div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-info rounded-pill text-grey w-100 mt-3 mb-3"
+                                   name="save_as_draft" type="submit" onclick="saveAsDraftDialog()">
+                                Save as Draft
+                            </button></div>
+                            <div class="col-md-3">
+                            <button class="btn btn-outline-info rounded-pill text-grey w-100 mt-3 mb-3" name="save_as_billed"
+                            type="submit" onclick="saveAndOpenDialog()">
+                             Save 
+                           </button>
+                           </div>
                     </div>
                 </div>
             </div>
@@ -1408,7 +1420,7 @@
         $('#sub_total').val(parseFloat(total.toFixed(2)));
         $('#tax_amount').val(parseFloat(taxamount.toFixed(2)));
         $('#tot_dis').val(parseFloat(total_discount.toFixed(2)));
-        $('#baldue').val((taxamount + total).toFixed(2));
+        // $('#baldue').val((taxamount + total).toFixed(2));
         calc_tcs();
     }
     function calc_tcs() {
@@ -1433,6 +1445,7 @@
         $('#tcs_amount').val(parseFloat(tcs.toFixed(2)));
         $('#grandtotal').val(parseFloat(gt.toFixed(2)));
         $('#due').val(parseFloat(y.toFixed(2)));
+        $('#baldue').val(parseFloat(gt.toFixed(2)));
         // $('#round_off').val(parseFloat(y.toFixed(2)));
         // $('#due').val((y).toFixed(2));
         // $('#round_off').val((y).toFixed(2));   
@@ -1602,12 +1615,17 @@
                                         <button type="button" class="btn btn-outline-secondary ml-1" data-target="#newitem" data-toggle="modal">+</button>
                                     </a>                    
                                 </div>
-                                <label id="errorLabel${roinc}" style="color: red;"></label>
+                                <div id="errorLabel${roinc}" style="color: red;"></div>
                             </td>
                             <td>
                                 <input type="text" name='hsn[]' id="hsn1${roinc}" placeholder='Enter HSN Code' class="form-control"/>
                             </td>                
-                            <td><input type="number" name='quantity[]' onchange="qtychange1(this)"  style='margin-top:21px' placeholder='Enter Qty' id="qty1" class="form-control qty" step=0 min=0>
+                            <td>
+                               
+
+                                <input type="number" name='quantitys'   style='margin-top:21px' placeholder='Enter Qty' id="quantitys${roinc}" class="form-control quty" hidden >     
+                                <input type="number" name='anotherQuantityInput'   style='margin-top:21px' placeholder='Enter Qty' id="anotherQuantityInput${roinc}" value="0" class="form-control quty" hidden  >
+                                <input type="number" name='quantity[]' onchange="qtychange2(this)"  style='margin-top:21px' placeholder='Enter Qty' id="qty1" class="form-control qty" step=0 min=0>
                                 <div><span>Available Qty :</span> <span id="qtyspan${roinc}"class='text-muted'></span></div>
                             </td>                
                             <td>
@@ -1615,6 +1633,8 @@
                             </td>                
                                                            
                             <td>
+                                <input type="text" name='taxs' id="taxs${roinc}" placeholder='Enter Unit Price'
+                                            class="form-control taxs" onchange="taxchange(this)" step="0.00" min="0"hidden >
                                 <select name='tax[]' id="tax${roinc+1}" class="form-control tax">
                                     ${taxOptions}
                                 </select>
@@ -1638,9 +1658,26 @@
                 var row_id = $(this).attr("id");
                 $('#addr0'+row_id+'').remove();
             });
+            $(document).on('change', '.tax', function() {
+                var selectedTaxValue = parseFloat($(this).val());
+                var inputTaxValue = parseFloat($(this).closest('tr').find('.taxs').val());
+                var vid = $('#billno').val();
+               
+
+                // Check if the "billno" field is empty
+                if (vid === "") {
+                    return;        // Exit the function and do not show the alert
+                }
+
+                if (selectedTaxValue !== inputTaxValue) {
+                    alert("Selected tax is not the same as bill tax.");
+                }
+            });
+
 
             var place = document.getElementById('plosu').value;
-
+           
+          
             $(document).on('click', '#product', function () {
                 var select = $('#product').val();
                 var vid = $('#billno').val();
@@ -1666,9 +1703,16 @@
                             var data3 = response.price;
                             var data4 = response.gst;
                             var data5 = response.sgst;
+                            var data6 = response.quty;
+                            var data7 =response.taxs;
+                            console.log(data7);
+                       
                             document.getElementById('hsn1').value = data;
                             document.getElementById('qtyspan').innerHTML = data2;
                             document.getElementById('unit1').value = data3;
+                            document.getElementById('taxs').value = data7;
+                            document.getElementById('quantitys').value = data6;
+                           
                             if (place == '{{ cmp1.state }}') {
                                 document.getElementById('ta1').value = data4;
                             }
@@ -1678,7 +1722,7 @@
                     
                 });
             });
-                            
+                
             $(document).on('click','#product1',function(){
                 select = $('#product1').val();
                 var vid = $('#billno').val();
@@ -1703,9 +1747,16 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 =response.taxs
+                   
                         document.getElementById('hsn11').value = data
                         document.getElementById('qtyspan1').innerHTML = data2;
                         document.getElementById('unit11').value = data3
+                        document.getElementById('quantitys1').value = data6
+                        document.getElementById('taxs1').value = data7;
+                     
+
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta11').innerHTML = data4 + ' % GST';
@@ -1741,9 +1792,14 @@
                         data2 = response.price
                         data3 = response.gst
                         data4 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
+                     
                         document.getElementById('hsn12').value = data
                         document.getElementById('qtyspan2').innerHTML = data1;
-                        document.getElementById('unit12').value = data2            
+                        document.getElementById('unit12').value = data2 
+                        document.getElementById('quantitys2').value = data6
+                        document.getElementById('taxs2').value = data7;    
                         if (place == '{{ cmp1.state }}')
                             {
                                 document.getElementById('ta12').innerHTML = data3 + ' % GST';
@@ -1779,9 +1835,13 @@
                         data2 = response.price
                         data3 = response.gst
                         data4 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn13').value = data
                         document.getElementById('qtyspan3').innerHTML = data1;
                         document.getElementById('unit13').value = data2
+                        document.getElementById('quantitys3').value = data6
+                        document.getElementById('taxs3').value = data7;
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta13').innerHTML = data3 + ' % GST';
@@ -1817,9 +1877,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn14').value = data
                         document.getElementById('qtyspan4').innerHTML = data2;
                         document.getElementById('unit14').value = data3
+                        document.getElementById('quantitys4').value = data6
+                        document.getElementById('taxs4').value = data7
                         if (place == '{{ cmp1.state }}')
                         {
                              document.getElementById('ta14').innerHTML = data4 + ' % GST';
@@ -1856,9 +1920,14 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
+                        data7 = response.taxs
                         document.getElementById('hsn15').value = data
                         document.getElementById('qtyspan5').innerHTML = data2;
                         document.getElementById('unit15').value = data3
+                        document.getElementById('quantitys5').value = data6
+                        document.getElementById('taxs5').value = data7;
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta15').innerHTML = data4 + ' % GST';
                             document.getElementById('ta15').value=data4
@@ -1894,9 +1963,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn16').value = data
                         document.getElementById('qtyspan6').innerHTML = data2;
                         document.getElementById('unit16').value = data3
+                        document.getElementById('quantitys6').value = data6
+                        document.getElementById('taxs6').value = data7;
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta16').innerHTML = data4 + ' % GST';
                             document.getElementById('ta16').value=data4
@@ -1931,9 +2004,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn17').value = data 
                         document.getElementById('qtyspan7').innerHTML = data2;
                         document.getElementById('unit17').value = data3
+                        document.getElementById('quantitys7').value = data6
+                        document.getElementById('taxs7').value = data7;
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta17').innerHTML = data4 + ' % GST';
                             document.getElementById('ta17').value=data4
@@ -1947,6 +2024,7 @@
             $(document).on('click','#product8',function(){
                 select = $('#product8').val();
                 var vid = $('#billno').val();
+                
                 $.ajax({
                     type: "GET",
                     url: "{% url 'itemdatadebit' %}",
@@ -1967,10 +2045,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst        
+                        data5 = response.sgst  
+                        data6 = response.quty    
+                        data7 = response.taxs  
                         document.getElementById('hsn18').value = data        
                         document.getElementById('qtyspan8').innerHTML = data2;
                         document.getElementById('unit18').value = data3
+                        document.getElementById('quantitys8').value = data6
+                        document.getElementById('taxs8').value = data7;
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta18').innerHTML = data4 + ' % GST';
                             document.getElementById('ta18').value=data4
@@ -2005,10 +2087,14 @@
                                 data2 = response.qty
                                 data3 = response.price
                                 data4 = response.gst
-                        data5 = response.sgst       
+                                data6 = response.quty
+                                data5 = response.sgst 
+                                data7 = response.taxs      
                         document.getElementById('hsn19').value = data   
                         document.getElementById('qtyspan9').innerHTML = data2;
-                        document.getElementById('unit19').value = data3        
+                        document.getElementById('unit19').value = data3   
+                        document.getElementById('quantitys9').value = data6 
+                        document.getElementById('taxs9').value = data7;    
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta19').innerHTML = data4 + ' % GST';
                             document.getElementById('ta19').value=data4
@@ -2042,10 +2128,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst       
+                        data5 = response.sgst  
+                        data6 = response.quty
+                        data7 = response.taxs     
                         document.getElementById('hsn110').value = data
                         document.getElementById('qtyspan10').innerHTML = data2;
-                        document.getElementById('unit110').value = data3        
+                        document.getElementById('unit110').value = data3  
+                        document.getElementById('quantitys10').value = data6
+                        document.getElementById('taxs10').value = data7;      
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta110').innerHTML = data4 + ' % GST';
                             document.getElementById('ta110').value=data4    
@@ -2079,10 +2169,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst                      
+                        data5 = response.sgst 
+                        data6 = response.quty
+                        data7 = response.taxs                     
                         document.getElementById('hsn111').value = data
                         document.getElementById('qtyspan11').innerHTML = data2;
-                        document.getElementById('unit111').value = data3        
+                        document.getElementById('unit111').value = data3   
+                        document.getElementById('quantitys11').value = data6   
+                        document.getElementById('taxs11').value = data7;  
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta111').innerHTML = data4 + ' % GST';
                             document.getElementById('ta111').value=data4
@@ -2117,9 +2211,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn112').value = data
                         document.getElementById('qtyspan12').innerHTML = data2;
                         document.getElementById('unit112').value = data3
+                        document.getElementById('quantitys12').value = data6
+                        document.getElementById('taxs12').value = data7;
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta112').innerHTML = data4 + ' % GST';
@@ -2154,10 +2252,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst       
+                        data5 = response.sgst 
+                        data6 = response.quty
+                        data7 = response.taxs      
                         document.getElementById('hsn113').value = data
                         document.getElementById('qtyspan13').innerHTML = data2;
-                        document.getElementById('unit113').value = data3        
+                        document.getElementById('unit113').value = data3 
+                        document.getElementById('quantitys13').value = data6 
+                        document.getElementById('taxs13').value = data7;      
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta113').innerHTML = data4 + ' % GST';
@@ -2192,10 +2294,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst       
+                        data5 = response.sgst  
+                        data6 = response.quty   
+                        data7 = response.taxs  
                         document.getElementById('hsn114').value = data
                         document.getElementById('qtyspan14').innerHTML = data2;
-                        document.getElementById('unit114').value = data3        
+                        document.getElementById('unit114').value = data3 
+                        document.getElementById('quantitys14').value = data6 
+                        document.getElementById('taxs14').value = data7;      
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta114').innerHTML = data4 + ' % GST';
@@ -2232,10 +2338,14 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn115').value = data
                         document.getElementById('description15').value = data1
                         document.getElementById('qtyspan15').innerHTML = data2;
                         document.getElementById('unit115').value = data3
+                        document.getElementById('quantitys15').value = data6
+                        document.getElementById('taxs15').value = data7;
                         if (place == '{{ cmp1.state }}'){
                             document.getElementById('ta115').innerHTML = data4 + ' % GST';
                             document.getElementById('ta115').value=data4
@@ -2269,10 +2379,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst        
+                        data5 = response.sgst 
+                        data6 = response.quty 
+                        data7 = response.taxs      
                         document.getElementById('hsn116').value = data
                         document.getElementById('qtyspan16').innerHTML = data2;
-                        document.getElementById('unit116').value = data3        
+                        document.getElementById('unit116').value = data3   
+                        document.getElementById('quantitys16').value = data6  
+                        document.getElementById('taxs16').value = data7;   
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta116').innerHTML = data4 + ' % GST';
@@ -2308,9 +2422,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn117').value = data
                         document.getElementById('qtyspan17').innerHTML = data2;
                         document.getElementById('unit117').value = data3
+                        document.getElementById('quantitys17').value = data6
+                        document.getElementById('taxs17').value = data7;
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta117').innerHTML = data4 + ' % GST';
@@ -2346,10 +2464,14 @@
                         data2 = response.qty
                         data3 = response.price
                         data4 = response.gst
-                        data5 = response.sgst        
+                        data5 = response.sgst 
+                        data6 = response.quty  
+                        data7 = response.taxs     
                         document.getElementById('hsn118').value = data
                         document.getElementById('qtyspan18').innerHTML = data2;
-                        document.getElementById('unit118').value = data3        
+                        document.getElementById('unit118').value = data3 
+                        document.getElementById('quantitys18').value = data6 
+                        document.getElementById('taxs18').value = data7;      
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta118').innerHTML = data4 + ' % GST';
@@ -2384,10 +2506,14 @@
                             data2 = response.qty
                             data3 = response.price
                             data4 = response.gst
-                            data5 = response.sgst   
+                            data5 = response.sgst 
+                            data6 = response.quty  
+                            data7 = response.taxs
                             document.getElementById('hsn119').value = data
                             document.getElementById('qtyspan19').innerHTML = data2;
-                            document.getElementById('unit119').value = data3        
+                            document.getElementById('unit119').value = data3
+                            document.getElementById('quantitys19').value = data6 
+                            document.getElementById('taxs19').value = data7;       
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta119').innerHTML = data4 + ' % GST';
@@ -2423,9 +2549,13 @@
                         data3 = response.price
                         data4 = response.gst
                         data5 = response.sgst
+                        data6 = response.quty
+                        data7 = response.taxs
                         document.getElementById('hsn120').value = data
                         document.getElementById('qtyspan20').innerHTML = data2;
                         document.getElementById('unit120').value = data3
+                        document.getElementById('quantitys20').value = data6
+                        document.getElementById('taxs20').value = data7;
                         if (place == '{{ cmp1.state }}')
                         {
                             document.getElementById('ta120').innerHTML = data4 + ' % GST';
@@ -2437,6 +2567,7 @@
                 });
             });
         });
+        
     </script>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -2604,26 +2735,53 @@
             var inventorytrack = document.getElementById("inventorytrack");
             inventorytrack.style.display = track.checked ? "flex" : "none";
         } 
-    </script>
-    
-    <script>
-        function qtychange1(input) {
+//     </script>
+<script>
+function qtychange1(input) {
+    var availableQtyElement;
     var enteredQty = parseFloat(input.value);
-    var availableQty = parseFloat(document.getElementById("qtyspan").innerText);
+    var availableQtyElement = document.getElementById("quantitys");
+    var anotherInputField = document.getElementById("anotherQuantityInput"); // Change "anotherQuantityInput" to the actual ID of your input field
+    var availableQty = parseFloat(availableQtyElement.value);
 
     if (isNaN(enteredQty) || enteredQty < 0) {
         alert("Please enter a valid quantity.");
         input.value = 0;
-        return;
+    } else if (enteredQty > availableQty) {
+        alert("Entered quantity is greater than purchasebill quantity.");
+    } else if (enteredQty <= availableQty) {
+        availableQty -= enteredQty ;
+   
+        
+        // Update another input field with the reduced available quantity
+        anotherInputField.value = availableQty;
     }
-
-    if (enteredQty > availableQty) {
-        alert("Entered quantity exceeds available quantity.");
-        input.value = availableQty;
-    }
+    
 }
-    </script>
 
+</script>
+<script>
+
+    function qtychange2(input) {
+        var enteredQty = parseFloat(input.value);
+        var row_id = input.id.replace("qty1", "");
+        
+        
+        var anotherInputField = document.getElementById("anotherQuantityInput"+row_id);
+        var availableQty = parseFloat(anotherInputField.value);
+        if (isNaN(enteredQty) || enteredQty < 0) {
+        alert("Please enter a valid quantity.");
+        input.value = 0;
+        }else if (enteredQty > availableQty) {
+            alert("Entered quantity is greater than purchasebill quantity.");
+            
+        }else{
+            
+        }
+    }
+
+ </script>
+   
 <script>
     $(document).ready(function() {
 
@@ -2665,6 +2823,8 @@
     });
 
 </script>
+
+
 
 
 

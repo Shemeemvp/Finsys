@@ -35,6 +35,9 @@
   <!-- Icons CSS -->
   <link rel="stylesheet" href="{% static 'assets/css/icons.css' %}" />
   <!-- App CSS -->
+  
+  <!--Fa icon -->
+ <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 
 
   <link rel="stylesheet" href="{% static 'assets/css/app.css' %}" />
@@ -148,8 +151,9 @@
                   <li><a href="{% url 'cash_in_hand' %}">Cash In Hand</a></li>
                   <li><a href="{% url 'bnnk' %}">Offline Banking</a></li>
                   <li><a href="{% url 'loan' %}">Loan Account</a>
-                    <li><a href="{% url 'sales_report' %}">Sales</a>
-                  </li>
+                    <li><a href="{% url 'sales_report' %}">Sales</a></li>                   
+                  <li><a href="{% url 'listpayrollemployee' %}">Employee</a></li>
+                  <li><a href="{% url 'employeeloanpage' %}">Employee Loan</a></li>
 
                 </ul>
               </div>
@@ -412,7 +416,7 @@
               </li>
               <li id="expense"><a href="{% url 'goexpenses' %}"><i class="bx bx-right-arrow-alt"></i>Expense</a>
               </li>
-              <li id="payment"><a href="{% url 'gopurchasepymnt' %}"><i class="bx bx-right-arrow-alt"></i>Payment</a>
+              <li id="payment"><a href="{% url 'gopurchasepymnt' %}"><i class="bx bx-right-arrow-alt"></i>Payment Made</a>
               </li>
               <li id="debitnote"><a href="{% url 'gopurchasedebit' %}"><i class="bx bx-right-arrow-alt"></i>Debit Note</a>
               </li>
@@ -517,6 +521,7 @@
               <li id="trialbalance"><a href="{% url 'trial_balance' %}"><i class="bx bx-right-arrow-alt"></i>Trial Balance</a></li>
               <li id="accountsreceivables"><a href="{% url 'accreceivables' %}"><i class="bx bx-right-arrow-alt"></i>Accounts Receivables</a>
               </li>
+              <li><a href="{% url 'creditnotereport' %}"><i class="bx bx-right-arrow-alt"></i>Creditnote Details</a></li>
                             <li><a href="{% url 'debitnotereport' %}"><i class="bx bx-right-arrow-alt"></i>Debitnote Report</a></li>
               <li id="accountspayables"><a href="{% url 'accpayables' %}"><i class="bx bx-right-arrow-alt"></i>Accounts Payables</a></li>
 

@@ -527,15 +527,8 @@ urlpatterns = [
 
     path('gstr11',views.gstr11,name='gstr11'),
 
-    #payment received - urls ---added- shemeem
-    path('payment_received_sortby_cname',views.payment_received_sort_cname,name='payment_received_sort_cname'),
-    path('payment_received_sortby_pymnt_no',views.payment_received_sort_pnum,name='payment_received_sort_pnum'),
-    path('payment_received_filter_draft',views.gopayment_received_draft,name='gopayment_received_draft'),
-    path('payment_received_filter_saved',views.gopayment_received_saved,name='gopayment_received_saved'),
-    path('check_pymnt_number_cont',views.checkPymntNumberConti, name='checkPymntNumberConti'),
-    path('new_pymnt_method',views.new_payment_method, name='new_payment_method'),
-    path('getpymnt_methods',views.get_payment_methods, name='get_payment_methods'),
-    path('get_bank_acc_num', views.get_bankacc_num, name='get_bankacc_num'),
+
+    
     
 
     
@@ -938,9 +931,7 @@ urlpatterns = [
     path('additem_challan',views.additem_challan,name='additem_challan'),
     path('sort_chellan_customername', views.sort_chellan_customername, name='sort_chellan_customername'),
     path('sort_chellan_chellannumber', views.sort_chellan_chellannumber, name='sort_chellan_chellannumber'),
-    path('check_dc_number_cont',views.checkDCNumberConti, name='checkDCNumberConti'), #added - shemeem
-    path('dc_draft_to_save/<int:id>',views.challan_draftToSave, name='challan_draftToSave'), #added - shemeem
-
+    
     # urls for Price list
     
     path('price_list/',views.pricelist,name='pricelist'),
@@ -1049,7 +1040,7 @@ urlpatterns = [
     path('recinvoice_view/<int:id>',views.recinvoice_view,name='recinvoice_view'),
    	path('itemdata1',views.itemdata1,name='itemdata1'),
     path('reccreatecustomer1',views.reccreatecustomer1,name='reccreatecustomer1'),
-    path(' createrec_item1',views. createrec_item1,name='createrec_item1'),
+    path('createrec_item1',views.createrec_item1,name='createrec_item1'),
     # path(' itemdata_recur',views. itemdata_recur,name='itemdata_recur'),
     path('recinvoice_add_file/<int:id>',views.recinvoice_add_file ,name='recinvoice_add_file'),
     
@@ -1208,18 +1199,24 @@ urlpatterns = [
     path('deletedebitcomments/<int:pdebitid>/<int:commentid>', views.deletedebitcomments, name='deletedebitcomments'),
     ##debitnote_and_report_end haripriya###
     
-    # reshna-holidays
-    path('holidayss',views.holidayss,name='holidayss'),
-    path('addholidays',views.addholidays,name='addholidays'),
-    path('generate_pdf',views.generate_pdf,name='generate_pdf'),
+    
     # reshna-attendance
     path('attendancepagee/',views.attendancepagee,name='attendancepagee'),
     path('save_attendance',views.save_attendance,name='save_attendance'),
-    # path('fetch_employee_details/<str:employee_id>/', views.fetch_employee_details, name='fetch_employee_details'),
-    path('get_attendance_details',views.get_attendance_details,name='get_attendance_details'),
-    path('get_calendar_events',views.get_calendar_events,name='get_calendar_events'),
-    path('get_counts',views.get_counts,name='get_counts'),
-    # path('attendance_pdf',views.attendance_pdf,name='attendance_pdf'),
+    path('attendance_addpage',views.attendance_addpage,name='attendance_addpage'),#new
+    path('attendance_view/<int:year>/<str:month>/<str:employee>/',views.attendance_view,name='attendance_view'),#new
+    path('pdf_attendance/<int:year>/<str:month>/<str:employee>/', views.pdf_attendance, name='pdf_attendance'),#new
+    path('edit_attendance/<int:attendance_id>/', views.edit_attendance, name='edit_attendance'),#new
+    path('delete_attendance/<int:attendance_id>/', views.delete_attendance, name='delete_attendance'),#new
+    path('attendance_editpage',views.attendance_editpage,name='attendance_editpage'),#new
+    # reshna-holidays
+    path('holidayss',views.holidayss,name='holidayss'),
+    path('addholidays',views.addholidays,name='addholidays'),
+    path('generate_pdf/<int:year>/<str:month>/',views.generate_pdf,name='generate_pdf'),#new
+    path('holiday_addpage',views.holiday_addpage,name='holiday_addpage'),#new
+    path('view_holidays/<int:year>/<str:month>/',views.view_holidays,name='view_holidays'),#new
+    path('edit_holiday/<int:holiday_id>/', views.edit_holiday, name='edit_holiday'),#new
+    path('delete_holiday/<int:holiday_id>/', views.delete_holiday, name='delete_holiday'),#new
     
     path('loan',views.loan,name='loan'),
     path('activeloan', views.activeloan, name='activeloan'),
@@ -1251,8 +1248,136 @@ urlpatterns = [
     path('cash_to_bank',views.cash_to_bank,name='cash_to_bank'),
     path('bank_to_bank',views.bank_to_bank,name='bank_to_bank'),
     path('bank_adjust',views.bank_adjust,name='bank_adjust'),
+    
+    path('edit_added_cash/<int:id>',views.edit_added_cash,name='edit_added_cash'),
+    path('add_cash_adjust',views.add_cash_adjust,name='add_cash_adjust'),
+    
+    path('addrecterm',views.addrecterm,name='addrecterm'),
+    path('recrepeatevry',views.recrepeatevry,name='recrepeatevry'),
+    
+    path('sales_by_item_graphview',views.sales_by_item_graphview,name='sales_by_item_graphview'),
+    path('sales_by_item_graphview_btn/<str:pk>',views.sales_by_item_graphview_btn,name='sales_by_item_graphview_btn'),
+    path('recurinv_pay',views.recurinv_pay,name='recurinv_pay'),
+    path('pay_dropdown',views.pay_dropdown,name='pay_dropdown'),
+    path('recurinv_rpt',views.recurinv_rpt,name='recurinv_rpt'),
+    path('rpt_dropdown',views.rpt_dropdown,name='rpt_dropdown'),
+    path('recurinv_cust',views.recurinv_cust,name='recurinv_cust'),
+    
+    path('balancedata',views.balancedata,name='balancedata'),
+    
+    #payment received - urls ---added- shemeem
+    path('payment_received_sortby_cname',views.payment_received_sort_cname,name='payment_received_sort_cname'),
+    path('payment_received_sortby_pymnt_no',views.payment_received_sort_pnum,name='payment_received_sort_pnum'),
+    path('payment_received_filter_draft',views.gopayment_received_draft,name='gopayment_received_draft'),
+    path('payment_received_filter_saved',views.gopayment_received_saved,name='gopayment_received_saved'),
+    path('check_pymnt_number_cont',views.checkPymntNumberConti, name='checkPymntNumberConti'),
+    path('new_pymnt_method',views.new_payment_method, name='new_payment_method'),
+    path('getpymnt_methods',views.get_payment_methods, name='get_payment_methods'),
+    path('get_bank_acc_num', views.get_bankacc_num, name='get_bankacc_num'),
+    
 
+    #Delivery Challan urls === shemeem added
+    path('check_dc_number_cont',views.checkDCNumberConti, name='checkDCNumberConti'),
+    path('dc_draft_to_save/<int:id>',views.challan_draftToSave, name='challan_draftToSave'),
+    
+    path('payment_term_for_sales',views.payment_term_for_sales,name='payment_term_for_sales'),
+    path('terms_dropdowns',views.terms_dropdowns,name='terms_dropdowns'),
+    path('bankdata',views.bankdata,name='bankdata'),
+    path('stockdata',views.stockdata,name='stockdata'),
+    path('convert_to_inv/<int:pk>',views.convert_to_inv,name='convert_to_inv'),
+    path('convert_to_reccinv/<int:pk>',views.convert_to_reccinv,name='convert_to_reccinv'),
+    
+    path('credit_term', views.credit_term, name='credit_term'),
+    path('term_dropdown', views.term_dropdown, name='term_dropdown'),
+    path('repayment/<int:id>',views.repayment,name='repayment'),
+    path('loandue/<int:id>',views.loandue,name='loandue'),
+    path('crt_emp_loan_trans/<int:id>',views.crt_emp_loan_trans,name='crt_emp_loan_trans'),
+    
+    path('render_pdfstatment_view/<int:id>', views.render_pdfstatment_view, name='render_pdfstatment_view'),
+    path('additional_loan/<int:id>',views.additional_loan,name='additional_loan'),
+    path('edit_repayment/<int:id>',views.edit_repayment,name='edit_repayment'),
+    path('make_edit_pay/<int:id>',views.make_edit_pay,name='make_edit_pay'),
+    path('dlt_loan_trans/<int:id>',views.dlt_loan_trans,name='dlt_loan_trans'),
+    path('edit_add_loan/<int:id>',views.edit_add_loan,name='edit_add_loan'),
+    path('edit_additional_loan/<int:id>',views.edit_additional_loan,name='edit_additional_loan'),
+    path('delet_add_loan/<int:id>',views.delet_add_loan,name='delet_add_loan'),
+    
+    path('activebankpage', views.activebankpage, name='activebankpage'),
+    path('inactivebankpage', views.inactivebankpage, name='inactivebankpage'),
+    path('status_change/<int:id>',views.status_change,name='status_change'),
+    path('status_change_inactive/<int:id>',views.status_change_inactive,name='status_change_inactive'),
+    path('render_pdfstatment_view_bank/<int:id>',views.render_pdfstatment_view_bank,name='render_pdfstatment_view_bank'),
+    
+    # Abin - employee and Payment Made Updation
+
+    path('getvendordata3',views.getvendordata3,name='getvendordata3'),
+    path('credit_period_rbill3',views.credit_period_rbill3,name='credit_period_rbill3'),
+    path('credit_dropdown_rbill2',views.credit_dropdown_rbill2,name='credit_dropdown_rbill2'),
+    path('getperiod_rbill2',views.getperiod_rbill2,name='getperiod_rbill2'),
+    path('sort_payment_name',views.sort_payment_name,name='sort_payment_name'),
+    path('sort_employee_name',views.sort_employee_name,name='sort_employee_name'),
+    path('sort_employeesalary',views.sort_employeesalary,name='sort_employeesalary'),
+    path('sort_paid_through/',views.sort_paid_through,name='sort_paid_through'),
+    path('payment_save/',views.payment_save,name='payment_save'),
+    path('payment_draft/',views.payment_draft,name='payment_draft'),
+    path('convert_to_save/<int:id>',views.convert_to_save,name='convert_to_save'),
+    path('add_paymt_made_comment/<int:id>', views.add_paymt_made_comment, name='add_paymt_made_comment'),
+    path('delete_paymt_made_comment/<int:id>/<int:commentid>', views.delete_paymt_made_comment, name='delete_paymt_made_comment'),
+    path('active_employee/', views.active_employee, name='active_employee'),
+    path('inactive_employee/', views.inactive_employee, name='inactive_employee'),
+    path('active_emp2/<int:employeeid>/', views.active_emp2, name='active_emp2'),
+    path('inactive_emp2/<int:employeeid>/', views.inactive_emp2, name='inactive_emp2'),
+    path('deletepayrollemp/<int:employeeid>', views.deletepayrollemp, name='deletepayrollemp'),
+    path('option_dropdown',views.option_dropdown,name='option_dropdown'),
+    path('add_option',views.add_option,name='add_option'),
+    #End
+
+    path('create_credit_save/',views.create_credit_save,name='create_credit_save'),
+    path('credit_note_filter_draft',views.credit_note_filter_draft,name='credit_note_filter_draft'),
+    path('credit_note_filter_save',views.credit_note_filter_save,name='credit_note_filter_save'),
+    path('credit_change_status/<int:pk>',views.credit_change_status,name='credit_change_status'),
+    path('attach_credit_note_file/<int:pk>',views.attach_credit_note_file,name='attach_credit_note_file'),
+    path('creditnotereport',views.creditnotereport,name='creditnotereport'),
+    path('get_account_no',views.get_account_no,name='get_account_no'),
+    path('itemdata_qty',views.itemdata_qty,name='itemdata_qty'),
+    path('itemdata_tax1',views.itemdata_tax1,name='itemdata_tax1'),
+    
+    path('itemdetails',views.itemdetails,name='itemdetails'),
+    
+    path('custdata',views.custdata,name='custdata'),
+    
+    #.....mirna ....urls..
+
+    path('vendor/<int:id>/add_comment/',views.add_comment, name='add_comment'),
+    path('comment/<int:comment_id>/delete/',views.delete_comment, name='delete_comment'),
+    path('add_porder_comment/<int:id>/',views.add_porder_comment, name='add_porder_comment'),
+    path('delete_porder_comment/<int:comment_id>/',views.delete_porder_comment, name='delete_porder_comment'),
+    path('add_bill_comment/<int:bill_id>/',views.add_bill_comment, name='add_bill_comment'),
+    path('delete_bill_comment/<int:comment_id>/', views.delete_bill_comment, name='delete_bill_comment'),
+    path('porderbill_draft/',views.porderbill_draft,name='porderbill_draft'),
+    path('porderbill_save/',views.porderbill_save,name='porderbill_save'),
+    path('update_bill_status/<int:bill_id>/', views.update_bill_status, name='update_bill_status'),
+    path('update_purchase_status/<int:porder_id>/', views.update_purchase_status, name='update_purchase_status'),
+    # path('get_vendor_balance/', views.get_vendor_balance, name='get_vendor_balance'),
+    #End
  
+    path('get_bank_acc_num2', views.get_bankacc_num2, name='get_bankacc_num2'),
+    path('credit_term2', views.credit_term2, name='credit_term2'),
+    path('term_dropdown2', views.term_dropdown2, name='term_dropdown2'),
+    path('get_account_number/', views.get_account_number, name='get_account_number'), 
      
-     
+    path('deletecreditnote/<int:pk>',views.deletecreditnote,name='deletecreditnote'),
+    path('itemdata_qty_edit',views.itemdata_qty_edit,name='itemdata_qty_edit'), 
+    
+    path('save-account/', views.save_account, name='save_account'),
+    path('account_dropdown/', views.account_dropdown, name='account_dropdown'),
+    
+    path('convert_to_recbill/<int:pk>',views.convert_to_recbill,name='convert_to_recbill'),
+    path('rbillconvert_to_draft/<int:id>',views.rbillconvert_to_draft,name='rbillconvert_to_draft'),
+    
+    path('get_bankdata', views.get_bankdata, name='get_bankdata'),
+    
+    path('check_user_loan',views.check_user_loan,name='check_user_loan'),
+ 
+ 
 ]
