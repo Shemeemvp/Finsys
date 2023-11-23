@@ -743,7 +743,7 @@
             color: #fff;
   }
 </style>
-<form action="challancreate" method="post" class="needs-validation" enctype="multipart/form-data" novalidate>
+<form action="challancreate" method="post" class="needs-validation" enctype="multipart/form-data">
   {% csrf_token %}
   <div class="page-content">
     <!--breadcrumb-->
@@ -751,7 +751,7 @@
       <div class="card-body">.
         <div class="card-title">
           <center>
-            <h3 class="mb-0" id="invnumb">NEW DELIVERY CHELLAN</h3>
+            <h3 class="mb-0" id="invnumb">NEW DELIVERY CHALLAN</h3>
           </center>
         </div>
         <hr />
@@ -777,8 +777,8 @@
                 
               <label class="col-form-label">Select Customer</label>
               <div class="d-flex">
-                <select name="customername" id="customer" class="form-control" style="background-color: #2f516f; color: white;">
-                  <option value="NIL">Select Customer</option>
+                <select required name="customername" id="customer" class="form-control" style="background-color: #2f516f; color: white;">
+                  <option value="">Select Customer</option>
                   {% for cust in customers %}
                     {% if cust.cid_id == cmp1.cid %}
                         <option text="{{ cust.customerid }}" value="{{ cust.firstname }} {{ cust.lastname }}">{{ cust.firstname }} {{ cust.lastname }}</option>
@@ -1568,7 +1568,7 @@ function test(taxamount) {
                             <div class="text-danger m-2" id="warnpan"></div>
                         </div>
 
-                        <div class="col-md-4 mt-3" >
+                        <!-- <div class="col-md-4 mt-3" >
                           <div>
                               <label for="validationCustom05">OPENING BALANCE</label>
                               <input type="text" id="openbalance" class="form-control" value=""  name="openbalance"
@@ -1577,7 +1577,26 @@ function test(taxamount) {
                                      >
                               <div class="text-danger m-2" ></div>
                           </div>
-                      </div>
+                      </div> -->
+                      <div class="col-md-4 mt-3" >
+                        <label for="validationCustom05">Opening Balance</label>
+                        <div class="d-flex">
+                            <select name="bal" id="bal" class="form-select text-white pl-1" style="background-color: #243e54; width: 25%; border-radius: 5px;">
+                                <option value="credit">Credit</option>
+                                <option value="debit">Debit</option>
+                            </select>
+                            <input type="text" class="form-control" name="openbalance" id="openbalance"
+                                style="background-color: #43596c;color: white;">
+                            <div class="text-danger m-2" ></div>
+                        </div>
+                       </div>
+
+                        <div class="col-md-4 mt-3" >
+                            <label for="validationCustom05">Credit Limit</label>
+                            <input type="text" class="form-control" name="crd_lmt"
+                                style="background-color: #43596c;color: white;" id="crd_lmt">
+                            <div class="text-danger m-2" ></div>
+                        </div>
 
                         <!-- <div class="col-md-4 mt-3" id="hai1">
                             <div >
@@ -2367,53 +2386,138 @@ function test(taxamount) {
                     
                     
             }
+
+            $(document).on('change', '#openbalance',function () {
+                openbal = $("#openbalance").val()
+                if($('#bal').val()=='credit'){
+                    if(openbal.slice(0,1) != '-'){
+                        if(parseFloat(openbal) != 0){
+                            document.getElementById("openbalance").value = "-"+openbal
+                        }else{
+                            document.getElementById("openbalance").value = openbal
+                        }
+                    }else{
+                        if(parseFloat(openbal) != 0){
+                            document.getElementById("openbalance").value = openbal
+                        }else{
+                            document.getElementById("openbalance").value = -1 * parseFloat(openbal)
+                        }
+                    }
+                }else{
+                    document.getElementById("openbalance").value = openbal
+                }
+            });
+
+            $(document).on('change', '#bal',function () {
+                openbal = $("#openbalance").val()
+                if(openbal != ""){
+                    if($('#bal').val()=='credit'){
+                        openbal = $("#openbalance").val()
+                        if (parseFloat(openbal) != 0){
+                            document.getElementById("openbalance").value = "-"+openbal
+                        }else{
+                            document.getElementById("openbalance").value = openbal
+                        }
+                    }else{
+                        openbal = $("#openbalance").val()
+                        document.getElementById("openbalance").value = -1*(parseFloat(openbal))
+                    }
+                }
+            });
           </script>
           <script>
                 // savecustomer ajax
+                // $(document).on("click", "#customerSave", function(){
+                
+                //     $.ajax({
+            
+                //         type : 'POST',
+                //         url:"{% url 'createcustomer_rbill' %}",
+
+                //         data:{
+                //             csrfmiddlewaretoken: '{{ csrf_token }}',
+                //             title : $('#title').val(),
+                //             firstname : $('#firstname').val(),
+                //             lastname : $('#lastname').val(),
+                //             company : $("#company").val(),
+                //             location : $("#location").val(),
+                //             openbalance : $("#openbalance").val(),
+                //             crd_lmt : $('#crd_lmt').val(),
+                //             email : $("#email1").val(),
+                //             website :$("#website").val(),
+                //             mobile :$("#mobile").val(),
+                //             street : $("#street").val(),
+                //             city : $("#city").val(),
+                //             state : $("#state").val(),
+                //             country : $("#country").val(),
+                //             pincode : $("#pinco").val(),
+                //             shipstreet : $("#shipstreet").val(),
+                //             shipcity : $("#shipcity").val(),
+                //             shipstate : $("#shipstate").val(),
+                //             shipcountry : $("#shipcountry").val(),
+                //             shippincode : $("#shippinco").val(),
+                //             gsttype :$("#gsttype").val(),
+                //             gstin :$("#gstin").val(),
+                //             panno :$("#panno").val(),
+
+                        
+                            
+                            
+                //         },
+                        
+                //         success: function(response) {
+                //             console.log("success")
+                //             document.getElementById("modalCustomer").reset();
+                //             reloadCustomer();
+                //         },
+                //     });        
+                // });
+
                 $(document).on("click", "#customerSave", function(){
                 
-                $.ajax({
-        
-                    type : 'POST',
-                    url:"{% url 'createcustomer_rbill' %}",
+                    $.ajax({
+            
+                        type : 'POST',
+                        url:"{% url 'customers' %}",
 
-                    data:{
-                        csrfmiddlewaretoken: '{{ csrf_token }}',
-                        title : $('#title').val(),
-                        firstname : $('#firstname').val(),
-                        lastname : $('#lastname').val(),
-                        company : $("#company").val(),
-                        location : $("#location").val(),
-                        openbalance : $("#openbalance").val(),
-                        email : $("#email1").val(),
-                        website :$("#website").val(),
-                        mobile :$("#mobile").val(),
-                        street : $("#street").val(),
-                        city : $("#city").val(),
-                        state : $("#state").val(),
-                        country : $("#country").val(),
-                        pincode : $("#pinco").val(),
-                        shipstreet : $("#shipstreet").val(),
-                        shipcity : $("#shipcity").val(),
-                        shipstate : $("#shipstate").val(),
-                        shipcountry : $("#shipcountry").val(),
-                        shippincode : $("#shippinco").val(),
-                        gsttype :$("#gsttype").val(),
-                        gstin :$("#gstin").val(),
-                        panno :$("#panno").val(),
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            title : $('#title').val(),
+                            firstname : $('#firstname').val(),
+                            lastname : $('#lastname').val(),
+                            company : $("#company").val(),
+                            location : $("#location").val(),
+                            openbalance : $("#openbalance").val(),
+                            crd_lmt : $('#crd_lmt').val(),
+                            email : $("#email1").val(),
+                            website :$("#website").val(),
+                            mobile :$("#mobile").val(),
+                            street : $("#street").val(),
+                            city : $("#city").val(),
+                            state : $("#state").val(),
+                            country : $("#country").val(),
+                            pincode : $("#pinco").val(),
+                            shipstreet : $("#shipstreet").val(),
+                            shipcity : $("#shipcity").val(),
+                            shipstate : $("#shipstate").val(),
+                            shipcountry : $("#shipcountry").val(),
+                            shippincode : $("#shippinco").val(),
+                            gsttype :$("#gsttype").val(),
+                            gstin :$("#gstin").val(),
+                            panno :$("#panno").val(),
 
-                    
                         
+                            
+                            
+                        },
                         
-                    },
-                    
-                    success: function(response) {
-                        console.log("success")
-                        document.getElementById("modalCustomer").reset();
-                        reloadCustomer();
-                    },
-                });        
-            });
+                        success: function(response) {
+                            console.log("success")
+                            document.getElementById("modalCustomer").reset();
+                            reloadCustomer();
+                        },
+                    });        
+                });
 
 
             function reloadCustomer() {

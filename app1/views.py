@@ -10060,7 +10060,8 @@ def getdatainv(request):
         crdtntitems = salescreditnote.objects.filter(customer=c_name ,cid =cmp1)
         for i in crdtntitems:
             dict = {
-                    'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
+                    # 'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
+                    'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':i.credit_no,'inv_amount':i.grandtotal
             }
             paymentList.append(dict)
 
@@ -30029,6 +30030,7 @@ def payment_view(request,id):
         b = x[1] + " " + x[2]
         custobject = customer.objects.get(firstname=a, lastname=b, cid=cmp1)
     inv_dtl=invoice.objects.filter(customername=pk,status="paid")
+    particulars = paymentitems.objects.filter(cid = cmp1, payment = pay)
     
   
     context = {
@@ -30036,6 +30038,7 @@ def payment_view(request,id):
         'cmp1':cmp1,
         'custobject':custobject,
         'inv_dtl':inv_dtl,
+        'particulars':particulars,
     }
 
     return render(request,'app1/payment_view.html',context)
@@ -40363,7 +40366,8 @@ def gochallan1(request):
 def gochallan2(request):
     cmp1 = company.objects.get(id=request.session["uid"])
     customers = customer.objects.filter(cid=cmp1).all()
-    invs = challan.objects.filter(cid=cmp1,status='Approved').all()
+    # invs = challan.objects.filter(cid=cmp1,status='Approved').all()
+    invs = challan.objects.filter(cid=cmp1,status='Saved').all()
     context = {'invoice': invs, 'customers': customers, 'cmp1': cmp1}
     return render(request,'app1/delivery_challan.html', context)
 
@@ -48691,35 +48695,41 @@ def addrecterm(request):
 #Shammem
 
 def checkDCNumberConti(request):
-    try:
-        temp = re.findall(r'\d+', request.GET['challan_number'])
-        number = list(map(int, temp))
-        entry = int(number[0]) - 1
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        try:
+            cmp1 = company.objects.get(id=request.session['uid'])
+            temp = re.findall(r'\d+', request.GET['challan_number'])
+            number = list(map(int, temp))
+            entry = int(number[0]) - 1
 
-        message=""
-        for i in challan.objects.all():
-            if challan.objects.filter(chal_no = request.GET['challan_number']).exists():
-                message="Challan No. already exists..!"
-                status = False
-                break
-            else:
-                pass
-            if int(re.findall(r'\d+', i.chal_no)[0]) == entry:
-                message=""
-                status = True
-                break
-            else:
-                message="Challan number is not continous..!"
-                status = False
-        # print(number)
+            message=""
+            for i in challan.objects.filter(cid = cmp1):
+                if challan.objects.filter(cid = cmp1, chal_no = request.GET['challan_number']).exists():
+                    message="Challan No. already exists..!"
+                    status = False
+                    break
+                else:
+                    pass
+                if int(re.findall(r'\d+', i.chal_no)[0]) == entry:
+                    message=""
+                    status = True
+                    break
+                else:
+                    message="Challan number is not continous..!"
+                    status = False
+            # print(number)
 
-        return JsonResponse({"status":status, "number":number, "message":message})
+            return JsonResponse({"status":status, "number":number, "message":message})
 
-    except Exception as e:
-        print(e)
-        status = False
-        message = "Something went wrong..!"
-        return JsonResponse({"status":status,"message":message})
+        except Exception as e:
+            print(e)
+            status = False
+            message = ""
+            return JsonResponse({"status":status,"message":message})
 #-------------------------------------------------------------------------------------------
 
 def challan_draftToSave(request, id):
@@ -48787,38 +48797,43 @@ def payment_received_sort_pnum(request):
 
 
 def checkPymntNumberConti(request):
-    try:
-        temp = re.findall(r'\d+', request.GET['payment_number'])
-        number = list(map(int, temp))
-        entry = int(number[0]) - 1
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        try:
+            cmp1 = company.objects.get(id=request.session['uid'])
+            temp = re.findall(r'\d+', request.GET['payment_number'])
+            number = list(map(int, temp))
+            entry = int(number[0]) - 1
 
-        message=""
-        for i in payment.objects.all():
-            print('refno&pnum',i.refno,request.GET['payment_number'])
-            # if i.refno == request.GET['payment_number']:
-            if payment.objects.filter(refno = request.GET['payment_number']).exists():
-                message="Payment No. already exists..!"
-                status = False
-                break
-            else:
-                pass
+            message=""
+            for i in payment.objects.filter(cid = cmp1):
+                # if i.refno == request.GET['payment_number']:
+                if payment.objects.filter(cid = cmp1, refno = request.GET['payment_number']).exists():
+                    message="Payment No. already exists..!"
+                    status = False
+                    break
+                else:
+                    pass
 
-            if int(re.findall(r'\d+', i.refno)[0]) == entry:
-                message=""
-                status = True
-                break
-            else:
-                message="Payment number is not continous..!"
-                status = False
-        # print(number)
+                if int(re.findall(r'\d+', i.refno)[0]) == entry:
+                    message=""
+                    status = True
+                    break
+                else:
+                    message="Payment number is not continous..!"
+                    status = False
+            # print(number)
 
-        return JsonResponse({"status":status, "number":number, "message":message})
+            return JsonResponse({"status":status, "number":number, "message":message})
 
-    except Exception as e:
-        print(e)
-        status = False
-        message = "Something went wrong..!"
-        return JsonResponse({"status":status,"message":message})
+        except Exception as e:
+            print(e)
+            status = False
+            message = ""
+            return JsonResponse({"status":status,"message":message})
 
 
 @login_required(login_url='regcomp')

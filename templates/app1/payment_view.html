@@ -96,7 +96,7 @@ hr {
         display: inline-block;
         padding: 0 10px;
         line-height: 37px;
-        float: right;
+        /* float: right; */
         position: relative;
     }
     
@@ -325,7 +325,7 @@ function uplodfile(){
                                                                     
                                                                     </div>
                                                                     <div class="col-4">
-                                                                        <p style="background-color:green;align:center; text-align: 14px;">&nbsp &nbspAmount<br>
+                                                                        <p style="background-color:green; text-align:center; text-align: 14px;">&nbsp &nbspAmount<br>
                                                                             &nbsp ₹ {{pay.amtapply}}</p>
                                                                     </div>
                                                                    
@@ -333,8 +333,20 @@ function uplodfile(){
                                         
                                                                 <div class="hr hr8 hr-double hr-dotted"></div>
                                         
-                                                                
-
+                                                                <div class="row">
+                                                                  
+                                                                    <div class="col-md-4" 
+                                                                        style="color:black;font-size:14px;margin-left:20px;">RECEIVED FROM
+                                                                        <br>
+                                                                        <p style="font-size:14px;color:black;"> {{custobject.street}},{{custobject.city}}<br>
+                                                                       {{custobject.pincode }}<br>
+                                                                        {{custobject.state}},{{custobject.country}} <br>
+                                                                         {{custobject.email}}
+                                                                        <br>
+                                                                         {{custobject.mobile}}<br></p>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
                                                                 <div class="row">
                                                                     <div class="col-sm-12">
                                                                         <table class="table table-resposive">
@@ -353,12 +365,12 @@ function uplodfile(){
                                                                             <tbody >
                                                                                 
                                                                 
-                                                                                {% for j in inv_dtl %}
+                                                                                {% for j in particulars %}
                                                                                 <tr >
-                                                                                  <td style="color: black;font-size: 14px">{{j.invoiceno}}</td>
-                                                                                  <td style="color: black;font-size: 14px">{{j.invoicedate}}</td>
-                                                                                  <td style="color: black;font-size: 14px">{{j.grandtotal}}</td>
-                                                                                  <td style="color: black;font-size: 14px">{{pay.amtapply}}</td>
+                                                                                  <td style="color: black;font-size: 14px">{{j.invno}}</td>
+                                                                                  <td style="color: black;font-size: 14px">{{j.invdate}}</td>
+                                                                                  <td style="color: black;font-size: 14px">{{j.invamount}}</td>
+                                                                                  <td style="color: black;font-size: 14px">{{j.paymentamount}}</td>
                                                                                  
                                                                                 </tr>
                                                                                 {% endfor %}
@@ -368,20 +380,8 @@ function uplodfile(){
                                                                         </table>
                                                                     </div>
                                                                 </div>
-
-                                                                <div class="row">
-                                                                  
-                                                                    <div class="col-md-4" 
-                                                                        style="color:black;font-size:14px;margin-left:20px;">RECEIVED FROM
-                                                                        <br>
-                                                                        <p style="font-size:14px;color:black;"> {{custobject.street}},{{custobject.city}}<br>
-                                                                       {{custobject.pincode }}<br>
-                                                                        {{custobject.state}},{{custobject.country}} <br>
-                                                                         {{custobject.email}}
-                                                                        <br>
-                                                                         {{custobject.mobile}}<br></p>
-                                                                    </div>
-                                                                </div>
+                                                                 <hr>
+                                                               
  
                                                         </div>
                                                     </div>

@@ -674,7 +674,7 @@ transform: rotate(-45deg); */
         display: inline-block;
         padding: 0 10px;
         line-height: 37px;
-        float: right;
+        /* float: right; */
         position: relative
     }
 
@@ -878,7 +878,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                    
                                     <hr>
                                     <div class="row">
@@ -888,7 +887,7 @@ transform: rotate(-45deg); */
                                     </div>
                                     <hr>
 
-                                    {% for j in estitem %}
+                                    <!-- {% for j in estitem %}
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
                                             <label for="title">
@@ -976,7 +975,49 @@ transform: rotate(-45deg); */
                                     <hr>
                                     <hr>
                                     
-                                    {% endfor %}
+                                    {% endfor %} -->
+                                    <div class="row">
+                                        <table class="table table-hover table-bordered table-dark productdetailsTable">
+                                            <thead class="" style="background: #36383b;">
+                                                <tr class="template3tablehead">
+                                                    <th class="text-center">Items</th>
+                                                    <th class="text-center">Quantity</th>
+                                                    <th class="text-center">Rate</th>
+                                                    <th class="text-center">Tax</th>
+                                                    <th class="text-center">Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody style="background: #1d586b;">
+                                                {% for itm in estitem %}
+                                                    <tr>
+                                                        <td class="text-center">{{ itm.product }}</td>
+                                                        <td class="text-center">{{ itm.quantity }}</td>
+                                                        <td class="text-center">{{ itm.rate  }}</td>
+                                                        <td class="text-center">{{ itm.tax  }}</td>
+                                                        <td class="text-center">{{ itm.total }}</td>
+                                                    </tr>
+                                                {% endfor %} 
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col mt-3">
+                                            <h2 class="mb-0 text-center">Bill Summary</h2>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-md-4 ml-5 mr-5 mt-3">
+                                            <label for="title">
+                                                <h6><b>Sub Total</b> </h6>
+                                            </label>
+                                        </div>
+                                        <div class="col-md-4 ml-5 mt-3">
+                                            <label for="title"><b>: {{ estimate.subtotal }}</b></label>
+
+                                        </div>
+                                    </div>
                                     {% if estimate.igst == 0 %}
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
@@ -989,7 +1030,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
                                             <label for="title">
@@ -1001,7 +1041,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                     {% else %}
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
@@ -1014,7 +1053,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                     {% endif %}
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
@@ -1027,7 +1065,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                     <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
                                             <label for="title">
@@ -1039,11 +1076,10 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                      <div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
                                             <label for="title">
-                                                <h5><b>Total</b></h5>
+                                                <h5><b>Grand Total</b></h5>
                                             </label>
                                         </div>
                                         <div class="col-md-4 ml-5 mt-3">
@@ -1051,7 +1087,6 @@ transform: rotate(-45deg); */
 
                                         </div>
                                     </div>
-                                    <hr>
                                     <hr>
                                     <!--<div class="row">
                                         <div class="col-md-4 ml-5 mr-5 mt-3">
