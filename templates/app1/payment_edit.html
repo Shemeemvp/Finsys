@@ -1,6 +1,13 @@
 {% extends 'app1/base.html' %}
 {% block body %}
     {% load static %}
+    <style>
+        input:read-only {
+            /* background-color: rgba(0,0,0,.4) !important; */
+            background-color: rgb(255 255 255 / 14%) !important;
+            color: #fff;
+        }
+    </style>
     <div class="page-content">
         <div class="card radius-15">
             <div class="card-body">
@@ -33,6 +40,14 @@
                                 <label class="scol-form-label">Email</label><br>
                                 <input type="email" name="email" value="{{ pay.email}}" id="email" class="form-control" placeholder="Email">
                             </div>
+                            <div class=" col-md-4">
+                                <label class="scol-form-label">GST Treatment</label>
+                                <input type="text" value="" name="gsttype" id="gst_trt_inp" readonly class="form-control" placeholder="Email">
+                            </div>
+                            <div class=" col-md-4 d-none" id="gstin_row" style="flex-direction: column;">
+                                <label class="scol-form-label">GST #</label>
+                                <input type="text" name="gstin" id="gstin_inp" readonly class="form-control" placeholder="Email">
+                            </div>
                             <!-- <div class="col-md-4">
                                 <label class="scol-form-label">Find by invoice number</label><br>
                                 <input type="fbin" name="findinvoice" id="fbin" class="form-control">
@@ -48,7 +63,7 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label class="col-form-label">Reference No</label>
-                                <input type="text" name="ref" value="{{ pay.referno}}"class="form-control">
+                                <input type="text" name="ref" value="{{ pay.referno}}"class="form-control" readonly>
                             </div>
                             <div class="col-md-8"></div>
                         </div> 

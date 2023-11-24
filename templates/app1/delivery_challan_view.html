@@ -820,7 +820,43 @@ transform: rotate(-45deg); */
 
 
                                 <div class="card-body">
-                                    <div class="card-title">
+                                    <div class="row mb-4 d-flex justify-content-between align-items-center">
+                                        <div class="col-md-4 mt-3">
+                                            <h5 style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Delivery Challan Details</h5>
+                                        </div>
+                                        <div class="col-md-4 mt-3"></div>
+                                        <div class="col-md-4 mt-3"></div>
+        
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Challan Status</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.status }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Challan Number</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.chal_no }}</p>
+                                        </div>
+                                    <!-- </div>
+                                    
+                                    <div class="row mb-4 d-flex justify-content-between align-items-center"> -->
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Challan Date</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.challan_date }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Challan Type</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.challan_type }}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- <div class="card-title">
                                         <div class="row">
                                             <div class="col mt-3">
                                                 <h2 class="mb-0 text-center">Delivery Challan Details</h2>
@@ -877,15 +913,15 @@ transform: rotate(-45deg); */
                                             <label for="title"><b>: {{ estimate.challan_type }}</b></label>
 
                                         </div>
-                                    </div>
+                                    </div> -->
                                    
                                     <hr>
-                                    <div class="row">
+                                    <!-- <div class="row">
                                         <div class="col mt-3">
                                             <h2 class="mb-0 text-center">Product Details</h2>
                                         </div>
                                     </div>
-                                    <hr>
+                                    <hr> -->
 
                                     <!-- {% for j in estitem %}
                                     <div class="row">
@@ -976,7 +1012,7 @@ transform: rotate(-45deg); */
                                     <hr>
                                     
                                     {% endfor %} -->
-                                    <div class="row">
+                                    <!-- <div class="row">
                                         <table class="table table-hover table-bordered table-dark productdetailsTable">
                                             <thead class="" style="background: #36383b;">
                                                 <tr class="template3tablehead">
@@ -999,9 +1035,59 @@ transform: rotate(-45deg); */
                                                 {% endfor %} 
                                             </tbody>
                                         </table>
+                                    </div> -->
+                                    
+                                    
+                                    <div class="row d-flex justify-content-between align-items-center">
+                                        <div class="col-md-4 mt-3">
+                                            <h5 style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Product Details</h5>
+                                        </div>
+                                        <div class="col-md-4 mt-3"></div>
+                                        <div class="col-md-4 mt-3"></div>
+                                        
+                                        {% for itm in estitem %}
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Name</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.product }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Quantity</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.quantity }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Rate</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.rate }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Tax</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.tax }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Discount</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.discount }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Total</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ itm.total }}</p>
+                                        </div>
+                                        {% endfor %}
                                     </div>
+
+
                                     <hr>
-                                    <div class="row">
+                                    <!-- <div class="row">
                                         <div class="col mt-3">
                                             <h2 class="mb-0 text-center">Bill Summary</h2>
                                         </div>
@@ -1075,16 +1161,70 @@ transform: rotate(-45deg); */
                                             <label for="title"><b>: {{ estimate.adjustment }}</b></label>
 
                                         </div>
+                                    </div> -->
+
+
+                                    <div class="row d-flex justify-content-between align-items-center">
+                                        <div class="col-md-4 mt-3">
+                                            <h5 style="border-bottom: 1px solid rgba(128, 128, 128, 0.6); width: fit-content;">Bill Summary</h5>
+                                        </div>
+                                        <div class="col-md-4 mt-3"></div>
+                                        <div class="col-md-4 mt-3"></div>
+        
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Sub Total</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.subtotal }}</p>
+                                        </div>
+                                        {% if estimate.igst != 0 %}
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">IGST</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.igst }}</p>
+                                        </div>
+                                        {% else %}
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">CGST</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.cgst }}</p>
+                                        </div>
+                                        <div class="col-md-6 d-flex justify-content-start px-0">
+                                            <div class="col-md-6 mt-3">
+                                                <h6 class="mb-0">SGST</h6>
+                                            </div>
+                                            <div class="col-md-6 mt-3">
+                                                <p class="mb-0 text-right">{{ estimate.sgst }}</p>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
                                     </div>
+                                    <div class="row d-flex justify-content-between align-items-center mb-3">
+                                        <div class="col-md-3 mt-3">
+                                            <h6 class="mb-0">Shipping Charge</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.shipping }}</p>
+                                        </div>
+                                        <div class="col-md-3 mt-3 vl">
+                                            <h6 class="mb-0">Adjustment</h6>
+                                        </div>
+                                        <div class="col-md-3 mt-3">
+                                            <p class="mb-0 text-right">{{ estimate.adjustment }}</p>
+                                        </div>
+                                    </div>
+
                                      <div class="row">
-                                        <div class="col-md-4 ml-5 mr-5 mt-3">
+                                        <div class="col-md-4 mr-5 mt-3">
                                             <label for="title">
                                                 <h5><b>Grand Total</b></h5>
                                             </label>
                                         </div>
-                                        <div class="col-md-4 ml-5 mt-3">
+                                        <div class="col-md-4 mt-3">
                                             <h5 for="title"><b>: {{ estimate.grand }}</b></h5>
-
                                         </div>
                                     </div>
                                     <hr>
@@ -1656,7 +1796,7 @@ transform: rotate(-45deg); */
                 <div class="my-3 page" size="A4" >
                     <div class="p-5">
                         <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
-                            <div class="ribbon-inner ribbon-open">{{estimate.status}}<!----></div>
+                            <div class="bg-info px-3 ribbon-inner ribbon-open" style="width: fit-content;">{{estimate.status}}<!----></div>
                         </div>
                         <div>
                             <center class="h3" style="color: #000;"><b>DELIVERY CHALLAN</b></center>
@@ -1884,7 +2024,7 @@ transform: rotate(-45deg); */
                 <div class="my-3 page" size="A4" >
                     <div class="p-5">
                         <div id="ember2512" class="tooltip-container ember-view ribbon text-ellipsis">
-                            <div class="ribbon-inner ribbon-open">{{estimate.status}}<!----></div>
+                            <div class="bg-info px-3 ribbon-inner ribbon-open" style="width: fit-content;">{{estimate.status}}<!----></div>
                         </div>
                         <div>
                             <center class="h3" style="color:var(--dark);"><b>DELIVERY CHALLAN</b></center>
@@ -2618,6 +2758,8 @@ transform: rotate(-45deg); */
         var printContents = document.getElementById(sectionId).innerHTML;
         var originalContents = document.body.innerHTML;
         // document.getElementById('card').style.display='none'
+        document.body.style.backgroundColor = 'white';
+        $('.page-content-wrapper').css('background-color','white');
         document.body.innerHTML = printContents;
         // printContents.window.print();
         window.print();

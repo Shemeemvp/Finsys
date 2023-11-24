@@ -75,7 +75,10 @@
                                 <input type="text" name="ref" id="payment_num" value="PL-" class="form-control">
                                 <span id="payment_warning" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4 mt-3"></div>
+                            <div class="col-md-4 mt-3">
+                                <label for="reference_num" class="col-form-label">Reference No</label>
+                                <input type="text" name="reference_num" id="reference_num" value="{{referno}}" readonly class="form-control">
+                            </div>
                         </div>
                         <!-- <div class="row">
                             <div class="col-md-4">
@@ -217,11 +220,11 @@
                                     <tbody>
                                     <tr>
                                         <th class="text-center">Amount to Apply</th>
-                                        <td class="text-center"><input type="number" name='amtapply' id="amtoapply" placeholder='0.00' class="form-control"></td>
+                                        <td class="text-center"><input type="number" name='amtapply' id="amtoapply" min="0" step="any" placeholder='0.00' class="form-control"></td>
                                     </tr>
                                     <tr>
                                         <th class="text-center">Amount to Credit</th>
-                                        <td class="text-center"><input type="number" min="0" step="0.00" name='amtcredit' id="amtcredit" placeholder='0.00' class="form-control"></td>
+                                        <td class="text-center"><input type="number" min="0" step="any" name='amtcredit' id="amtcredit" placeholder='0.00' class="form-control"></td>
                                     </tr>
                                     </tbody>
                                 </table>

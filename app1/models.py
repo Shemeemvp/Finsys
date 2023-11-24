@@ -2484,3 +2484,11 @@ class ConvertBill(models.Model):
 class deletedcreditnotes(models.Model):
     cid = models.ForeignKey(company,on_delete=models.CASCADE,null=True)
     reference_number = models.CharField(max_length=50)
+
+class DeletedPaymentReceived(models.Model):
+    cid = models.ForeignKey(company,on_delete=models.CASCADE,null=True)
+    referno = models.CharField(max_length=50)
+
+class DeletedChallan(models.Model):
+    cid = models.ForeignKey(company,on_delete=models.CASCADE,null=True)
+    ref = models.CharField(max_length=50)

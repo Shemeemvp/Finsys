@@ -1378,6 +1378,8 @@ urlpatterns = [
     path('get_bankdata', views.get_bankdata, name='get_bankdata'),
     
     path('check_user_loan',views.check_user_loan,name='check_user_loan'),
+
+    path('payment_draf_to_save/<int:id>',views.paymentDraftToSave, name='paymentDraftToSave'),
  
  
 ]

@@ -29735,8 +29735,30 @@ def gopayment_received(request):
 
 @login_required(login_url='regcomp')
 def payment_received(request):
-    
-        cmp1 = company.objects.get(id=request.session["uid"])
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+
+        # Fetching last bill and assigning upcoming ref no as current + 1
+        # Also check for if any bill is deleted and ref no is continuos w r t the deleted bill
+        latest_bill = payment.objects.filter(cid = cmp1).order_by('-id').first()
+
+        if latest_bill:
+            last_number = int(latest_bill.referno)
+            new_number = last_number + 1
+        else:
+            new_number = 1
+
+        if DeletedPaymentReceived.objects.filter(cid = cmp1).exists():
+            deleted = DeletedPaymentReceived.objects.get(cid = cmp1)
+            
+            if deleted:
+                while int(deleted.referno) >= new_number:
+                    new_number+=1
+
         customers = customer.objects.filter(cid=cmp1)
         toda = date.today()
         tod = toda.strftime("%Y-%m-%d")
@@ -29751,8 +29773,10 @@ def payment_received(request):
         bnk_acnt = bankings_G.objects.filter(cid = cmp1)
 
         item = itemtable.objects.filter(cid=cmp1)
-        context = {'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv, 'ser': ser,'item':item,
-                   'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep,'pmethods':pmthds, 'bank':bnk_acnt}
+        context = {
+            'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv, 'ser': ser,'item':item,
+            'tod': tod,'acounts_cash':acounts_cash,'acounts_bnk':acounts_bnk,'acounts_undep':acounts_undep,'pmethods':pmthds, 'bank':bnk_acnt,'referno':new_number,
+        }
         return render(request, 'app1/payment_received.html', context)
 #----------------------------------------------------------------------------------------------
     
@@ -29821,8 +29845,8 @@ def paymentcreate2(request):
                         amtapply=request.POST['amtapply'],
                         amtcredit=request.POST['amtcredit'],
                         cid=cmp1,
-                        # referno=request.POST['ref'],
                         refno=request.POST['ref'],
+                        referno = request.POST['reference_num'],
                         status = stat,
 
                     #    descrip=request.POST['invno0'], duedate=request.POST['duedate0'], orgamt=request.POST['inv_amount0'],
@@ -29858,8 +29882,8 @@ def paymentcreate2(request):
                        
                         )
         pay2.save()
-        pay2.referno = pay2.paymentid
-        pay2.save()
+        # pay2.referno = pay2.paymentid
+        # pay2.save()
 
         statment2=cust_statment()
         statment2.customer = pay2.customer
@@ -30030,7 +30054,6 @@ def payment_view(request,id):
         b = x[1] + " " + x[2]
         custobject = customer.objects.get(firstname=a, lastname=b, cid=cmp1)
     inv_dtl=invoice.objects.filter(customername=pk,status="paid")
-    particulars = paymentitems.objects.filter(cid = cmp1, payment = pay)
     
   
     context = {
@@ -30038,7 +30061,6 @@ def payment_view(request,id):
         'cmp1':cmp1,
         'custobject':custobject,
         'inv_dtl':inv_dtl,
-        'particulars':particulars,
     }
 
     return render(request,'app1/payment_view.html',context)
@@ -30110,6 +30132,8 @@ def edit_payment(request,id):
     acounts_bnk = accounts1.objects.filter(cid=cmp1,acctype='Bank')
     acounts_cash=accounts1.objects.filter(cid=cmp1,acctype='Cash')
     acounts_undep=accounts1.objects.filter(cid=cmp1,acctype='Undepposited Funds')
+    pmthds = paymentmethod.objects.filter(cid = cmp1)
+    bnk_acnt = bankings_G.objects.filter(cid = cmp1)
 
     count = paymentitems.objects.filter(payment=pay).count()
     print(count)
@@ -30122,6 +30146,7 @@ def edit_payment(request,id):
         'acounts_cash':acounts_cash,
         'acounts_bnk':acounts_bnk,
         'acounts_undep':acounts_undep,
+        'pmethods':pmthds, 'bank':bnk_acnt,
     }
 
     return render(request,'app1/payment_edit.html',context)
@@ -30213,6 +30238,21 @@ def edit_payment2(request,id):
 def delete_payment(request,id):
     cmp1 = company.objects.get(id=request.session['uid'])
     pay = payment.objects.get(paymentid=id,cid = cmp1)
+
+    # Storing ref number to deleted table
+    # if entry exists and lesser than the current, update and save => Only one entry per company
+
+    if DeletedPaymentReceived.objects.filter(cid = cmp1).exists():
+        deleted = DeletedPaymentReceived.objects.get(cid = cmp1)
+        if deleted:
+            if int(pay.referno) > int(deleted.referno):
+                deleted.referno = pay.referno
+                deleted.save()
+        
+    else:
+        deleted = DeletedPaymentReceived(cid = cmp1, referno = pay.referno)
+        deleted.save()
+
     pay.delete()
 
     return redirect('gopayment_received')
@@ -40024,31 +40064,51 @@ def delivery_challan(request):
     return render(request,'app1/delivery_challan.html', context)
     
 def goadd_dl_challan(request):
-    try:
-        customers = customer.objects.all()
-        toda = date.today()
-        tod = toda.strftime("%Y-%m-%d")
-        cmp1 = company.objects.get(id=request.session["uid"])
-        inv = inventory.objects.filter(cid=cmp1)
-        bun = bundle.objects.filter(cid=cmp1)
-        noninv = noninventory.objects.filter(cid=cmp1)
-        ser = service.objects.filter(cid=cmp1)
-        item = itemtable.objects.filter(cid=cmp1).all()
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        try:
+            # Fetching last bill and assigning upcoming ref no as current + 1
+            # Also check for if any bill is deleted and ref no is continuos w r t the deleted bill
+            latest_bill = challan.objects.filter(cid = cmp1).order_by('-id').first()
 
-        unit = unittable.objects.filter(cid=cmp1)
-        acc  = accounts1.objects.filter(acctype='Cost of Goods Sold',cid=cmp1)
-        acc1  = accounts1.objects.filter(acctype='Sales',cid=cmp1)
+            if latest_bill:
+                last_number = int(latest_bill.ref)
+                new_number = last_number + 1
+            else:
+                new_number = 1
+
+            if DeletedChallan.objects.filter(cid = cmp1).exists():
+                deleted = DeletedChallan.objects.get(cid = cmp1)
+                
+                if deleted:
+                    while int(deleted.ref) >= new_number:
+                        new_number+=1
+        
+            customers = customer.objects.all()
+            toda = date.today()
+            tod = toda.strftime("%Y-%m-%d")
+            inv = inventory.objects.filter(cid=cmp1)
+            bun = bundle.objects.filter(cid=cmp1)
+            noninv = noninventory.objects.filter(cid=cmp1)
+            ser = service.objects.filter(cid=cmp1)
+            item = itemtable.objects.filter(cid=cmp1).all()
+
+            unit = unittable.objects.filter(cid=cmp1)
+            acc  = accounts1.objects.filter(acctype='Cost of Goods Sold',cid=cmp1)
+            acc1  = accounts1.objects.filter(acctype='Sales',cid=cmp1)
 
 
 
-        context = {'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv,'item' :item,
-                   'ser': ser,
-                   'tod': tod,
-                   'unit':unit,'acc':acc,'acc1':acc1,
-                   }
-        return render(request, 'app1/add_deliver_challan.html', context)
-    except:
-        return redirect('delivery_challan') 
+            context = {
+                'cmp1': cmp1, 'customers': customers, 'inv': inv, 'bun': bun, 'noninv': noninv,'item' :item,'ser': ser,'tod': tod,'unit':unit,'acc':acc,'acc1':acc1,'referno':new_number,
+            }
+            return render(request, 'app1/add_deliver_challan.html', context)
+        except:
+            return redirect('delivery_challan') 
     
 @login_required(login_url='regcomp')
 
@@ -40142,7 +40202,7 @@ def challancreate(request):
                             taxamount = float(request.POST['totaltax']),
                             grand=float(request.POST['t_total']),
                             shipping=float(request.POST['ship']),
-                            # ref=request.POST['ref'],
+                            ref=request.POST['ref'],
                             chal_no =request.POST['chal_no'],
                             adjustment =float(request.POST['Adjustment']),
                             status= stat
@@ -40150,9 +40210,9 @@ def challancreate(request):
                         )
             inv2.save()
             
-            chln = challan.objects.get(id = inv2.id)
-            chln.ref = inv2.id
-            chln.save()
+            # chln = challan.objects.get(id = inv2.id)
+            # chln.ref = inv2.id
+            # chln.save()
 
             product=request.POST.getlist('item[]')
             hsn=request.POST.getlist('hsn[]')
@@ -40273,6 +40333,20 @@ def deletechallan(request,id):
     try:
         cmp1 = company.objects.get(id=request.session['uid'])
         upd = challan.objects.get(id=id, cid=cmp1)
+
+        # Storing ref number to deleted table
+        # if entry exists and lesser than the current, update and save => Only one entry per company
+
+        if DeletedChallan.objects.filter(cid = cmp1).exists():
+            deleted = DeletedChallan.objects.get(cid = cmp1)
+            if deleted:
+                if int(upd.ref) > int(deleted.ref):
+                    deleted.ref = upd.ref
+                    deleted.save()
+            
+        else:
+            deleted = DeletedChallan(cid = cmp1, ref = upd.ref)
+            deleted.save()
         
         upd.delete()
         os.remove(upd.challan.path)
@@ -51041,3 +51115,14 @@ def check_user_loan(request):
 
 
 
+def paymentDraftToSave(request, id):
+    if 'uid' in request.session:
+        if request.session.has_key('uid'):
+            uid = request.session['uid']
+        else:
+            return redirect('/')
+        cmp1 = company.objects.get(id=request.session['uid'])
+        pay = payment.objects.get(cid = cmp1, paymentid = id)
+        pay.status = 'Saved'
+        pay.save()
+        return redirect(payment_view, id)
