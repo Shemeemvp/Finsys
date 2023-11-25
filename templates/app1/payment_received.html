@@ -53,11 +53,11 @@
                             </div>
                             <div class=" col-md-4 mt-3">
                                 <label class="scol-form-label">GST Treatment</label>
-                                <input type="text" name="gsttype" id="gst_trt_inp" readonly class="form-control" placeholder="Email">
+                                <input type="text" name="gsttype" id="gst_trt_inp" readonly class="form-control" placeholder="GST Type">
                             </div>
                             <div class=" col-md-4 mt-3 d-none" id="gstin_row" style="flex-direction: column;">
                                 <label class="scol-form-label">GST #</label>
-                                <input type="text" name="gstin" id="gstin_inp" readonly class="form-control" placeholder="Email">
+                                <input type="text" name="gstin" id="gstin_inp" readonly class="form-control" placeholder="GSTIN">
                             </div>
                             <!-- <div class="col-md-4">
                                 <label class="scol-form-label">Find by invoice number</label><br>
@@ -72,7 +72,7 @@
                             </div>
                             <div class="col-md-4 mt-3">
                                 <label class="col-form-label">Payment No</label>
-                                <input type="text" name="ref" id="payment_num" value="PL-" class="form-control">
+                                <input type="text" name="ref" id="payment_num" value="PL-{{referno}}" class="form-control">
                                 <span id="payment_warning" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 mt-3">
@@ -298,8 +298,7 @@
                     </div>
                 </div>   
             </div>
-        </div>   
-    </div>
+        </div>
 
     <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
     <script>
@@ -445,7 +444,7 @@
         });
     </script>
     <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
         $('#payment_num').on('blur', function() {
           var num = $('#payment_num').val();
         //   alert(num)
@@ -532,7 +531,7 @@
                                     <td><input type="text" name='inv_type[]' id="" value="${invdata[key]['inv_type']}" class="form-control"/></td>
                                     <td><input type="text" name='trans_no[]' value="${invdata[key]['trans_no']}" id="" class="form-control"/></td>
                                     <td><input type="number" readonly name='inv_amount[]' id="inv_amount${parseInt(key)+1}" value="${invdata[key]['inv_amount']}" class="form-control"/></td>
-                                    <td><input type="number" name='payment[]' onkeyup="calcBalance(${parseInt(key)+1})" id="payment${parseInt(key)+1}" placeholder='0.00' class="form-control total pymnt_rcvd"/></td>
+                                    <td><input type="number" name='payment[]' onkeyup="calcBalance(${parseInt(key)+1})" id="payment${parseInt(key)+1}" min="0" step="any" placeholder='0.00' class="form-control total pymnt_rcvd"/></td>
                                     <td><input type="number" readonly name='balance[]' id="balance${parseInt(key)+1}" placeholder='0.00' class="form-control total blnc_amnts"/></td>
                                 </tr>
                             `
@@ -684,6 +683,11 @@
 
             var balAmount = parseFloat(amount) - parseFloat(paid)
             bal.val(balAmount.toFixed(2));
+            if(parseFloat(paid) > parseFloat(amount)){
+                alert('Amount is greater than invoice amount.!')
+                $('#payment'+rowId).val(amount)
+                bal.val(0);
+            }
 
             calcApplyAmount()
             calcCreditAmount()

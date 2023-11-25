@@ -1181,6 +1181,10 @@ class payment(models.Model):
     balance= models.FloatField(default='0')
     
     #added -shemeem
+    bankacc = models.CharField(max_length=100, null=True, blank = True)
+    cheq_id = models.CharField(max_length=100, null=True, blank = True)
+    creditcard = models.CharField(max_length=100, null=True, blank = True)
+    upi = models.CharField(max_length=100, null=True, blank = True)
     py_status = (
         ('Draft','Draft'),
         ('Saved','Saved')
@@ -1196,6 +1200,7 @@ class paymentitems(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     # inv = models.ForeignKey(invoice, on_delete=models.CASCADE,null=True)
     invdate = models.CharField(max_length=100, default='')
+    invtype = models.CharField(max_length=100, null=True, blank = True) #added shemeem
     invno = models.CharField(max_length=100, default='')
     duedate = models.CharField(max_length=100, default='')
     invamount = models.CharField(max_length=100, default='')

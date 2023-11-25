@@ -29744,7 +29744,7 @@ def payment_received(request):
 
         # Fetching last bill and assigning upcoming ref no as current + 1
         # Also check for if any bill is deleted and ref no is continuos w r t the deleted bill
-        latest_bill = payment.objects.filter(cid = cmp1).order_by('-id').first()
+        latest_bill = payment.objects.filter(cid = cmp1).order_by('-paymentid').first()
 
         if latest_bill:
             last_number = int(latest_bill.referno)
@@ -29847,6 +29847,10 @@ def paymentcreate2(request):
                         cid=cmp1,
                         refno=request.POST['ref'],
                         referno = request.POST['reference_num'],
+                        bankacc = request.POST['bank_acc'],
+                        cheq_id = request.POST['chq_id'],
+                        creditcard = request.POST['ccnum'],
+                        upi = request.POST['upiid'],
                         status = stat,
 
                     #    descrip=request.POST['invno0'], duedate=request.POST['duedate0'], orgamt=request.POST['inv_amount0'],
@@ -29925,22 +29929,24 @@ def paymentcreate2(request):
         invamount = request.POST.getlist("inv_amount[]")
         balamount = request.POST.getlist("balance[]")
         paymentamount = request.POST.getlist("payment[]")
+        invtype = request.POST.getlist('inv_type[]')
 
         payment_id=payment.objects.get(paymentid = pay2.paymentid )
 
-        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate) and invno and duedate and invamount and balamount and paymentamount and invdate :
-            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate)
+        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(invtype) and invtype and invno and duedate and invamount and balamount and paymentamount and invdate :
+            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate, invtype)
             mapped=list(mapped)
             for ele in mapped:
                 salesorderAdd,created = paymentitems.objects.get_or_create(
                     invno = ele[0],
                     duedate=ele[1],
                     invamount=ele[2],
-                    balamount=float(ele[2]) - float(ele[4]) ,
+                    balamount=ele[3] ,
                     paymentamount=ele[4],
                     payment=payment_id,
                     cid = cmp1,
                     invdate=ele[5],
+                    invtype = ele[6]
                      )
                
                 if ele[0] != "Customer opening balance":
@@ -30127,13 +30133,14 @@ def edit_payment(request,id):
     b = x[1]
     if x[2] is not None:
         b = x[1] + " " + x[2]
-        custobject = customer.objects.get(firstname=a, lastname=b, cid=cmp1)
+    custobject = customer.objects.get(firstname=a, lastname=b, cid=cmp1)
     payitem = paymentitems.objects.filter(payment=pay) 
     acounts_bnk = accounts1.objects.filter(cid=cmp1,acctype='Bank')
     acounts_cash=accounts1.objects.filter(cid=cmp1,acctype='Cash')
     acounts_undep=accounts1.objects.filter(cid=cmp1,acctype='Undepposited Funds')
     pmthds = paymentmethod.objects.filter(cid = cmp1)
     bnk_acnt = bankings_G.objects.filter(cid = cmp1)
+    customers = customer.objects.filter(cid=cmp1)
 
     count = paymentitems.objects.filter(payment=pay).count()
     print(count)
@@ -30147,6 +30154,7 @@ def edit_payment(request,id):
         'acounts_bnk':acounts_bnk,
         'acounts_undep':acounts_undep,
         'pmethods':pmthds, 'bank':bnk_acnt,
+        'customers':customers,
     }
 
     return render(request,'app1/payment_edit.html',context)
@@ -30158,44 +30166,68 @@ def edit_payment2(request,id):
         cmp1 = company.objects.get(id=request.session["uid"])
         pay = payment.objects.get(paymentid=id,cid=cmp1)
 
-        pay.customer = request.POST['customername']
+        pay.customer = request.POST['customer']
         pay.email = request.POST['email']
         pay.paymdate = request.POST['paymdate']
         pay.pmethod = request.POST['pmethod']
         
-        pay.depto = request.POST['depto']
+        # pay.depto = request.POST['depto']
         
-        pay.amtreceived = request.POST['amtreceived']
+        pay.amtreceived = request.POST['amtapply']
         pay.amtapply = request.POST['amtapply']
         pay.amtcredit = request.POST['amtcredit']
-        pay.referno = request.POST['ref']
+        pay.refno = request.POST['ref']
+        bankacc = request.POST['bank_acc']
+        cheq_id = request.POST['chq_id']
+        creditcard = request.POST['ccnum']
+        upi = request.POST['upiid']
         pay.save()
 
 
-        invno = request.POST.getlist("invno[]")
-        invdate = request.POST.getlist("invdate[]")
-
+        invno = request.POST.getlist("trans_no[]")
+        invdate = request.POST.getlist("inv_date[]")
         duedate = request.POST.getlist("duedate[]")
         invamount = request.POST.getlist("inv_amount[]")
-        balamount = request.POST.getlist("openbal[]")
+        balamount = request.POST.getlist("balance[]")
         paymentamount = request.POST.getlist("payment[]")
-
         payitemid = request.POST.getlist("id[]")
+        invtype = request.POST.getlist('inv_type[]')
 
         payment_id=payment.objects.get(paymentid = pay.paymentid )
 
-        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(invdate) and invno and duedate and invamount and balamount and paymentamount and invdate and payitemid :
-            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate,payitemid)
+        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(payitemid)==len(invtype) and invtype and invno and duedate and invamount and balamount and paymentamount and invdate and payitemid :
+            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate,payitemid,invtype)
             mapped=list(mapped)
             for ele in mapped:
-                created = paymentitems.objects.filter(cid=cmp1,payment=ele[6]).update(
-                    invno = ele[0],
-                    duedate=ele[1],
-                    invamount=ele[2],
-                    balamount=ele[3],
-                    paymentamount=ele[4],
-                    invdate=ele[5],
-                     )
+                print('ele is ==== ',ele[6])
+                if int(ele[6]) == 0:
+                    paymentitems.objects.filter(cid=cmp1,payment = payment_id).delete()
+                    print('deleted===')
+                    break
+            
+            for ele in mapped:
+                if int(ele[6]) != 0:
+                    created = paymentitems.objects.filter(cid=cmp1,id = ele[6]).update(
+                        invno = ele[0],
+                        duedate=ele[1],
+                        invamount=ele[2],
+                        balamount=ele[3],
+                        paymentamount=ele[4],
+                        invdate=ele[5],
+                        invtype = ele[7],
+                    )
+                else:
+                    new = paymentitems.objects.create(
+                        invno = ele[0],
+                        duedate=ele[1],
+                        invamount=ele[2],
+                        balamount=ele[3],
+                        paymentamount=ele[4],
+                        invdate=ele[5],
+                        invtype = ele[7],
+                        cid = cmp1,
+                        payment = payment_id,
+                    )
                 # invitems = invoice.objects.get(cid=cmp1,invoiceno=ele[0])
                 
                 # print(invitems)
