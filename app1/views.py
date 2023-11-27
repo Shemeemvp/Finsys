@@ -10031,7 +10031,7 @@ def getdatainv(request):
             try:
                 cust1 = customer.objects.get(firstname=a,lastname=b,cid =cmp1,opnbalance_status="Default")
                 dict = {
-                    'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
+                    'id':cust1.customerid,'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
                 }
                 paymentList.append(dict)
                 date = cust1.date
@@ -10042,7 +10042,7 @@ def getdatainv(request):
             except:
                 cust1 = customer.objects.get(firstname=a,lastname=b,cid =cmp1)
                 dict = {
-                    'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
+                    'id':cust1.customerid,'date':cust1.date.strftime('%m/%d/%Y'),'inv_type':'Opening Balance','trans_no':'','inv_amount':cust1.opening_balance
                 }
                 paymentList.append(dict)
                 date = cust1.date
@@ -10053,22 +10053,22 @@ def getdatainv(request):
         invitems = invoice.objects.filter(customername=c_name ,cid =cmp1,status='Approved')
         for i in invitems:
             dict = {
-                    'date':i.invoicedate.strftime('%m/%d/%Y'),'inv_type':'Invoice','trans_no':i.invoice_orderno,'inv_amount':i.grandtotal
+                'id':i.invoiceid,'date':i.invoicedate.strftime('%m/%d/%Y'),'inv_type':'Invoice','trans_no':i.invoice_orderno,'inv_amount':round(float(i.grandtotal),2)
             }
             paymentList.append(dict)
         
         crdtntitems = salescreditnote.objects.filter(customer=c_name ,cid =cmp1)
         for i in crdtntitems:
             dict = {
-                    # 'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
-                    'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':i.credit_no,'inv_amount':i.grandtotal
+                # 'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
+                'id':i.screditid,'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':i.credit_no,'inv_amount':i.grandtotal
             }
             paymentList.append(dict)
 
         retinvitesm = RetainerInvoices.objects.filter(customer=c_name1 ,cid =cmp1, status = 'Sent')
         for i in retinvitesm:
             dict = {
-                    'date':i.invoice_date.strftime('%m/%d/%Y'),'inv_type':'Retainer Invoice','trans_no':i.invoice_number,'inv_amount':i.total_amount
+                'id':i.id,'date':i.invoice_date.strftime('%m/%d/%Y'),'inv_type':'Retainer Invoice','trans_no':i.invoice_number,'inv_amount':i.total_amount
             }
             paymentList.append(dict)
 
@@ -10076,7 +10076,7 @@ def getdatainv(request):
         recinvitesm = recinvoice.objects.filter(customername=c_name1 ,cid =cmp1)
         for i in recinvitesm:
             dict = {
-                    'date':i.startdate.strftime('%m/%d/%Y'),'inv_type':'Recurring Invoice','trans_no':i.recinvoiceno,'inv_amount':i.grandtotal
+                'id':i.recinvoiceid,'date':i.startdate.strftime('%m/%d/%Y'),'inv_type':'Recurring Invoice','trans_no':i.recinvoiceno,'inv_amount':i.grandtotal
             }
             paymentList.append(dict)
 
@@ -28478,7 +28478,8 @@ def invoice_view(request,id):
 
     dis = 0
     for i in invitem:
-        dis += int(i.discount)
+        # dis += int(i.discount)
+        dis += float(i.discount) #changed shemeem - to handle discount values with decimals '0.0'
 
     context ={
         'invoice':upd,
@@ -29930,11 +29931,12 @@ def paymentcreate2(request):
         balamount = request.POST.getlist("balance[]")
         paymentamount = request.POST.getlist("payment[]")
         invtype = request.POST.getlist('inv_type[]')
+        invid = request.POST.getlist('inv_id[]')
 
         payment_id=payment.objects.get(paymentid = pay2.paymentid )
 
-        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(invtype) and invtype and invno and duedate and invamount and balamount and paymentamount and invdate :
-            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate, invtype)
+        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(invtype)==len(invid) and invid and invtype and invno and duedate and invamount and balamount and paymentamount and invdate :
+            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate, invtype,invid)
             mapped=list(mapped)
             for ele in mapped:
                 salesorderAdd,created = paymentitems.objects.get_or_create(
@@ -29942,12 +29944,44 @@ def paymentcreate2(request):
                     duedate=ele[1],
                     invamount=ele[2],
                     balamount=ele[3] ,
-                    paymentamount=ele[4],
+                    paymentamount= 0 if ele[4] == "" else ele[4],
                     payment=payment_id,
                     cid = cmp1,
                     invdate=ele[5],
-                    invtype = ele[6]
-                     )
+                    invtype = ele[6],
+                    invid = ele[7]
+                )
+
+                # added - shemeem == updating opening balance and invoice amounts based on payment received.
+                amt = 0 if ele[4] == "" else ele[4]
+                if ele[6] == 'Opening Balance':
+                    cust = customer.objects.get(customerid = ele[7])
+                    cust.opening_balance -= float(amt)
+                    cust.save()
+                
+                if ele[6] == 'Invoice':
+                    inv = invoice.objects.get(invoiceid = ele[7])
+                    inv.grandtotal -= float(amt)
+                    inv.save()
+
+                if ele[6] == 'Credit Note':
+                    cn = salescreditnote.objects.get(screditid = ele[7])
+                    cn.grandtotal = float(cn.grandtotal) - float(amt)
+                    cn.save()
+                    
+                if ele[6] == 'Retainer Invoice':
+                    rtInv = RetainerInvoices.objects.get(id = ele[7])
+                    rtInv.total_amount -= float(amt)
+                    rtInv.save()
+
+                if ele[6] == 'Reccurring Invoice':
+                    rcInv = recinvoice.objects.get(recinvoiceid = ele[7])
+                    rcInv.grandtotal -= float(amt)
+                    rcInv.save()
+
+                #----------------------------
+
+
                
                 if ele[0] != "Customer opening balance":
                     try:
@@ -30192,21 +30226,95 @@ def edit_payment2(request,id):
         paymentamount = request.POST.getlist("payment[]")
         payitemid = request.POST.getlist("id[]")
         invtype = request.POST.getlist('inv_type[]')
+        invid = request.POST.getlist('inv_id[]')
 
         payment_id=payment.objects.get(paymentid = pay.paymentid )
 
-        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(payitemid)==len(invtype) and invtype and invno and duedate and invamount and balamount and paymentamount and invdate and payitemid :
-            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate,payitemid,invtype)
+        if len(invno)==len(duedate)==len(invamount)==len(balamount)==len(paymentamount)==len(invdate)==len(payitemid)==len(invtype)==len(invid) and invid and invtype and invno and duedate and invamount and balamount and paymentamount and invdate and payitemid :
+            mapped=zip(invno,duedate,invamount,balamount,paymentamount,invdate,payitemid,invtype,invid)
             mapped=list(mapped)
+
+            # added - shemeem -> if ele[6] is 0, which means items are new, so, updating the payment amounts(adding amounts back) and removing the old items of corresponding payment received entry.
             for ele in mapped:
-                print('ele is ==== ',ele[6])
                 if int(ele[6]) == 0:
+                    pyItms = paymentitems.objects.filter(cid=cmp1,payment = payment_id)
+
+                    for item in pyItms:
+                        item.paymentamount = 0 if item.paymentamount == "" else item.paymentamount
+                        if item.invtype == 'Opening Balance':
+                            cust = customer.objects.get(customerid = item.invid)
+                            cust.opening_balance += float(item.paymentamount)
+                            cust.save()
+                        if item.invtype == 'Invoice':
+                            inv = invoice.objects.get(invoiceid = item.invid)
+                            inv.grandtotal += float(item.paymentamount)
+                            inv.save()
+
+                        if item.invtype == 'Credit Note':
+                            cn = salescreditnote.objects.get(screditid = item.invid)
+                            cn.grandtotal = float(cn.grandtotal) + float(item.paymentamount)
+                            cn.save()
+                            
+                        if item.invtype == 'Retainer Invoice':
+                            rtInv = RetainerInvoices.objects.get(id = item.invid)
+                            rtInv.total_amount += float(item.paymentamount)
+                            rtInv.save()
+
+                        if item.invtype == 'Reccurring Invoice':
+                            rcInv = recinvoice.objects.get(recinvoiceid = item.invid)
+                            rcInv.grandtotal += float(item.paymentamount)
+                            rcInv.save()
+
                     paymentitems.objects.filter(cid=cmp1,payment = payment_id).delete()
                     print('deleted===')
                     break
             
             for ele in mapped:
                 if int(ele[6]) != 0:
+                    # updating the payment amount along with updating the opening bal and invoice amounts comparing with existing and edited payment amounts
+                    item = paymentitems.objects.get(id = ele[6])
+                    crAmt = float(item.paymentamount)
+                    
+                    if ele[7] == 'Opening Balance':
+                        cust = customer.objects.get(customerid = ele[8])
+                        if crAmt < float(ele[4]):
+                            cust.opening_balance -=  abs(crAmt - float(ele[4]))
+                        elif crAmt > float(ele[4]):
+                            cust.opening_balance += abs(crAmt - float(ele[4]))
+                        cust.save()
+                    
+                    if ele[7] == 'Invoice':
+                        inv = invoice.objects.get(invoiceid = ele[8])
+                        if crAmt < float(ele[4]):
+                            inv.grandtotal -=  abs(crAmt - float(ele[4]))
+                        elif crAmt > float(ele[4]):
+                            inv.grandtotal += abs(crAmt - float(ele[4]))
+                        inv.save()
+
+                    if ele[7] == 'Credit Note':
+                        cn = salescreditnote.objects.get(screditid = ele[8])
+                        if crAmt < float(ele[4]):
+                            cn.grandtotal = float(cn.grandtotal) - abs(crAmt - float(ele[4]))
+                        elif crAmt > float(ele[4]):
+                            cn.grandtotal = float(cn.grandtotal) + abs(crAmt - float(ele[4]))
+                        cn.save()
+                        
+                    if ele[7] == 'Retainer Invoice':
+                        rtInv = RetainerInvoices.objects.get(id = ele[8])
+                        if crAmt < float(ele[4]):
+                            rtInv.total_amount -=  abs(crAmt - float(ele[4]))
+                        elif crAmt > float(ele[4]):
+                            rtInv.total_amount += abs(crAmt - float(ele[4]))
+                        rtInv.save()
+
+                    if ele[7] == 'Reccurring Invoice':
+                        rcInv = recinvoice.objects.get(recinvoiceid = ele[8])
+                        if crAmt < float(ele[4]):
+                            rcInv.grandtotal -=  abs(crAmt - float(ele[4]))
+                        elif crAmt > float(ele[4]):
+                            rcInv.grandtotal += abs(crAmt - float(ele[4]))
+                        rcInv.save()
+
                     created = paymentitems.objects.filter(cid=cmp1,id = ele[6]).update(
                         invno = ele[0],
                         duedate=ele[1],
@@ -30215,7 +30323,9 @@ def edit_payment2(request,id):
                         paymentamount=ele[4],
                         invdate=ele[5],
                         invtype = ele[7],
+                        invid = ele[8],
                     )
+
                 else:
                     new = paymentitems.objects.create(
                         invno = ele[0],
@@ -30225,9 +30335,39 @@ def edit_payment2(request,id):
                         paymentamount=ele[4],
                         invdate=ele[5],
                         invtype = ele[7],
+                        invid = ele[8],
                         cid = cmp1,
                         payment = payment_id,
                     )
+
+                    # added - shemeem == updating opening balance and invoice amounts based on payment received.
+                    amt = 0 if ele[4] =="" else ele[4]
+                    if ele[7] == 'Opening Balance':
+                        cust = customer.objects.get(customerid = ele[8])
+                        cust.opening_balance -= float(amt)
+                        cust.save()
+                    
+                    if ele[7] == 'Invoice':
+                        inv = invoice.objects.get(invoiceid = ele[8])
+                        inv.grandtotal -= float(amt)
+                        inv.save()
+
+                    if ele[7] == 'Credit Note':
+                        cn = salescreditnote.objects.get(screditid = ele[8])
+                        cn.grandtotal = float(cn.grandtotal) - float(amt)
+                        cn.save()
+                        
+                    if ele[7] == 'Retainer Invoice':
+                        rtInv = RetainerInvoices.objects.get(id = ele[8])
+                        rtInv.total_amount -= float(amt)
+                        rtInv.save()
+
+                    if ele[7] == 'Reccurring Invoice':
+                        rcInv = recinvoice.objects.get(recinvoiceid = ele[8])
+                        rcInv.grandtotal -= float(amt)
+                        rcInv.save()
+
+                    #----------------------------
                 # invitems = invoice.objects.get(cid=cmp1,invoiceno=ele[0])
                 
                 # print(invitems)
@@ -30271,6 +30411,34 @@ def delete_payment(request,id):
     cmp1 = company.objects.get(id=request.session['uid'])
     pay = payment.objects.get(paymentid=id,cid = cmp1)
 
+    pyItms = paymentitems.objects.filter(cid=cmp1,payment = pay)
+
+    for item in pyItms:
+        item.paymentamount = 0 if item.paymentamount == "" else item.paymentamount
+        if item.invtype == 'Opening Balance':
+            cust = customer.objects.get(customerid = item.invid)
+            cust.opening_balance += float(item.paymentamount)
+            cust.save()
+        if item.invtype == 'Invoice':
+            inv = invoice.objects.get(invoiceid = item.invid)
+            inv.grandtotal += float(item.paymentamount)
+            inv.save()
+
+        if item.invtype == 'Credit Note':
+            cn = salescreditnote.objects.get(screditid = item.invid)
+            cn.grandtotal = float(cn.grandtotal) + float(item.paymentamount)
+            cn.save()
+            
+        if item.invtype == 'Retainer Invoice':
+            rtInv = RetainerInvoices.objects.get(id = item.invid)
+            rtInv.total_amount += float(item.paymentamount)
+            rtInv.save()
+
+        if item.invtype == 'Reccurring Invoice':
+            rcInv = recinvoice.objects.get(recinvoiceid = item.invid)
+            rcInv.grandtotal += float(item.paymentamount)
+            rcInv.save()
+
     # Storing ref number to deleted table
     # if entry exists and lesser than the current, update and save => Only one entry per company
 
@@ -30285,6 +30453,7 @@ def delete_payment(request,id):
         deleted = DeletedPaymentReceived(cid = cmp1, referno = pay.referno)
         deleted.save()
 
+    paymentitems.objects.filter(cid=cmp1,payment = pay).delete()
     pay.delete()
 
     return redirect('gopayment_received')
@@ -40209,7 +40378,7 @@ def add_cx(request):
 def challancreate(request):
     
         if request.method == 'POST':  
-            cmp1 = company.objects.get(cid=request.session["uid"])
+            cmp1 = company.objects.get(id=request.session["uid"])
             cust=request.POST['email']
             c=customer.objects.get(email=cust)
             print(c)
@@ -40433,8 +40602,8 @@ def challan_convert1(request,id):
     upd.save()
     cst_name = str(upd.customer.customerid)+" "+upd.customer.firstname+" "+upd.customer.lastname
     invo=invoice(invoiceno=upd.id,cid=cmp1,customername=cst_name,email=upd.customer.email,
-                                   invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,
-                                   subtotal=upd.subtotal,IGST=upd.igst,CGST=upd.cgst,SGST=upd.sgst,taxamount=upd.taxamount,shipping_charge=upd.shipping,status='Approved')
+        invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,
+        subtotal=upd.subtotal,IGST=upd.igst,CGST=upd.cgst,SGST=upd.sgst,taxamount=upd.taxamount,shipping_charge=upd.shipping,status='Approved')
 
     invo.save()
     

@@ -1201,6 +1201,7 @@ class paymentitems(models.Model):
     # inv = models.ForeignKey(invoice, on_delete=models.CASCADE,null=True)
     invdate = models.CharField(max_length=100, default='')
     invtype = models.CharField(max_length=100, null=True, blank = True) #added shemeem
+    invid = models.BigIntegerField(null=True, blank = True) #added shemeem
     invno = models.CharField(max_length=100, default='')
     duedate = models.CharField(max_length=100, default='')
     invamount = models.CharField(max_length=100, default='')
