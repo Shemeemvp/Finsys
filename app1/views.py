@@ -10052,33 +10052,37 @@ def getdatainv(request):
         
         invitems = invoice.objects.filter(customername=c_name ,cid =cmp1,status='Approved')
         for i in invitems:
-            dict = {
-                'id':i.invoiceid,'date':i.invoicedate.strftime('%m/%d/%Y'),'inv_type':'Invoice','trans_no':i.invoice_orderno,'inv_amount':round(float(i.grandtotal),2)
-            }
-            paymentList.append(dict)
+            if float(i.balance) > 0:
+                dict = {
+                    'id':i.invoiceid,'date':i.invoicedate.strftime('%m/%d/%Y'),'inv_type':'Invoice','trans_no':i.invoiceno,'inv_amount':round(float(i.balance),2)
+                }
+                paymentList.append(dict)
         
         crdtntitems = salescreditnote.objects.filter(customer=c_name ,cid =cmp1)
         for i in crdtntitems:
-            dict = {
-                # 'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
-                'id':i.screditid,'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':i.credit_no,'inv_amount':i.grandtotal
-            }
-            paymentList.append(dict)
+            if float(i.balance) > 0:
+                dict = {
+                    # 'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':'CN - '+str(i.credit_no),'inv_amount':i.grandtotal
+                    'id':i.screditid,'date':i.creditdate.strftime('%m/%d/%Y'),'inv_type':'Credit Note','trans_no':i.credit_no,'inv_amount':round(float(i.balance),2)
+                }
+                paymentList.append(dict)
 
         retinvitesm = RetainerInvoices.objects.filter(customer=c_name1 ,cid =cmp1, status = 'Sent')
         for i in retinvitesm:
-            dict = {
-                'id':i.id,'date':i.invoice_date.strftime('%m/%d/%Y'),'inv_type':'Retainer Invoice','trans_no':i.invoice_number,'inv_amount':i.total_amount
-            }
-            paymentList.append(dict)
+            if float(i.balance) > 0:
+                dict = {
+                    'id':i.id,'date':i.invoice_date.strftime('%m/%d/%Y'),'inv_type':'Retainer Invoice','trans_no':i.invoice_number,'inv_amount':round(float(i.balance),2)
+                }
+                paymentList.append(dict)
 
 
-        recinvitesm = recinvoice.objects.filter(customername=c_name1 ,cid =cmp1)
+        recinvitesm = recinvoice.objects.filter(customername=c_name ,cid =cmp1)
         for i in recinvitesm:
-            dict = {
-                'id':i.recinvoiceid,'date':i.startdate.strftime('%m/%d/%Y'),'inv_type':'Recurring Invoice','trans_no':i.recinvoiceno,'inv_amount':i.grandtotal
-            }
-            paymentList.append(dict)
+            if float(i.balance) > 0:
+                dict = {
+                    'id':i.recinvoiceid,'date':i.startdate.strftime('%m/%d/%Y'),'inv_type':'Recurring Invoice','trans_no':i.recinvoiceno,'inv_amount':round(float(i.balance),2)
+                }
+                paymentList.append(dict)
 
         # x_data = list(invitems)
         # ct= list(custobject)
@@ -29961,22 +29965,22 @@ def paymentcreate2(request):
                 
                 if ele[6] == 'Invoice':
                     inv = invoice.objects.get(invoiceid = ele[7])
-                    inv.grandtotal -= float(amt)
+                    inv.balance = float(inv.balance) - float(amt)
                     inv.save()
 
                 if ele[6] == 'Credit Note':
                     cn = salescreditnote.objects.get(screditid = ele[7])
-                    cn.grandtotal = float(cn.grandtotal) - float(amt)
+                    cn.balance = float(cn.balance) - float(amt)
                     cn.save()
                     
                 if ele[6] == 'Retainer Invoice':
                     rtInv = RetainerInvoices.objects.get(id = ele[7])
-                    rtInv.total_amount -= float(amt)
+                    rtInv.balance -= float(amt)
                     rtInv.save()
 
-                if ele[6] == 'Reccurring Invoice':
+                if ele[6] == 'Recurring Invoice':
                     rcInv = recinvoice.objects.get(recinvoiceid = ele[7])
-                    rcInv.grandtotal -= float(amt)
+                    rcInv.balance = float(rcInv.balance) - float(amt)
                     rcInv.save()
 
                 #----------------------------
@@ -30247,22 +30251,22 @@ def edit_payment2(request,id):
                             cust.save()
                         if item.invtype == 'Invoice':
                             inv = invoice.objects.get(invoiceid = item.invid)
-                            inv.grandtotal += float(item.paymentamount)
+                            inv.balance = float(inv.balance) + float(item.paymentamount)
                             inv.save()
 
                         if item.invtype == 'Credit Note':
                             cn = salescreditnote.objects.get(screditid = item.invid)
-                            cn.grandtotal = float(cn.grandtotal) + float(item.paymentamount)
+                            cn.balance = float(cn.balance) + float(item.paymentamount)
                             cn.save()
                             
                         if item.invtype == 'Retainer Invoice':
                             rtInv = RetainerInvoices.objects.get(id = item.invid)
-                            rtInv.total_amount += float(item.paymentamount)
+                            rtInv.balance += float(item.paymentamount)
                             rtInv.save()
 
-                        if item.invtype == 'Reccurring Invoice':
+                        if item.invtype == 'Recurring Invoice':
                             rcInv = recinvoice.objects.get(recinvoiceid = item.invid)
-                            rcInv.grandtotal += float(item.paymentamount)
+                            rcInv.balance = float(rcInv.balance) + float(item.paymentamount)
                             rcInv.save()
 
                     paymentitems.objects.filter(cid=cmp1,payment = payment_id).delete()
@@ -30286,33 +30290,33 @@ def edit_payment2(request,id):
                     if ele[7] == 'Invoice':
                         inv = invoice.objects.get(invoiceid = ele[8])
                         if crAmt < float(ele[4]):
-                            inv.grandtotal -=  abs(crAmt - float(ele[4]))
+                            inv.balance = float(inv.balance) - abs(crAmt - float(ele[4]))
                         elif crAmt > float(ele[4]):
-                            inv.grandtotal += abs(crAmt - float(ele[4]))
+                            inv.balance = float(inv.balance) + abs(crAmt - float(ele[4]))
                         inv.save()
 
                     if ele[7] == 'Credit Note':
                         cn = salescreditnote.objects.get(screditid = ele[8])
                         if crAmt < float(ele[4]):
-                            cn.grandtotal = float(cn.grandtotal) - abs(crAmt - float(ele[4]))
+                            cn.balance = float(cn.balance) - abs(crAmt - float(ele[4]))
                         elif crAmt > float(ele[4]):
-                            cn.grandtotal = float(cn.grandtotal) + abs(crAmt - float(ele[4]))
+                            cn.balance = float(cn.balance) + abs(crAmt - float(ele[4]))
                         cn.save()
                         
                     if ele[7] == 'Retainer Invoice':
                         rtInv = RetainerInvoices.objects.get(id = ele[8])
                         if crAmt < float(ele[4]):
-                            rtInv.total_amount -=  abs(crAmt - float(ele[4]))
+                            rtInv.balance -=  abs(crAmt - float(ele[4]))
                         elif crAmt > float(ele[4]):
-                            rtInv.total_amount += abs(crAmt - float(ele[4]))
+                            rtInv.balance += abs(crAmt - float(ele[4]))
                         rtInv.save()
 
-                    if ele[7] == 'Reccurring Invoice':
+                    if ele[7] == 'Recurring Invoice':
                         rcInv = recinvoice.objects.get(recinvoiceid = ele[8])
                         if crAmt < float(ele[4]):
-                            rcInv.grandtotal -=  abs(crAmt - float(ele[4]))
+                            rcInv.balance = float(rcInv.balance) - abs(crAmt - float(ele[4]))
                         elif crAmt > float(ele[4]):
-                            rcInv.grandtotal += abs(crAmt - float(ele[4]))
+                            rcInv.balance = float(rcInv.balance) + abs(crAmt - float(ele[4]))
                         rcInv.save()
 
                     created = paymentitems.objects.filter(cid=cmp1,id = ele[6]).update(
@@ -30349,22 +30353,22 @@ def edit_payment2(request,id):
                     
                     if ele[7] == 'Invoice':
                         inv = invoice.objects.get(invoiceid = ele[8])
-                        inv.grandtotal -= float(amt)
+                        inv.balance = float(inv.balance) - float(amt)
                         inv.save()
 
                     if ele[7] == 'Credit Note':
                         cn = salescreditnote.objects.get(screditid = ele[8])
-                        cn.grandtotal = float(cn.grandtotal) - float(amt)
+                        cn.balance = float(cn.balance) - float(amt)
                         cn.save()
                         
                     if ele[7] == 'Retainer Invoice':
                         rtInv = RetainerInvoices.objects.get(id = ele[8])
-                        rtInv.total_amount -= float(amt)
+                        rtInv.balance -= float(amt)
                         rtInv.save()
 
-                    if ele[7] == 'Reccurring Invoice':
+                    if ele[7] == 'Recurring Invoice':
                         rcInv = recinvoice.objects.get(recinvoiceid = ele[8])
-                        rcInv.grandtotal -= float(amt)
+                        rcInv.balance = float(rcInv.balance) - float(amt)
                         rcInv.save()
 
                     #----------------------------
@@ -30421,22 +30425,22 @@ def delete_payment(request,id):
             cust.save()
         if item.invtype == 'Invoice':
             inv = invoice.objects.get(invoiceid = item.invid)
-            inv.grandtotal += float(item.paymentamount)
+            inv.balance = float(inv.balance) + float(item.paymentamount)
             inv.save()
 
         if item.invtype == 'Credit Note':
             cn = salescreditnote.objects.get(screditid = item.invid)
-            cn.grandtotal = float(cn.grandtotal) + float(item.paymentamount)
+            cn.balance = float(cn.balance) + float(item.paymentamount)
             cn.save()
             
         if item.invtype == 'Retainer Invoice':
             rtInv = RetainerInvoices.objects.get(id = item.invid)
-            rtInv.total_amount += float(item.paymentamount)
+            rtInv.balance += float(item.paymentamount)
             rtInv.save()
 
-        if item.invtype == 'Reccurring Invoice':
+        if item.invtype == 'Recurring Invoice':
             rcInv = recinvoice.objects.get(recinvoiceid = item.invid)
-            rcInv.grandtotal += float(item.paymentamount)
+            rcInv.balance = float(rcInv.balance) + float(item.paymentamount)
             rcInv.save()
 
     # Storing ref number to deleted table
@@ -40602,7 +40606,7 @@ def challan_convert1(request,id):
     upd.save()
     cst_name = str(upd.customer.customerid)+" "+upd.customer.firstname+" "+upd.customer.lastname
     invo=invoice(invoiceno=upd.id,cid=cmp1,customername=cst_name,email=upd.customer.email,
-        invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,
+        invoicedate=upd.challan_date, duedate=upd.challan_date,bname=upd.billto,placosupply=upd.pl,grandtotal=upd.grand,paidoff = 0,balance = upd.grand,
         subtotal=upd.subtotal,IGST=upd.igst,CGST=upd.cgst,SGST=upd.sgst,taxamount=upd.taxamount,shipping_charge=upd.shipping,status='Approved')
 
     invo.save()

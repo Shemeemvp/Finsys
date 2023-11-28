@@ -1795,6 +1795,7 @@ class RetainerInvoices(models.Model):
     reference_number = models.IntegerField(null=True)
     place_of_supply = models.CharField(max_length=100,null=True)
     total_amount = models.FloatField(max_length=100,null=True)
+    balance = models.FloatField(null = True, blank = True) #added shemeem - for payment received module work
     customer_notes = models.CharField(max_length=100,null=True)
     terms_conditions = models.CharField(max_length=100,null=True)
     comments = models.CharField(max_length=100,null=True)
