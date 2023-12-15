@@ -1249,6 +1249,7 @@ class itemtable(models.Model):
     amount = models.IntegerField(default='0',blank=True,null=True)
     stock_rate= models.FloatField(default='0.0',blank=True,null=True)#reshna added
     status = models.CharField(max_length=100,null=True)
+    min_stock=models.CharField(max_length=100,null=True,default='0')
 
 class unittable(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
@@ -1618,10 +1619,14 @@ class purchasedebit(models.Model):
     paid_amount = models.FloatField(blank=True,null=True)
     balance_amount = models.FloatField(blank=True,null=True)
     payment_type = models.CharField(max_length=100,null=True)
+    
+    file = models.FileField(upload_to='sales',default="default.jpg")
     debit_status = (
         ('Draft','Draft'),
         ('Save','Save'),
     )
+    gstnumber=models.CharField(max_length=150 ,default='NULL')
+    gsttype=models.CharField(max_length=150 ,default='NULL')
     status =models.CharField(max_length=150,choices=debit_status ,default='Draft')
 
 class purchasedebit1(models.Model):
@@ -2238,7 +2243,7 @@ class recurring_bill(models.Model):
     cid = models.ForeignKey(company, on_delete=models.CASCADE,null=True)
     rbillid = models.AutoField(('rid'), primary_key=True)
     # bill_no = models.IntegerField(default=1000)
-    billno =  models.CharField(max_length=100,null=True,blank=True,unique=True)
+    billno =  models.CharField(max_length=100,null=True,blank=True)
     refference = models.IntegerField(default=1)
     profile_name =models.CharField(max_length=100,null=True,blank=True,default=0)
     purchase_order = models.CharField(max_length=100,null=True,blank=True,default=0)
@@ -2383,13 +2388,13 @@ class loan_account(models.Model):
     account_number=models.TextField(max_length=100)
     lenderbank=models.TextField(max_length=100)
     recieced_bank=models.TextField(max_length=100)
-    intrest=models.TextField(max_length=100)
+    intrest=models.TextField(max_length=100,null=True,blank=True)
     term=models.TextField(max_length=100)
     loan_amount=models.TextField(max_length=100)
-    processing=models.TextField(max_length=100)
-    paid=models.TextField(max_length=100)
+    processing=models.TextField(max_length=100,null=True,blank=True)
+    paid=models.TextField(max_length=100,null=True,blank=True)
     status=models.TextField(max_length=100)
-    desc=models.TextField(max_length=100)
+    desc=models.TextField(max_length=100,null=True,blank=True)
     cid = models.ForeignKey(company, on_delete=models.CASCADE)
     balance=models.IntegerField(default=0)    
     date=models.DateField(blank=True,null=True)
@@ -2405,7 +2410,7 @@ class loan_transaction(models.Model):
     loan_amount=models.IntegerField(default=0,blank=True,null=True)
     loan_desc=models.TextField(blank=True,null=True)
     loan_date=models.DateField(blank=True,null=True)
-    loan_intrest=models.TextField(max_length=100,default=0)
+    loan_intrest=models.TextField(max_length=100,default=0,blank=True,null=True)
     balance=models.IntegerField(default=0)   
     type=models.TextField(max_length=100)
     total = models.IntegerField(default=0)
@@ -2491,6 +2496,7 @@ class ConvertBill(models.Model):
 class deletedcreditnotes(models.Model):
     cid = models.ForeignKey(company,on_delete=models.CASCADE,null=True)
     reference_number = models.CharField(max_length=50)
+
 
 class DeletedPaymentReceived(models.Model):
     cid = models.ForeignKey(company,on_delete=models.CASCADE,null=True)
